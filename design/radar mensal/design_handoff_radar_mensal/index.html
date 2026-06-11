@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>radar mensal — guideline</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+
+<link rel="stylesheet" href="styles.css"/>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<style>
+  html, body { margin: 0; padding: 0; background: #f0eee9; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="shared.jsx"></script>
+<script type="text/babel" src="foundations.jsx"></script>
+<script type="text/babel" src="direction-a.jsx"></script>
+<script type="text/babel" src="direction-b.jsx"></script>
+<script type="text/babel" src="direction-c.jsx"></script>
+<script type="text/babel" src="logos.jsx"></script>
+
+<script type="text/babel">
+function App() {
+  return (
+    <DesignCanvas>
+      {/* ── 00 · Capa ─────────────────────────────────────────── */}
+      <DCSection id="capa" title="Radar Mensal — Design Guideline" subtitle="Sistema visual + protótipo das telas chave. Duas direções para comparar: Manchete editorial e Caderno de campo.">
+        <DCArtboard id="brand" label="00 · marca, pilares" width={780} height={580}><ArtBrand/></DCArtboard>
+        <DCArtboard id="palette" label="01 · paleta" width={780} height={580}><ArtPalette/></DCArtboard>
+        <DCArtboard id="type" label="02 · tipografia" width={780} height={580}><ArtType/></DCArtboard>
+        <DCArtboard id="voice" label="03 · voz & tom" width={780} height={580}><ArtVoice/></DCArtboard>
+      </DCSection>
+
+      {/* ── 01 · Componentes ──────────────────────────────────── */}
+      <DCSection id="logos" title="Logomarca — 4 opções" subtitle="Comparativo lado-a-lado: radar (atual) vs. três marcas com vibe detetive. Mesmo sistema de cor + tipografia, metáforas diferentes.">
+        <DCArtboard id="logo-options" label="06 · logomarcas" width={1280} height={800}><ArtLogos/></DCArtboard>
+      </DCSection>
+
+      <DCSection id="components" title="Componentes" subtitle="Tags, anatomia do card, blocos compartilhados pelas duas direções.">
+        <DCArtboard id="tags" label="04 · sistema de tags" width={620} height={620}><ArtTags/></DCArtboard>
+        <DCArtboard id="anatomy" label="05 · anatomia do card" width={780} height={620}><ArtAnatomy/></DCArtboard>
+      </DCSection>
+
+      {/* ── 02 · Direção A — Dispatch ─────────────────────────── */}
+      <DCSection id="direction-a" title="Direção A · Dispatch (manchete editorial)" subtitle="O app como jornal mensal. Manchete grande, fontes serifadas, paleta papel + tinta vermelha, layout em colunas. Swipe horizontal · arrasta o card central.">
+        <DCArtboard id="a-feed" label="A1 · radar (swipe ← →)" width={1280} height={800}><ArtAFeed/></DCArtboard>
+        <DCArtboard id="a-detail" label="A2 · dossiê de uma ideia" width={1280} height={800}><ArtADetail/></DCArtboard>
+        <DCArtboard id="a-kanban" label="A3 · pipeline" width={1280} height={800}><ArtAKanban/></DCArtboard>
+        <DCArtboard id="a-dashboard" label="A4 · painel mensal" width={1280} height={800}><ArtADashboard/></DCArtboard>
+        <DCArtboard id="a-mobile" label="A5 · mobile" width={380} height={780}><ArtAMobile/></DCArtboard>
+      </DCSection>
+
+      {/* ── 03 · Direção B — Dossiê ───────────────────────────── */}
+      <DCSection id="direction-b" title="Direção B · Dossiê (caderno de campo)" subtitle="O app como caderno de campo do investigador. Index cards, carimbos, grid pontilhado, tabbar tinta. Swipe vertical · arrasta pra cima pra guardar, pra baixo pra passar. Lado direito: radar animado ao vivo.">
+        <DCArtboard id="b-feed" label="B1 · caderno (swipe ↑ ↓)" width={1280} height={800}><ArtBFeed/></DCArtboard>
+        <DCArtboard id="b-detail" label="B2 · dossiê (pasta)" width={1280} height={800}><ArtBDetail/></DCArtboard>
+        <DCArtboard id="b-kanban" label="B3 · mesa de trabalho" width={1280} height={800}><ArtBKanban/></DCArtboard>
+        <DCArtboard id="b-dashboard" label="B4 · gabinete" width={1280} height={800}><ArtBDashboard/></DCArtboard>
+        <DCArtboard id="b-mobile" label="B5 · caderno de bolso" width={380} height={780}><ArtBMobile/></DCArtboard>
+        <DCArtboard id="b-onboarding" label="B6 · onboarding · fontes" width={1280} height={800}><ArtBOnboarding/></DCArtboard>
+      </DCSection>
+
+      {/* ── 04 · Direção C — Mashup ───────────────── */}
+      <DCSection id="direction-c" title="Direção C · Mashup (manchete + caderno)" subtitle="As melhores partes das duas. Masthead editorial de A no topo; index card com réguas + grid pontilhado + radar live de B no corpo. Swipe horizontal (Tinder clássico). Tipografia: serifa display nas manchetes, mono pra dados, sans pra UI.">
+        <DCArtboard id="c-feed" label="C1 · radar (swipe ← →)" width={1280} height={800}><ArtCFeed/></DCArtboard>
+        <DCArtboard id="c-detail" label="C2 · dossiê" width={1280} height={800}><ArtCDetail/></DCArtboard>
+        <DCArtboard id="c-kanban" label="C3 · mesa de trabalho" width={1280} height={800}><ArtCKanban/></DCArtboard>
+        <DCArtboard id="c-dashboard" label="C4 · gabinete (heatmap + setores)" width={1280} height={800}><ArtCDashboard/></DCArtboard>
+        <DCArtboard id="c-mobile" label="C5 · mobile" width={380} height={780}><ArtCMobile/></DCArtboard>
+      </DCSection>
+
+      <DCPostIt top={120} right={60} rotate={3} width={210}>
+        Painel vertical / horizontal: aperta <b>Esc</b> pra sair do focus. Setas ←/→ pra navegar dentro de uma seção.
+      </DCPostIt>
+    </DesignCanvas>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
