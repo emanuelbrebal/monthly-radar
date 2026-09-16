@@ -22,8 +22,8 @@ class UserSeeder extends Seeder
         $email = env('RADAR_USER_EMAIL');
         $password = env('RADAR_USER_PASSWORD');
 
-        if (! $email || ! $password) {
-            $this->command?->warn('RADAR_USER_EMAIL / RADAR_USER_PASSWORD não configurados no .env — UserSeeder pulado.');
+        if (! is_string($email) || $email === '' || ! is_string($password) || $password === '') {
+            $this->command->warn('RADAR_USER_EMAIL / RADAR_USER_PASSWORD não configurados no .env — UserSeeder pulado.');
 
             return;
         }
