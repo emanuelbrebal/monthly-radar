@@ -2,6 +2,17 @@
 
 Uma "tarde" = uma sessão de Claude Code. Cada tarde termina com testes verdes e commit.
 
+## Status (16/09/2026)
+
+T0 e T1 concluídas e commitadas. T2 concluída e commitada nesta sessão — ver detalhes abaixo. **Próximo passo: T3 (Enriquecimento e orquestração).**
+
+Pendências deixadas para trás, a revisitar quando fizer sentido:
+- `migrate:fresh --seed` nunca foi validado contra Postgres real (só via SQLite/Pest) — falta senha do Postgres local no `.env`.
+- Fonte `provas_de_ti` verificada e desativada: `provasdeti.com.br/concursosdeti/abertos` é uma SPA React sem HTML no servidor, sem headless browser não dá pra raspar. Fica registrada desabilitada em `config/radar.php`; `pci_concursos` e `official_pages` (T6) são as fontes que efetivamente vão popular o scraping.
+- Testes de scraping usam `raw_listings` sintéticos (não fixtures de HTML real), porque ainda não existe adapter funcional pra gerar fixture.
+- `memory/` e `scripts/send-email.ps1`/`SETUP-EMAIL.md` na raiz do repo parecem artefatos do produto antigo "Radar Hub" (pivotado) — não tocados, vale limpeza futura.
+- Diffs soltos em `eslint.config.js` e `resources/js/pages/radar/index.tsx` (de sessão anterior de frontend) — não tocados.
+
 ## T0 — Limpeza do pivot
 
 Estado atual do repo (15/09): starter kit Laravel 13 + Inertia 3 + React 19 + Fortify, sem código de domínio, com docs e prompts do Radar de ideias.
