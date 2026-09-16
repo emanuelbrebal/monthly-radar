@@ -1,45 +1,51 @@
-# CLAUDE.md — radar-hub
+# CLAUDE.md — monthly-radar
 
 Contexto para o Claude Code ao trabalhar neste repositório.
 
 ## O que é este projeto
 
-Radar Hub: SaaS pessoal que descobre, pontua e gerencia ideias de SaaS/AI. Monolito Laravel 12 + Inertia + React/TS + PostgreSQL. Pipeline de agentes LLM via API (não via Claude Code) orquestrado por Jobs + Scheduler. Documento de referência: `docs/00-mvp-spec.md` — **leia antes de qualquer tarefa**.
+Radar Mensal · Concursos: app pessoal (só o Emanuel, sem multiusuário, sem SaaS) que varre a web por concursos públicos de TI no Brasil, organiza cada um como dossiê, mostra tudo num calendário e numa "maleta" (estilo inventário de Resident Evil) de 12 slots para os que importam. Monolito Laravel 13 + Inertia 3 + React 19/TS + Tailwind 4 + PostgreSQL. Documento de referência: `docs/00-spec.md` — **leia antes de qualquer tarefa**, junto com `docs/01-modelo-de-dados.md` (dados) e `docs/02-pipeline.md` (varredura/enriquecimento). Plano de execução por sessão ("tardes" T0–T6) em `docs/04-plano-execucao.md`.
 
-**Repo:** `C:\Users\manub\OneDrive\Área de Trabalho\pasta dev\ideias SAAS\radar mensal` → GitHub: `https://github.com/emanuelbrebal/monthly-radar`
+> Pivot de 15/09/2026: este repo era "Radar Hub" (curador de ideias SaaS via pipeline de agentes LLM). Esse produto foi descontinuado; não recrie nada dele.
+
+**Repo:** `C:\Users\manub\projects\monthly-radar` → GitHub: `https://github.com/emanuelbrebal/monthly-radar`
 
 ## Regras invioláveis
 
-1. **Escopo é lei.** Implemente apenas o que está no MVP da spec. Se uma tarefa tocar item do "Backlog v2", pare e pergunte.
-2. **Hub opera sem LLM.** Nenhuma feature de UI/gestão pode depender de chamada de LLM para funcionar. Falha de API degrada graciosamente (ideia fica `parse_failed`, pipeline segue).
-3. **LLM só via `LlmProvider`.** Nunca chamar SDK/HTTP de provider diretamente em Job ou Controller. Config por agente em `config/radar.php`.
-4. **Output de agente é JSON validado.** Todo prompt de agente exige resposta JSON pura (sem markdown fence). Validar contra o schema definido em `docs/agents/{agente}.md`. Retry 1x; segunda falha → `parse_failed`.
-5. **Zero LLM para o mecânico.** Dedup, state machine, templates, firmeza-descarte automático: código PHP puro, com testes.
-6. **System prompts dos agentes** vivem em `resources/prompts/{agente}.md` e são carregados pelos Jobs — nunca hardcoded em string PHP. Fonte canônica: `docs/agents/`.
-7. **Idioma:** código, commits e README em **inglês**; conteúdo gerado pelos agentes (ideias, análises) em **português**.
-8. **Custo:** logar `input_tokens`/`output_tokens` de toda chamada em `pipeline_runs.meta`. Scout e Synthesis usam modo batch quando disponível no provider.
+1. **Escopo é lei.** Implemente só o que está na tarda (T0–T6) sendo executada em `docs/04-plano-execucao.md`. Se uma tarefa tocar item do "Backlog v2" (varredura agendada, notificações, .ics, itens de tamanhos diferentes na maleta, anotações livres, headless browser, leitura de PDF, mobile), pare e pergunte.
+2. **A varredura é a única operação.** Sem cron de busca, sem e-mail, sem multiusuário, sem cadastro público. Login vem de seeder (`UserSeeder`), Fortify com `Features::registration()` desligado.
+3. **App funciona sem LLM.** Sem `ANTHROPIC_API_KEY`, a varredura ainda faz scraping e popula a tela — o enriquecimento fica `enrichment_status=skipped`. Nenhuma tela pode quebrar por causa disso.
+4. **LLM só via `LlmProvider`.** Nunca chamar SDK/HTTP de provider diretamente em Job ou Controller. Config em `config/radar.php → llm`.
+5. **Zero LLM para o mecânico.** Dedup (`ContestNormalizer`), status efetivo (`ContestStatusResolver`), regra das 24h, pin (`PinService`), merge de campos (`ContestMerger`): tudo PHP puro, com testes Pest.
+6. **Output do agente de enriquecimento é JSON validado** contra o schema de `docs/agents/dossie.md` (quando esse doc existir — T3). Retry 1x; segunda falha → `enrichment_status=failed`.
+7. **Prioridade de fonte em qualquer merge de campo:** oficial (edital/banca/DOU/.gov.br) > agregador > seed sem URL oficial > llm sem fonte oficial. Toda escrita atualiza `field_sources[campo]`.
+8. **Custo:** logar `input_tokens`/`output_tokens`/nº de buscas de toda chamada LLM em `search_runs.meta`.
+9. **Idioma:** código, commits e nomes de branch em **inglês**; conteúdo semeado/raspado/gerado (dossiês, resumos) em **português**.
 
 ## Convenções
 
-- Services em `app/Services/Radar/` (DedupService, PipelineOrchestrator, LlmProvider e implementações em `Llm/`).
-- Jobs em `app/Jobs/Radar/`, encadeados com `Bus::chain`. Jobs idempotentes (re-dispatch não duplica ideias — garantido pelo `content_hash` unique).
-- Front: páginas Inertia em `resources/js/Pages/`, componentes em `resources/js/Components/`. Tailwind. Sem lib de UI pesada no MVP.
-- Testes: Pest. Mínimo obrigatório: DedupService, parsing/validação de JSON dos agentes (com fixtures), PipelineOrchestrator (regras de decisão), score do Curator.
-- Migrations seguem o modelo de dados da spec — não inventar colunas.
+- Services em `app/Services/Radar/` (`ContestStatusResolver`, `PinService`, `ContestMerger`, `ContestNormalizer`, `LlmProvider` e implementações em `Llm/`).
+- Actions em `app/Actions/Radar/` (ex. `UnpinExpiredContests`) quando a operação é um passo único e idempotente, sem estado próprio.
+- Jobs (a partir da T3) em `app/Jobs/Radar/`, encadeados com `Bus::chain`. Idempotentes — `content_hash` único em `raw_listings` evita reprocesso.
+- Enums em `app/Enums/` (backed string): `TiArea`, `EditalStatus`, `EnrollmentStatus`, `Regime`, `EventType`, `EnrichmentStatus`, `Confidence`, `RunStatus`, e (a partir da T2) `BrazilianState`/`Region`.
+- Front: páginas Inertia em `resources/js/pages/`, componentes em `resources/js/components/`. Tailwind 4. Tokens visuais só do handoff em `design/radar mensal/` — sem cara de shadcn padrão, `radius: 0`.
+- Testes: Pest, em `tests/Unit` e `tests/Feature`. Mínimo obrigatório da camada de domínio: `ContestStatusResolver` (tabela de casos), `isExpired`/regra das 24h, paridade `isExpired()+isDismissed()` vs `scopeVisible()`, descarte, `pinned_slot` único.
+- Migrations seguem exatamente o modelo de dados de `docs/01-modelo-de-dados.md` — não inventar coluna. Colunas de filtro por estado (`states`, `nationwide`, `users.preferences`) só entram na T2 (`docs/06-filtro-estados.md`).
 
 ## Comandos úteis
 
 ```bash
-php artisan radar:harvest {show-hn|github-trending|product-hunt}
-php artisan radar:tick          # roda o orchestrator manualmente
-php artisan radar:weekly --force
-php artisan radar:deep-dive {slug} --force   # ignora cache
+php artisan test                              # Pest
+php artisan migrate:fresh --seed              # sobe schema + 12 concursos de database/seeders/data/contests-seed.json
+php artisan radar:sweep {area} {--no-llm}      # varredura síncrona (a partir da T3)
+php artisan radar:source {key} {--dry}         # testa um adapter sem gravar (a partir da T2)
 ```
 
 ## O que NÃO fazer
 
-- Não adicionar fontes de harvest além das 3 do MVP.
-- Não implementar council-of-five, track regional ou 5 lentes do tropicalizer.
-- Não trocar a stack do front (sem Next, sem tRPC, sem Filament no MVP).
-- Não usar WebSearch/tools de busca nos agentes do MVP.
+- Não implementar scraping headless, agendamento, notificações ou export `.ics` — Backlog v2.
+- Não trocar a stack (sem Next, sem tRPC, sem Filament).
+- Não reabrir cadastro público (`Features::registration()`).
+- Não adicionar fonte de scraping além das 3 do MVP (`provas_de_ti`, `pci_concursos`, `official_pages`).
+- Não implementar o filtro de estados (`BrazilianState`/`Region`/`states`/`nationwide`) fora da T2.
 - Não escrever prompt de agente novo sem registrar em `docs/agents/`.

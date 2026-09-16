@@ -1,0 +1,120 @@
+# Modelo de dados
+
+Postgres. Datas de edital em `date` (local `America/Maceio`), marcos de sistema em `timestamptz`. Dinheiro em centavos (`integer`).
+
+## Enums (`app/Enums/`, backed string)
+
+- `TiArea`: `development`, `data`, `infrastructure`, `security`, `support`, `it_governance`, `all`
+- `EditalStatus`: ver `docs/00-spec.md` (tem método `isClosedOrLater(): bool` e `label(): string`)
+- `EnrollmentStatus`: `not_enrolled`, `interested`, `enrolled`, `fee_paid`, `venue_released`, `exam_taken`, `dismissed`. Métodos: `countsAsEnrolled(): bool` → true de `enrolled` a `exam_taken`; `order(): ?int` → `null` para `dismissed`; `isStep(): bool` → false para `dismissed`.
+- `Regime`: `clt`, `statutory`, `temporary`, `unknown`
+- `EventType`: `registration_start`, `registration_end`, `fee_deadline`, `exam`, `result`, `other`
+- `EnrichmentStatus`: `pending`, `skipped`, `done`, `failed`
+- `Confidence`: `high`, `medium`, `low`
+- `RunStatus`: `queued`, `scraping`, `enriching`, `done`, `failed`
+- `BrazilianState` (27 siglas, com `region()`) e `Region` — ver `docs/06-filtro-estados.md`
+
+## Tabelas
+
+### `contests`
+
+| coluna | tipo | nota |
+|---|---|---|
+| id | bigint pk | |
+| slug | string unique | `Str::slug("{organ_acronym}-{year}")`, ex. `dataprev-2026` |
+| organ | string | nome do órgão |
+| organ_acronym | string null | |
+| year | smallint | |
+| title | string | ex. "Dataprev 2026 — Analista de TI" |
+| board | string null | banca |
+| areas | jsonb | array de `TiArea` em que o concurso casou |
+| status | string (EditalStatus) | último status **raspado/enriquecido** |
+| status_changed_at | timestamptz | |
+| closed_at | timestamptz null | primeiro momento em que o status efetivo virou encerrado ou posterior |
+| registration_start | date null | |
+| registration_end | date null | |
+| exam_date | date null | |
+| fee_cents | int null | |
+| salary_min_cents / salary_max_cents | int null | só cargos de TI |
+| it_vacancies | int null | null = desconhecido; 0 = só cadastro reserva |
+| regime | string (Regime) | |
+| locations | jsonb | array de strings ("Natal/RN"), só exibição |
+| states | jsonb default `[]` | siglas de UF normalizadas — ver `docs/06-filtro-estados.md` |
+| nationwide | boolean default false | abrangência nacional |
+| edital_url | text null | preferir PDF oficial |
+| registration_url | text null | |
+| dossier | jsonb null | saída validada do agente (schema em `docs/agents/dossie.md`) |
+| field_sources | jsonb | `{campo: {url, fetched_at, origin: scrape\|llm\|seed, confidence}}` |
+| enrichment_status | string | |
+| enrollment_status | string | default `not_enrolled` |
+| dismissed_at | timestamptz null | preenchido ao descartar, limpo ao trazer de volta |
+| dismissed_reason | string(120) null | |
+| pinned_slot | smallint null | 0–11; **unique index parcial** `where pinned_slot is not null` |
+| last_seen_at | timestamptz | última varredura que encontrou o concurso |
+| last_enriched_at | timestamptz null | |
+| timestamps | | |
+
+Índices: `status`, `registration_end`, `exam_date`, GIN em `areas` e em `states`.
+
+### `users` (coluna nova)
+
+`preferences jsonb default '{}'` → `{states: string[]}` (siglas + `"NACIONAL"`).
+
+### `contest_events`
+
+`id, contest_id fk cascade, type (EventType), date (date), label (string null), source (scrape|llm), timestamps`. Unique `(contest_id, type, date)`.
+Recriados a cada merge a partir das colunas de data + `dossier.datas` extras. É o que o calendário lê.
+
+### `contest_status_logs`
+
+`id, contest_id fk, from (string null), to (string), origin (scrape|llm|resolver|seed), note (string null), created_at`.
+Uma linha por mudança de status efetivo. Alimenta o "histórico" do modal.
+
+### `raw_listings`
+
+`id, source (string), external_url (text), title (string), payload (jsonb), content_hash (char(64) unique), contest_id (fk null), fetched_at`.
+Cache e trilha do scraping. Mesmo hash = não reprocessa.
+
+### `search_runs`
+
+`id, area (TiArea), status (RunStatus), started_at, finished_at, counts (jsonb: {scraped, matched, created, updated, enriched, failed}), meta (jsonb: {input_tokens, output_tokens, web_searches, errors: []}), timestamps`.
+Só uma run `queued|scraping|enriching` por vez → o botão fica desabilitado.
+
+## Regras no model `Contest`
+
+```php
+// status efetivo — delega a ContestStatusResolver (puro, testado)
+public function effectiveStatus(?CarbonImmutable $now = null): EditalStatus
+
+// momento de encerramento efetivo:
+// closed_at ?? (registration_end ? registration_end->endOfDay() (America/Maceio) : null)
+public function effectiveClosedAt(): ?CarbonImmutable
+
+// some da listagem?
+// effectiveStatus()->isClosedOrLater()
+//   && ! enrollment_status->countsAsEnrolled()
+//   && effectiveClosedAt() <= now()->subDay()
+public function isExpired(?CarbonImmutable $now = null): bool
+
+// descartado? enrollment_status === dismissed
+public function isDismissed(): bool
+
+// escopo SQL equivalente a ! isExpired() && ! isDismissed() — precisa bater com o método PHP (teste de paridade)
+public function scopeVisible(Builder $q): Builder
+
+// só os descartados (para o toggle da caixa de itens); ignora a regra das 24h
+public function scopeDismissed(Builder $q): Builder
+```
+
+Observações:
+- `scopeVisible` usa `coalesce(closed_at, (registration_end + interval '1 day') at time zone 'America/Maceio')` para o encerramento efetivo. Status "fechado ou posterior" no SQL = `status in (...) OR registration_end < current_date local`.
+- Desafixar expirados: `UnpinExpiredContests` action roda no início de cada request da tela principal (barato, 1 update) e no fim de cada varredura. Sem scheduler. `[inferido]`
+- Setar `closed_at`: o `ContestMerger` preenche na primeira vez que o status efetivo passa a fechado; nunca sobrescreve depois, a não ser que reabra (aí volta para null).
+
+## Testes obrigatórios desta camada
+
+- `ContestStatusResolver`: tabela de casos (status raspado × datas × hoje).
+- `isExpired`: fechado há 23h59 (visível), 24h01 (some), inscrito (nunca some), reaberto (volta).
+- Paridade `isExpired()`/`isDismissed()` × `scopeVisible()` sobre o mesmo dataset.
+- Descartar: some do visible na hora, libera o slot, limpa ao trazer de volta; `PinService` recusa concurso descartado.
+- `pinned_slot` único; fixar com maleta cheia falha com exceção de domínio.

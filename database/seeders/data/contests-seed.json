@@ -1,0 +1,593 @@
+{
+  "_meta": {
+    "collected_between": "2026-07-20/2026-09-15",
+    "origin": "seed",
+    "note": "Dados levantados em conversas de pesquisa no Claude. Verificar com a primeira varredura da área 'all'. Valores em centavos, datas em AAAA-MM-DD (America/Maceio). states/nationwide: só UFs citadas nas pesquisas; vazio = local a definir."
+  },
+  "contests": [
+    {
+      "slug": "dataprev-2026",
+      "organ": "Empresa de Tecnologia e Informações da Previdência",
+      "organ_acronym": "DATAPREV",
+      "year": 2026,
+      "title": "Dataprev 2026 — Analista de TI, Perfil 3: Desenvolvimento de Software",
+      "board": "FGV",
+      "areas": [
+        "development"
+      ],
+      "status": "registration_closed",
+      "registration_start": null,
+      "registration_end": "2026-08-06",
+      "exam_date": "2026-10-11",
+      "fee_cents": null,
+      "salary_min_cents": 1068544,
+      "salary_max_cents": null,
+      "it_vacancies": 80,
+      "regime": "clt",
+      "locations": [
+        "Natal/RN",
+        "Fortaleza/CE",
+        "João Pessoa/PB",
+        "Florianópolis/SC"
+      ],
+      "states": [
+        "RN",
+        "CE",
+        "PB",
+        "SC"
+      ],
+      "nationwide": false,
+      "edital_url": "https://conhecimento.fgv.br/sites/default/files/concursos/edital-dataprev_supe-versao-final.pdf",
+      "registration_url": null,
+      "enrollment_status": "fee_paid",
+      "dismissed_reason": null,
+      "pinned_slot": 0,
+      "confidence": "high",
+      "source_url": "https://conhecimento.fgv.br/sites/default/files/concursos/edital-dataprev_supe-versao-final.pdf",
+      "summary": [
+        "Inscrito e homologado, cidade de prova Natal/RN.",
+        "Prova objetiva em 11/10/2026, etapa única, 70 questões.",
+        "Único cargo de desenvolvimento de software puro entre os certames mapeados.",
+        "Natal tem a menor concorrência do Perfil 3: 2.189 candidatos."
+      ],
+      "divergences": [
+        {
+          "field": "it_vacancies",
+          "side_a": "80 imediatas (20 por localidade) + 365 CR, segundo a ficha do edital",
+          "side_b": "100 vagas em Natal, segundo a análise de concorrência",
+          "likely_reason": "uma das contas pode somar cadastro reserva",
+          "confidence": "medium"
+        }
+      ],
+      "gaps": [
+        "Convocação antes da formatura (2027.1) pode impedir a contratação; sem cláusula de reposicionamento encontrada no edital."
+      ],
+      "extra_events": []
+    },
+    {
+      "slug": "transpetro-2026",
+      "organ": "Petrobras Transporte S.A.",
+      "organ_acronym": "TRANSPETRO",
+      "year": 2026,
+      "title": "Transpetro 2026 (Edital 04) — Análise de Sistemas, Ênfase 5: Processos de Negócios",
+      "board": "Cesgranrio",
+      "areas": [
+        "development",
+        "it_governance"
+      ],
+      "status": "registration_open",
+      "registration_start": null,
+      "registration_end": "2026-09-21",
+      "exam_date": "2026-12-06",
+      "fee_cents": 11700,
+      "salary_min_cents": 1497362,
+      "salary_max_cents": null,
+      "it_vacancies": null,
+      "regime": "clt",
+      "locations": [
+        "Rio de Janeiro/RJ"
+      ],
+      "states": [
+        "RJ"
+      ],
+      "nationwide": false,
+      "edital_url": null,
+      "registration_url": null,
+      "enrollment_status": "interested",
+      "dismissed_reason": null,
+      "pinned_slot": 1,
+      "confidence": "medium",
+      "source_url": "https://blog.grancursosonline.com.br/concurso-transpetro-cronograma-atualizado/",
+      "summary": [
+        "Retificação: inscrições prorrogadas até 21/09/2026 às 23h59 e prova adiada de 29/11 para 06/12/2026.",
+        "Maior remuneração entre os certames abertos de TI mapeados.",
+        "Vagas de TI só no polo Rio de Janeiro; cidade de prova escolhida: Maceió.",
+        "Diploma exigido só na admissão; isenção de taxa não foi reaberta."
+      ],
+      "divergences": [
+        {
+          "field": "calendar",
+          "side_a": "cronograma completo com notas em 14/01/2027",
+          "side_b": "Edital 04 não tem exame de aptidão física",
+          "likely_reason": "cronograma circulando é do Quadro de Mar, não do Edital 04",
+          "confidence": "medium"
+        }
+      ],
+      "gaps": [
+        "URL do edital 04 e da página de inscrição não registradas.",
+        "Número de vagas da Ênfase 5 não registrado."
+      ],
+      "extra_events": [
+        {
+          "type": "other",
+          "date": "2026-12-01",
+          "label": "cartão de confirmação"
+        },
+        {
+          "type": "result",
+          "date": "2026-12-07",
+          "label": "gabaritos preliminares"
+        }
+      ]
+    },
+    {
+      "slug": "sema-mt-2026",
+      "organ": "Secretaria de Estado de Meio Ambiente de Mato Grosso",
+      "organ_acronym": "SEMA-MT",
+      "year": 2026,
+      "title": "SEMA-MT 2026 — Analista em Tecnologia da Informação",
+      "board": "Cesgranrio",
+      "areas": [
+        "development",
+        "infrastructure"
+      ],
+      "status": "published",
+      "registration_start": "2026-09-17",
+      "registration_end": "2026-10-14",
+      "exam_date": "2026-12-13",
+      "fee_cents": 15000,
+      "salary_min_cents": 826916,
+      "salary_max_cents": null,
+      "it_vacancies": 0,
+      "regime": "statutory",
+      "locations": [
+        "Cuiabá/MT",
+        "interior de MT (9 unidades)"
+      ],
+      "states": [
+        "MT"
+      ],
+      "nationwide": false,
+      "edital_url": null,
+      "registration_url": null,
+      "enrollment_status": "interested",
+      "dismissed_reason": null,
+      "pinned_slot": 2,
+      "confidence": "medium",
+      "source_url": "https://folha.qconcursos.com/n/concurso-sema-mt-2026-edital-publicado",
+      "summary": [
+        "Inscrições de 17/09 (10h) a 14/10/2026 (16h).",
+        "Só cadastro de reserva, sem vaga imediata.",
+        "Mesma banca da Transpetro, prova uma semana depois: o estudo se aproveita."
+      ],
+      "divergences": [],
+      "gaps": [
+        "URL do edital oficial não registrada."
+      ],
+      "extra_events": []
+    },
+    {
+      "slug": "seplag-rj-2026",
+      "organ": "Secretaria de Estado de Planejamento e Gestão do Rio de Janeiro",
+      "organ_acronym": "SEPLAG-RJ",
+      "year": 2026,
+      "title": "SEPLAG-RJ 2026 — Analista de Planejamento e Orçamento, Tecnologia da Informação",
+      "board": "FGV",
+      "areas": [
+        "development",
+        "it_governance"
+      ],
+      "status": "registration_open",
+      "registration_start": "2026-09-10",
+      "registration_end": "2026-10-08",
+      "exam_date": "2026-11-29",
+      "fee_cents": 12500,
+      "salary_min_cents": 757250,
+      "salary_max_cents": 1438775,
+      "it_vacancies": 5,
+      "regime": "statutory",
+      "locations": [
+        "Rio de Janeiro/RJ"
+      ],
+      "states": [
+        "RJ"
+      ],
+      "nationwide": false,
+      "edital_url": null,
+      "registration_url": "https://conhecimento.fgv.br/concursos/seplagrj",
+      "enrollment_status": "dismissed",
+      "dismissed_reason": "prova no mesmo dia do ENADE (29/11)",
+      "pinned_slot": null,
+      "confidence": "high",
+      "source_url": "https://conhecimento.fgv.br/concursos/seplagrj",
+      "summary": [
+        "Prova em 29/11/2026, mesmo dia do ENADE: descartado por conflito.",
+        "40 das 70 questões específicas são Direito Público, Estado e AFO, mais discursiva de TIC.",
+        "Salário máximo inclui gratificação e adicional de doutorado."
+      ],
+      "divergences": [],
+      "gaps": [],
+      "extra_events": []
+    },
+    {
+      "slug": "manausprev-2026",
+      "organ": "Manaus Previdência",
+      "organ_acronym": "MANAUSPREV",
+      "year": 2026,
+      "title": "ManausPrev 2026 — Analista Previdenciário, Tecnologia da Informação",
+      "board": "FCC",
+      "areas": [
+        "development",
+        "infrastructure"
+      ],
+      "status": "registration_open",
+      "registration_start": null,
+      "registration_end": "2026-09-29",
+      "exam_date": "2026-12-06",
+      "fee_cents": 13500,
+      "salary_min_cents": 917525,
+      "salary_max_cents": null,
+      "it_vacancies": 2,
+      "regime": "statutory",
+      "locations": [
+        "Manaus/AM"
+      ],
+      "states": [
+        "AM"
+      ],
+      "nationwide": false,
+      "edital_url": null,
+      "registration_url": null,
+      "enrollment_status": "dismissed",
+      "dismissed_reason": "prova no mesmo dia da Transpetro (06/12)",
+      "pinned_slot": null,
+      "confidence": "medium",
+      "source_url": "https://www.direcaoconcursos.com.br/noticias/concurso-manausprev-inscricoes-abertas",
+      "summary": [
+        "Prova em 06/12/2026, mesmo dia da Transpetro: descartado por conflito.",
+        "Duas vagas + cadastro reserva, etapa única sem discursiva."
+      ],
+      "divergences": [],
+      "gaps": [
+        "URL do edital oficial não registrada."
+      ],
+      "extra_events": [
+        {
+          "type": "fee_deadline",
+          "date": "2026-09-30",
+          "label": "pagamento da taxa"
+        }
+      ]
+    },
+    {
+      "slug": "anpd-2026",
+      "organ": "Agência Nacional de Proteção de Dados",
+      "organ_acronym": "ANPD",
+      "year": 2026,
+      "title": "ANPD — Especialista em Regulação de Proteção de Dados (área de TI prevista)",
+      "board": null,
+      "areas": [
+        "development",
+        "data",
+        "security",
+        "it_governance"
+      ],
+      "status": "authorized",
+      "registration_start": null,
+      "registration_end": null,
+      "exam_date": null,
+      "fee_cents": null,
+      "salary_min_cents": 1772642,
+      "salary_max_cents": 2911971,
+      "it_vacancies": null,
+      "regime": "statutory",
+      "locations": [
+        "Brasília/DF"
+      ],
+      "states": [
+        "DF"
+      ],
+      "nationwide": false,
+      "edital_url": null,
+      "registration_url": null,
+      "enrollment_status": "interested",
+      "dismissed_reason": null,
+      "pinned_slot": 3,
+      "confidence": "medium",
+      "source_url": null,
+      "summary": [
+        "Primeiro concurso da agência, autorizado pela Portaria MGI nº 5.092: 50 vagas de nível superior.",
+        "Edital esperado até dezembro de 2026 ou 03/01/2027; provas no mínimo 2 meses depois.",
+        "TI está entre as áreas previstas, junto com Direito, Economia e Ciência de Dados.",
+        "Lei 15.352/2026 criou 200 cargos; os outros 150 podem ser autorizados na validade."
+      ],
+      "divergences": [],
+      "gaps": [
+        "Banca não definida.",
+        "Quantas das 50 vagas serão de TI.",
+        "URL da portaria não registrada."
+      ],
+      "extra_events": []
+    },
+    {
+      "slug": "cgu-2026",
+      "organ": "Controladoria-Geral da União",
+      "organ_acronym": "CGU",
+      "year": 2026,
+      "title": "CGU — Auditor Federal de Finanças e Controle (especialidade TI)",
+      "board": null,
+      "areas": [
+        "development",
+        "data",
+        "it_governance"
+      ],
+      "status": "authorized",
+      "registration_start": null,
+      "registration_end": null,
+      "exam_date": null,
+      "fee_cents": null,
+      "salary_min_cents": 2000000,
+      "salary_max_cents": 3669400,
+      "it_vacancies": null,
+      "regime": "statutory",
+      "locations": [
+        "Brasília/DF"
+      ],
+      "states": [
+        "DF"
+      ],
+      "nationwide": false,
+      "edital_url": null,
+      "registration_url": null,
+      "enrollment_status": "interested",
+      "dismissed_reason": null,
+      "pinned_slot": 4,
+      "confidence": "medium",
+      "source_url": null,
+      "summary": [
+        "Autorizado em 24/06/2026 com 60 vagas; edital esperado até dezembro de 2026.",
+        "No edital de 2021 (FGV), 80 das 375 vagas eram de TI, todas no DF.",
+        "Salário inicial acima de R$ 20 mil (valor aproximado)."
+      ],
+      "divergences": [
+        {
+          "field": "it_vacancies",
+          "side_a": "500 vagas pedidas (jul/2026)",
+          "side_b": "60 vagas autorizadas (jun/2026)",
+          "likely_reason": "pedido × autorização",
+          "confidence": "medium"
+        }
+      ],
+      "gaps": [
+        "Banca não definida.",
+        "Divisão de vagas de TI no novo edital."
+      ],
+      "extra_events": []
+    },
+    {
+      "slug": "petrobras-2026",
+      "organ": "Petróleo Brasileiro S.A.",
+      "organ_acronym": "PETROBRAS",
+      "year": 2026,
+      "title": "Petrobras — Analista de Sistemas, Engenharia de Software",
+      "board": "Cesgranrio",
+      "areas": [
+        "development"
+      ],
+      "status": "in_preparation",
+      "registration_start": null,
+      "registration_end": null,
+      "exam_date": null,
+      "fee_cents": null,
+      "salary_min_cents": null,
+      "salary_max_cents": null,
+      "it_vacancies": null,
+      "regime": "clt",
+      "locations": [],
+      "states": [],
+      "nationwide": false,
+      "edital_url": null,
+      "registration_url": null,
+      "enrollment_status": "interested",
+      "dismissed_reason": null,
+      "pinned_slot": 5,
+      "confidence": "low",
+      "source_url": null,
+      "summary": [
+        "Sem edital; Cesgranrio contratada com contrato até 2028.",
+        "Alvo prioritário pela aderência ao conteúdo do Dataprev."
+      ],
+      "divergences": [],
+      "gaps": [
+        "Salário e data do edital não confirmados."
+      ],
+      "extra_events": []
+    },
+    {
+      "slug": "bacen-2026",
+      "organ": "Banco Central do Brasil",
+      "organ_acronym": "BACEN",
+      "year": 2026,
+      "title": "BACEN — Auditor (área de TI)",
+      "board": null,
+      "areas": [
+        "development",
+        "data",
+        "security",
+        "it_governance"
+      ],
+      "status": "expected",
+      "registration_start": null,
+      "registration_end": null,
+      "exam_date": null,
+      "fee_cents": null,
+      "salary_min_cents": 2092480,
+      "salary_max_cents": null,
+      "it_vacancies": null,
+      "regime": "statutory",
+      "locations": [],
+      "states": [],
+      "nationwide": false,
+      "edital_url": null,
+      "registration_url": null,
+      "enrollment_status": "interested",
+      "dismissed_reason": null,
+      "pinned_slot": null,
+      "confidence": "low",
+      "source_url": "https://www.estrategiaconcursos.com.br/blog/concurso-bacen/",
+      "summary": [
+        "560 vagas protocoladas; edital previsto até janeiro de 2027 (dado de julho/2026).",
+        "Alvo de médio prazo; base jurídica compartilhada com ANPD, CGU e tribunais."
+      ],
+      "divergences": [],
+      "gaps": [
+        "Banca do próximo edital (histórico: Cebraspe).",
+        "Status atualizado depois de julho/2026."
+      ],
+      "extra_events": []
+    },
+    {
+      "slug": "trf3-2026",
+      "organ": "Tribunal Regional Federal da 3ª Região",
+      "organ_acronym": "TRF3",
+      "year": 2026,
+      "title": "TRF3 — Analista Judiciário, Tecnologia da Informação",
+      "board": null,
+      "areas": [
+        "development",
+        "infrastructure",
+        "security"
+      ],
+      "status": "in_preparation",
+      "registration_start": null,
+      "registration_end": null,
+      "exam_date": null,
+      "fee_cents": null,
+      "salary_min_cents": 1604121,
+      "salary_max_cents": null,
+      "it_vacancies": null,
+      "regime": "statutory",
+      "locations": [
+        "São Paulo/SP",
+        "Mato Grosso do Sul"
+      ],
+      "states": [
+        "SP",
+        "MS"
+      ],
+      "nationwide": false,
+      "edital_url": null,
+      "registration_url": null,
+      "enrollment_status": "not_enrolled",
+      "dismissed_reason": null,
+      "pinned_slot": null,
+      "confidence": "low",
+      "source_url": null,
+      "summary": [
+        "Edital em montagem; salário de R$ 16.041,21 mais auxílios.",
+        "Tribunais costumam fatiar TI em várias especialidades, com poucas vagas cada."
+      ],
+      "divergences": [],
+      "gaps": [
+        "Se haverá especialidade de desenvolvimento.",
+        "Outros tribunais em movimento (TRT4, TRT8, TRT22, TRT23) não entraram como registro próprio."
+      ],
+      "extra_events": []
+    },
+    {
+      "slug": "bnb-2026",
+      "organ": "Banco do Nordeste do Brasil",
+      "organ_acronym": "BNB",
+      "year": 2026,
+      "title": "BNB — Analista de Sistemas, Desenvolvimento",
+      "board": null,
+      "areas": [
+        "development"
+      ],
+      "status": "expected",
+      "registration_start": null,
+      "registration_end": null,
+      "exam_date": null,
+      "fee_cents": null,
+      "salary_min_cents": 378800,
+      "salary_max_cents": 626900,
+      "it_vacancies": null,
+      "regime": "clt",
+      "locations": [],
+      "states": [],
+      "nationwide": false,
+      "edital_url": null,
+      "registration_url": null,
+      "enrollment_status": "not_enrolled",
+      "dismissed_reason": null,
+      "pinned_slot": null,
+      "confidence": "low",
+      "source_url": null,
+      "summary": [
+        "Previsto para 2026, banca não definida.",
+        "Salários de editais anteriores."
+      ],
+      "divergences": [],
+      "gaps": [
+        "Banca e data."
+      ],
+      "extra_events": []
+    },
+    {
+      "slug": "banco-do-brasil-2027",
+      "organ": "Banco do Brasil",
+      "organ_acronym": "BB",
+      "year": 2027,
+      "title": "Banco do Brasil — Agente de Tecnologia",
+      "board": null,
+      "areas": [
+        "development"
+      ],
+      "status": "expected",
+      "registration_start": null,
+      "registration_end": null,
+      "exam_date": null,
+      "fee_cents": null,
+      "salary_min_cents": 441434,
+      "salary_max_cents": null,
+      "it_vacancies": null,
+      "regime": "clt",
+      "locations": [],
+      "states": [],
+      "nationwide": true,
+      "edital_url": null,
+      "registration_url": null,
+      "enrollment_status": "not_enrolled",
+      "dismissed_reason": null,
+      "pinned_slot": null,
+      "confidence": "low",
+      "source_url": null,
+      "summary": [
+        "Expectativa de edital em 2027; salário do edital de 2024."
+      ],
+      "divergences": [
+        {
+          "field": "status",
+          "side_a": "novo edital em 2026",
+          "side_b": "novo edital em 2027",
+          "likely_reason": "fontes conflitantes",
+          "confidence": "low"
+        }
+      ],
+      "gaps": [
+        "Data e banca."
+      ],
+      "extra_events": []
+    }
+  ]
+}

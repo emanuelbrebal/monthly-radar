@@ -168,7 +168,7 @@ return [
 
     'features' => [
         /* @chisel-registration */
-        Features::registration(),
+        // Features::registration(), // desligado no pivot: cadastro público não existe, usuário vem de UserSeeder.
         /* @end-chisel-registration */
         Features::resetPasswords(),
         /* @chisel-email-verification */
