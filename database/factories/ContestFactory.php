@@ -46,6 +46,8 @@ class ContestFactory extends Factory
             'it_vacancies' => null,
             'regime' => Regime::Unknown->value,
             'locations' => [],
+            'states' => [],
+            'nationwide' => false,
             'edital_url' => null,
             'registration_url' => null,
             'dossier' => null,
@@ -89,6 +91,23 @@ class ContestFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'status' => EditalStatus::RegistrationClosed->value,
             'closed_at' => $when,
+        ]);
+    }
+
+    /**
+     * @param  array<int, string>  $states
+     */
+    public function inStates(array $states): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'states' => $states,
+        ]);
+    }
+
+    public function nationwide(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'nationwide' => true,
         ]);
     }
 }

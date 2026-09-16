@@ -37,6 +37,8 @@ use Illuminate\Support\Carbon;
  * @property int|null $it_vacancies
  * @property Regime $regime
  * @property array<int, string> $locations
+ * @property array<int, string> $states
+ * @property bool $nationwide
  * @property string|null $edital_url
  * @property string|null $registration_url
  * @property array<string, mixed>|null $dossier
@@ -77,6 +79,8 @@ class Contest extends Model
         'it_vacancies',
         'regime',
         'locations',
+        'states',
+        'nationwide',
         'edital_url',
         'registration_url',
         'dossier',
@@ -107,6 +111,8 @@ class Contest extends Model
             'it_vacancies' => 'integer',
             'regime' => Regime::class,
             'locations' => 'array',
+            'states' => 'array',
+            'nationwide' => 'boolean',
             'dossier' => 'array',
             'field_sources' => 'array',
             'enrichment_status' => EnrichmentStatus::class,
@@ -260,13 +266,45 @@ class Contest extends Model
 
     /**
      * Só os descartados (para o toggle da caixa de itens); ignora a regra das 24h.
-     */
-    /**
+     *
      * @param  Builder<Contest>  $query
      * @return Builder<Contest>
      */
     public function scopeDismissed(Builder $query): Builder
     {
         return $query->where('enrollment_status', EnrollmentStatus::Dismissed->value);
+    }
+
+    /**
+     * Casa com a seleção de estados — equivalente SQL de StateFilter::matches()
+     * (docs/06-filtro-estados.md). Precisa bater com StateFilter (teste de
+     * paridade).
+     *
+     * @param  Builder<Contest>  $query
+     * @param  array<int, string>  $selection  siglas + "NACIONAL"
+     * @return Builder<Contest>
+     */
+    public function scopeMatchingStates(Builder $query, array $selection): Builder
+    {
+        if ($selection === []) {
+            return $query;
+        }
+
+        return $query->where(function (Builder $q) use ($selection) {
+            if (in_array('NACIONAL', $selection, true)) {
+                $q->orWhere('nationwide', true);
+            }
+
+            foreach (array_diff($selection, ['NACIONAL']) as $state) {
+                $q->orWhereJsonContains('states', $state);
+            }
+
+            $q->orWhere(function (Builder $q2) {
+                $q2->where('nationwide', false)
+                    ->where(function (Builder $q3) {
+                        $q3->whereNull('states')->orWhereJsonLength('states', 0);
+                    });
+            });
+        });
     }
 }

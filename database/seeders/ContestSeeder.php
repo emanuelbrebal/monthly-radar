@@ -62,10 +62,8 @@ class ContestSeeder extends Seeder
                 'it_vacancies' => $row['it_vacancies'] ?? null,
                 'regime' => $row['regime'] ?? Regime::Unknown->value,
                 'locations' => $row['locations'] ?? [],
-                // 'states'/'nationwide' do JSON são ignorados por ora: essas
-                // colunas só entram na T2 (regra 1 de CLAUDE.md — filtro de
-                // estados fora de escopo). O dado sobrevive no JSON de seed
-                // e será aplicado quando a coluna existir. [inferido]
+                'states' => $row['states'] ?? [],
+                'nationwide' => $row['nationwide'] ?? false,
                 'edital_url' => $row['edital_url'] ?? null,
                 'registration_url' => $row['registration_url'] ?? null,
                 'dossier' => $this->buildDossier($row, $collectedBetween),
@@ -125,7 +123,7 @@ class ContestSeeder extends Seeder
             'organ', 'organ_acronym', 'year', 'title', 'board', 'areas', 'status',
             'registration_start', 'registration_end', 'exam_date', 'fee_cents',
             'salary_min_cents', 'salary_max_cents', 'it_vacancies', 'regime',
-            'locations', 'edital_url', 'registration_url',
+            'locations', 'states', 'nationwide', 'edital_url', 'registration_url',
         ];
 
         $sources = [];
