@@ -17,8 +17,19 @@ return [
     | 'official_pages'. Cada entrada guarda 'enabled', URLs/seletores e limites
     | de páginas por fonte (padrão 5, ver docs/02-pipeline.md).
     |
+    | 'provas_de_ti' desativada: verificado na T2 que
+    | provasdeti.com.br/concursosdeti/abertos é uma SPA React sem HTML no
+    | servidor (sem headless browser não tem o que raspar) — ver
+    | App\Services\Radar\Sources\ProvasDeTiSource. 'pci_concursos' e
+    | 'official_pages' entram na T6.
+    |
     */
-    'sources' => [],
+    'sources' => [
+        'provas_de_ti' => [
+            'enabled' => false,
+            'max_pages' => 5,
+        ],
+    ],
 
     /*
     |--------------------------------------------------------------------------
