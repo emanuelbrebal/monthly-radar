@@ -71,7 +71,10 @@ return [
     | Limites do EnrichContestsJob, ex. 'max_per_run' => 15.
     |
     */
-    'enrich' => [],
+    'enrich' => [
+        'max_per_run' => 15,
+        'gap_max_age_days' => 7,
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -80,9 +83,19 @@ return [
     |
     | Config do App\Services\Radar\LlmProvider (modelo, tools de busca web etc.).
     | Sem ANTHROPIC_API_KEY, provider fica nulo e enrichment_status = skipped.
+    | 'model' padrão é o Haiku 4.5 atual — barato o bastante pra rodar com
+    | busca web em todo concurso com lacuna.
     |
     */
-    'llm' => [],
+    'llm' => [
+        'api_key' => env('ANTHROPIC_API_KEY'),
+        'model' => env('RADAR_LLM_MODEL', 'claude-haiku-4-5-20251001'),
+        'base_url' => env('ANTHROPIC_BASE_URL', 'https://api.anthropic.com/v1/messages'),
+        'api_version' => '2023-06-01',
+        'max_tokens' => 4096,
+        'max_web_searches' => 5,
+        'timeout' => 60,
+    ],
 
     /*
     |--------------------------------------------------------------------------

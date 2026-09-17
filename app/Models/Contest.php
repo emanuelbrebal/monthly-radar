@@ -156,6 +156,14 @@ class Contest extends Model
     }
 
     /**
+     * @return HasMany<RawListing, $this>
+     */
+    public function rawListings(): HasMany
+    {
+        return $this->hasMany(RawListing::class);
+    }
+
+    /**
      * Status efetivo — delega a ContestStatusResolver (puro, testado).
      */
     public function effectiveStatus(?CarbonInterface $now = null): EditalStatus
@@ -241,10 +249,7 @@ class Contest extends Model
         $cutoff = $now->subDay();
         $registrationEndBoundary = $cutoff->subDay()->toDateString();
 
-        $enrolledStatuses = array_map(
-            fn (EnrollmentStatus $s) => $s->value,
-            array_filter(EnrollmentStatus::cases(), fn (EnrollmentStatus $s) => $s->countsAsEnrolled()),
-        );
+        $enrolledStatuses = EnrollmentStatus::enrolledValues();
 
         return $query
             ->where('enrollment_status', '!=', EnrollmentStatus::Dismissed->value)

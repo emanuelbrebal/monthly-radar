@@ -31,6 +31,17 @@ enum EnrollmentStatus: string
     }
 
     /**
+     * @return array<int, string>
+     */
+    public static function enrolledValues(): array
+    {
+        return array_map(
+            fn (self $s) => $s->value,
+            array_filter(self::cases(), fn (self $s) => $s->countsAsEnrolled()),
+        );
+    }
+
+    /**
      * Posição no checklist sequencial. Null para dismissed (fora da sequência).
      */
     public function order(): ?int

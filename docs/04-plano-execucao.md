@@ -2,14 +2,17 @@
 
 Uma "tarde" = uma sessão de Claude Code. Cada tarde termina com testes verdes e commit.
 
-## Status (16/09/2026)
+## Status (17/09/2026)
 
-T0 e T1 concluídas e commitadas. T2 concluída e commitada nesta sessão — ver detalhes abaixo. **Próximo passo: T3 (Enriquecimento e orquestração).**
+T0, T1 e T2 concluídas e commitadas. **T3 (Enriquecimento e orquestração) concluída nesta sessão** — ver detalhes abaixo. **Próximo passo: T4 (Mesa).**
+
+T3 entregou: `LlmProvider` (interface) + `AnthropicProvider`/`NullProvider`, `DossierValidator` (+ `docs/agents/dossie.md` e `resources/prompts/dossie.md`), `EnrichContestJob`/`EnrichContestsJob`/`FinalizeRunJob`, `SweepController` (`POST /sweeps`, `GET /sweeps/{run}`), `radar:sweep {area} {--no-llm}`. Só `NullProvider` foi validado de ponta a ponta (sem `ANTHROPIC_API_KEY` nesta sessão) — `AnthropicProvider` só tem cobertura via `Http::fake()`; a primeira varredura real com chave configurada ainda precisa confirmar o formato de `usage.server_tool_use.web_search_requests` e o tipo de tool `web_search_20250305` contra a API de verdade (marcado `[inferido]` no código).
 
 Pendências deixadas para trás, a revisitar quando fizer sentido:
 - `migrate:fresh --seed` nunca foi validado contra Postgres real (só via SQLite/Pest) — falta senha do Postgres local no `.env`.
 - Fonte `provas_de_ti` verificada e desativada: `provasdeti.com.br/concursosdeti/abertos` é uma SPA React sem HTML no servidor, sem headless browser não dá pra raspar. Fica registrada desabilitada em `config/radar.php`; `pci_concursos` e `official_pages` (T6) são as fontes que efetivamente vão popular o scraping.
 - Testes de scraping usam `raw_listings` sintéticos (não fixtures de HTML real), porque ainda não existe adapter funcional pra gerar fixture.
+- `AnthropicProvider` não foi testado contra a API real — primeira varredura real deve conferir `docs/02-pipeline.md` e o preço de busca web atual.
 - `memory/` e `scripts/send-email.ps1`/`SETUP-EMAIL.md` na raiz do repo parecem artefatos do produto antigo "Radar Hub" (pivotado) — não tocados, vale limpeza futura.
 - Diffs soltos em `eslint.config.js` e `resources/js/pages/radar/index.tsx` (de sessão anterior de frontend) — não tocados.
 
