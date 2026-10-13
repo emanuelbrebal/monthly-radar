@@ -9,6 +9,7 @@ use App\Enums\Regime;
 use App\Models\Contest;
 use App\Services\Radar\ContestMerger;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
@@ -97,7 +98,7 @@ class ContestSeeder extends Seeder
         }
 
         $contest->dossier = $this->refreshDossier($contest->dossier ?? [], $row, $collectedBetween);
-        $contest->last_seen_at = now();
+        $contest->last_seen_at = Carbon::now();
 
         $previousStatus = $contest->status;
 
@@ -110,7 +111,7 @@ class ContestSeeder extends Seeder
         $contest = $merger->merge($contest, $tracked, origin: 'seed', sourceUrl: $sourceUrl, confidence: $confidence, extraEvents: $row['extra_events'] ?? []);
 
         if ($contest->status !== $previousStatus) {
-            $contest->status_changed_at = now();
+            $contest->status_changed_at = Carbon::now();
             $contest->save();
         }
     }
