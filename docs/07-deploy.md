@@ -179,7 +179,10 @@ CACHE_STORE=database
 
 ```bash
 php artisan migrate --force
-php artisan db:seed --force --class=UserSeeder   # só o usuário — não rode o ContestSeeder em produção, é dado de exemplo
+php artisan db:seed --force --class=UserSeeder
+php artisan db:seed --force --class=ContestSeeder   # só no PRIMEIRO deploy: são os concursos da pesquisa (CGU, ANPD, BACEN, TJPB...)
+# Não rode o ContestSeeder de novo depois: ele faz updateOrCreate por slug e
+# sobrescreve o que você mudou pela tela (status de inscrição, maleta, descartes).
 
 php artisan config:cache
 php artisan route:cache

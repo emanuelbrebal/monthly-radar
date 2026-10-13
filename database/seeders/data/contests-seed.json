@@ -1,8 +1,8 @@
 {
   "_meta": {
-    "collected_between": "2026-07-20/2026-09-17",
+    "collected_between": "2026-07-20/2026-10-13",
     "origin": "seed",
-    "note": "Dados levantados em conversas de pesquisa no Claude. Verificar com a primeira varredura da área 'all'. Valores em centavos, datas em AAAA-MM-DD (America/Maceio). states/nationwide: só UFs citadas nas pesquisas; vazio = local a definir. Rodada de 17/09/2026 trouxe campos de curadoria manual novos (ver docs/01-modelo-de-dados.md → \"Campos de curadoria manual\") e mais concursos mapeados — enrollment_status/pinned_slot/dismissed_reason dos concursos já semeados antes NÃO foram tocados por essa rodada (são seus, não meus); só os fatos (dinheiro, datas, vagas, notas) foram atualizados quando a pesquisa nova tinha algo mais preciso."
+    "note": "Dados levantados em conversas de pesquisa no Claude. Verificar com a primeira varredura da área 'all'. Valores em centavos, datas em AAAA-MM-DD (America/Maceio). states/nationwide: só UFs citadas nas pesquisas; vazio = local a definir. Rodada de 17/09/2026 trouxe campos de curadoria manual novos (ver docs/01-modelo-de-dados.md → \"Campos de curadoria manual\") e mais concursos mapeados — enrollment_status/pinned_slot/dismissed_reason dos concursos já semeados antes NÃO foram tocados por essa rodada (são seus, não meus); só os fatos (dinheiro, datas, vagas, notas) foram atualizados quando a pesquisa nova tinha algo mais preciso. Rodada de 13/10/2026: foco reduzido a CGU, ANPD, BACEN e TJPB (o resto saiu da maleta, sem descarte); CGU atualizada com o edital publicado em 09/10; TJPB incluído; Dataprev com prova feita."
   },
   "contests": [
     {
@@ -13,7 +13,7 @@
       "title": "Dataprev 2026 — Analista de TI, Perfil 3: Desenvolvimento de Software",
       "board": "FGV",
       "areas": ["development"],
-      "status": "registration_closed",
+      "status": "exam_done",
       "registration_start": null,
       "registration_end": "2026-08-06",
       "exam_date": "2026-10-11",
@@ -36,21 +36,21 @@
       "workplace_city": "Natal",
       "workplace_state": "RN",
       "distance_from_home_km": 550,
-      "exam_city": "Natal",
+      "exam_city": "Maceió",
       "edital_url": "https://conhecimento.fgv.br/sites/default/files/concursos/edital-dataprev_supe-versao-final.pdf",
       "registration_url": null,
-      "source_checked_at": "2026-09-17",
+      "source_checked_at": "2026-10-13",
       "confidence": "high",
-      "enrollment_status": "fee_paid",
+      "enrollment_status": "exam_taken",
       "dismissed_reason": null,
       "pinned_slot": 0,
       "source_url": "https://conhecimento.fgv.br/sites/default/files/concursos/edital-dataprev_supe-versao-final.pdf",
       "personal_notes": "Inscrito e homologado, cidade de prova Natal/RN. Único cargo de desenvolvimento de software puro entre os certames mapeados. Natal tem a menor concorrência do Perfil 3: 2.189 candidatos.",
       "summary": [
-        "Inscrito e homologado, cidade de prova Natal/RN.",
-        "Prova objetiva em 11/10/2026, etapa única, 70 questões.",
-        "Único cargo de desenvolvimento de software puro entre os certames mapeados.",
-        "Natal tem a menor concorrência do Perfil 3: 2.189 candidatos."
+        "Prova objetiva feita em 11/10/2026, em Maceió/AL — 70 questões, etapa única.",
+        "Gabarito preliminar previsto para 13/10; recursos em 14 e 15/10.",
+        "Régua do edital: mínimo de 57,5 pontos e nenhuma disciplina zerada.",
+        "49.291 candidatos no total, mais que o dobro de 2024."
       ],
       "divergences": [
         {
@@ -64,7 +64,10 @@
       "gaps": [
         "Convocação antes da formatura (2027.1) pode impedir a contratação; sem cláusula de reposicionamento encontrada no edital."
       ],
-      "extra_events": []
+      "extra_events": [
+        { "type": "result", "date": "2026-10-13", "label": "gabarito preliminar" },
+        { "type": "other", "date": "2026-10-15", "label": "fim do prazo de recursos" }
+      ]
     },
     {
       "slug": "transpetro-2026",
@@ -106,7 +109,7 @@
       "confidence": "medium",
       "enrollment_status": "interested",
       "dismissed_reason": null,
-      "pinned_slot": 1,
+      "pinned_slot": null,
       "source_url": "https://blog.grancursosonline.com.br/concurso-transpetro-cronograma-atualizado/",
       "personal_notes": "Melhor encaixe de conteúdo do radar: modelagem de dados, SQL, engenharia de software, UX, BI e ágil. Requisito de diploma só na admissão. Lotação exclusiva no polo Rio de Janeiro.",
       "summary": [
@@ -214,7 +217,7 @@
       "confidence": "medium",
       "enrollment_status": "interested",
       "dismissed_reason": null,
-      "pinned_slot": 2,
+      "pinned_slot": null,
       "source_url": "https://folha.qconcursos.com/n/concurso-sema-mt-2026-edital-publicado",
       "personal_notes": "Somente cadastro de reserva. Mesma banca da Transpetro, então o estudo se aproveita. Lotação em Cuiabá ou em nove unidades do interior do Mato Grosso.",
       "summary": [
@@ -353,21 +356,25 @@
       "nationwide": false,
       "edital_url": null,
       "registration_url": null,
-      "source_checked_at": "2026-09-17",
+      "source_checked_at": "2026-10-13",
       "confidence": "medium",
       "enrollment_status": "interested",
       "dismissed_reason": null,
-      "pinned_slot": 3,
+      "pinned_slot": 2,
       "source_url": null,
       "personal_notes": "Lei 15.352/2026 criou 200 cargos; os outros 150 podem ser autorizados na validade.",
       "summary": [
-        "Primeiro concurso da agência, autorizado pela Portaria MGI nº 5.092: 50 vagas de nível superior.",
-        "Edital esperado até dezembro de 2026 ou 03/01/2027; provas no mínimo 2 meses depois.",
+        "Primeiro concurso da agência: 50 vagas de Especialista em Regulação de Proteção de Dados, autorizadas pela Portaria MGI nº 5.092.",
+        "Banca em contratação; edital esperado até dezembro de 2026.",
         "TI está entre as áreas previstas, junto com Direito, Economia e Ciência de Dados.",
         "Lei 15.352/2026 criou 200 cargos; os outros 150 podem ser autorizados na validade."
       ],
       "divergences": [],
-      "gaps": ["Banca não definida.", "Quantas das 50 vagas serão de TI.", "URL da portaria não registrada."],
+      "gaps": [
+        "Banca não definida.",
+        "Quantas das 50 vagas serão de TI.",
+        "URL da portaria não registrada."
+      ],
       "extra_events": []
     },
     {
@@ -375,48 +382,58 @@
       "organ": "Controladoria-Geral da União",
       "organ_acronym": "CGU",
       "year": 2026,
-      "title": "CGU — Auditor Federal de Finanças e Controle (especialidade TI)",
-      "board": null,
+      "title": "CGU — Auditor Federal de Finanças e Controle, TI: Desenvolvimento de Sistemas",
+      "board": "Cebraspe",
       "areas": ["development", "data", "it_governance"],
-      "status": "authorized",
-      "registration_start": null,
-      "registration_end": null,
-      "exam_date": null,
-      "fee_cents": null,
+      "status": "registration_open",
+      "registration_start": "2026-10-10",
+      "registration_end": "2026-11-04",
+      "exam_date": "2026-12-13",
+      "fee_cents": 17000,
       "salary_min_cents": 2000000,
-      "salary_max_cents": 3669400,
-      "it_vacancies": null,
+      "salary_max_cents": null,
+      "it_vacancies": 30,
       "regime": "statutory",
       "sphere": "federal",
       "education_level": "superior",
-      "is_it_role": null,
+      "is_it_role": true,
       "locations": ["Brasília/DF"],
       "states": ["DF"],
       "nationwide": false,
-      "edital_url": null,
-      "registration_url": null,
-      "source_checked_at": "2026-09-17",
-      "confidence": "medium",
+      "edital_url": "https://www.cebraspe.org.br/concursos/cgu_26_affc",
+      "registration_url": "https://www.cebraspe.org.br/concursos/cgu_26_affc",
+      "source_checked_at": "2026-10-13",
+      "confidence": "high",
       "enrollment_status": "interested",
       "dismissed_reason": null,
-      "pinned_slot": 4,
-      "source_url": null,
+      "pinned_slot": 1,
+      "source_url": "https://www.cebraspe.org.br/concursos/cgu_26_affc",
       "summary": [
-        "Autorizado em 24/06/2026 com 60 vagas; edital esperado até dezembro de 2026.",
-        "No edital de 2021 (FGV), 80 das 375 vagas eram de TI, todas no DF.",
-        "Salário inicial acima de R$ 20 mil (valor aproximado)."
+        "Edital publicado em 09/10/2026: 60 vagas, 30 delas de TI (10 em Desenvolvimento de Sistemas, 10 em Ciência de Dados, 10 em Infraestrutura), todas no DF.",
+        "Prova objetiva (170 itens certo/errado, 5 h) e discursiva no mesmo dia, 13/12/2026.",
+        "Pedido de isenção da taxa até 16/10; pagamento até 06/11.",
+        "Foco principal de estudo até a prova."
       ],
-      "divergences": [
-        {
-          "field": "it_vacancies",
-          "side_a": "500 vagas pedidas (jul/2026)",
-          "side_b": "60 vagas autorizadas (jun/2026)",
-          "likely_reason": "pedido × autorização",
-          "confidence": "medium"
-        }
+      "divergences": [],
+      "gaps": [
+        "Conteúdo programático da especialidade ainda não verticalizado no plano de estudo."
       ],
-      "gaps": ["Banca não definida.", "Divisão de vagas de TI no novo edital."],
-      "extra_events": []
+      "extra_events": [
+        { "type": "other", "date": "2026-10-16", "label": "fim do pedido de isenção" },
+        { "type": "fee_deadline", "date": "2026-11-06", "label": "último dia para pagar a taxa" },
+        { "type": "other", "date": "2026-12-02", "label": "locais de prova" },
+        { "type": "result", "date": "2026-12-18", "label": "gabarito preliminar" },
+        { "type": "result", "date": "2027-01-14", "label": "resultado definitivo da objetiva" }
+      ],
+      "essay_exam_date": "2026-12-13",
+      "salary_note": "Subsídio inicial de R$ 20.000,00 (abril/2026).",
+      "immediate_vacancies": 10,
+      "board_affinity": "media",
+      "board_affinity_note": "Cebraspe — certo/errado, um erro anula um acerto. Primeira prova nessa banca.",
+      "workplace_city": "Brasília",
+      "workplace_state": "DF",
+      "validity_months": 24,
+      "validity_extendable": true
     },
     {
       "slug": "petrobras-2026",
@@ -447,7 +464,7 @@
       "confidence": "low",
       "enrollment_status": "interested",
       "dismissed_reason": null,
-      "pinned_slot": 5,
+      "pinned_slot": null,
       "source_url": null,
       "personal_notes": "Cesgranrio confirmou o certame no cronograma de 2026 e circulam números de 1.100 a 1.400 vagas, mas a própria Petrobras nega previsão. Único evento capaz de reordenar o radar inteiro.",
       "summary": [
@@ -466,7 +483,7 @@
       "title": "BACEN — Auditor (área de TI)",
       "board": null,
       "areas": ["development", "data", "security", "it_governance"],
-      "status": "expected",
+      "status": "authorized",
       "registration_start": null,
       "registration_end": null,
       "exam_date": null,
@@ -483,19 +500,25 @@
       "nationwide": false,
       "edital_url": null,
       "registration_url": null,
-      "source_checked_at": "2026-09-17",
-      "confidence": "low",
+      "source_checked_at": "2026-10-13",
+      "confidence": "medium",
       "enrollment_status": "interested",
       "dismissed_reason": null,
-      "pinned_slot": null,
-      "source_url": "https://www.estrategiaconcursos.com.br/blog/concurso-bacen/",
+      "pinned_slot": 3,
+      "source_url": "https://movimentoeconomico.com.br/concursos/2026/07/06/receita-federal-e-banco-central-tem-concursos-autorizados-com-316-vagas/",
       "summary": [
-        "560 vagas protocoladas; edital previsto até janeiro de 2027 (dado de julho/2026).",
-        "Alvo de médio prazo; base jurídica compartilhada com ANPD, CGU e tribunais."
+        "Autorizado em julho/2026: 170 vagas (100 auditor, 50 técnico, 20 procurador).",
+        "Contratação da banca prevista até 16/10/2026; edital até 03/01/2027.",
+        "Alvo de médio prazo; base de governança e dados compartilhada com CGU e ANPD."
       ],
       "divergences": [],
-      "gaps": ["Banca do próximo edital (histórico: Cebraspe).", "Status atualizado depois de julho/2026."],
-      "extra_events": []
+      "gaps": [
+        "Banca do edital (histórico: Cebraspe).",
+        "Se haverá vagas específicas de TI entre as 100 de auditor."
+      ],
+      "extra_events": [
+        { "type": "other", "date": "2026-10-16", "label": "prazo previsto para contratar a banca" }
+      ]
     },
     {
       "slug": "trf3-2026",
@@ -1151,6 +1174,57 @@
       "summary": ["Concurso previsto, banca não definida. Cargos de TI não confirmados."],
       "divergences": [],
       "gaps": ["Banca, cargos de TI não confirmados."],
+      "extra_events": []
+    },
+    {
+      "slug": "tjpb-2026",
+      "organ": "Tribunal de Justiça da Paraíba",
+      "organ_acronym": "TJPB",
+      "year": 2026,
+      "title": "TJPB — Analista Judiciário, Tecnologia da Informação",
+      "board": "FGV",
+      "areas": ["development", "data", "infrastructure", "it_governance"],
+      "status": "in_preparation",
+      "registration_start": null,
+      "registration_end": null,
+      "exam_date": null,
+      "fee_cents": null,
+      "salary_min_cents": 724479,
+      "salary_max_cents": null,
+      "salary_note": "Vencimento básico de R$ 7.244,79 (Portal da Transparência) + auxílios e gratificações.",
+      "it_vacancies": 20,
+      "immediate_vacancies": 50,
+      "regime": "statutory",
+      "sphere": "estadual",
+      "education_level": "superior",
+      "is_it_role": true,
+      "board_affinity": "alta",
+      "board_affinity_note": "FGV — mesma banca da Dataprev; preparação já calibrada.",
+      "locations": ["João Pessoa/PB"],
+      "states": ["PB"],
+      "nationwide": false,
+      "workplace_city": "João Pessoa",
+      "workplace_state": "PB",
+      "edital_url": null,
+      "registration_url": null,
+      "source_checked_at": "2026-10-13",
+      "confidence": "medium",
+      "enrollment_status": "interested",
+      "dismissed_reason": null,
+      "pinned_slot": 4,
+      "source_url": "https://blog.decorandoaleiseca.com.br/concurso-tj-pb-banca-definida-e-50/",
+      "personal_notes": "Capital litorânea perto de Maceió, custo de vida menor. Último concurso de servidores em 2012.",
+      "summary": [
+        "Contrato com a FGV assinado em 03/10/2026 (nº 078/2026).",
+        "50 vagas previstas: 25 Analista Judiciário, 20 Analista de TI e 5 Contadoria.",
+        "Último concurso para servidores foi em 2012 — demanda reprimida."
+      ],
+      "divergences": [],
+      "gaps": [
+        "Data do edital.",
+        "Remuneração total com auxílios e gratificações.",
+        "Legislação específica cobrada (regimento interno, LOJE-PB)."
+      ],
       "extra_events": []
     }
   ]
