@@ -43,7 +43,12 @@ return [
         ],
         'official_pages' => [
             'enabled' => true,
-            'pages' => [],
+            // Só páginas com HTML no servidor: as da Cebraspe e do bcb.gov.br
+            // são SPA (sem headless não há texto) — verificado em 13/10/2026.
+            // ANPD, BACEN e TJPB entram aqui quando tiverem página da banca.
+            'pages' => [
+                ['url' => 'https://www.gov.br/cgu/pt-br/acesso-a-informacao/concursos', 'organ_label' => 'CGU 2026 — Auditor Federal de Finanças e Controle'],
+            ],
         ],
     ],
 
