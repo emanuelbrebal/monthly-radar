@@ -16,6 +16,9 @@ createInertiaApp({
                 return AuthLayout;
             case name.startsWith('settings/'):
                 return [AppLayout, SettingsLayout];
+            // A Mesa é full-bleed (masthead própria) — sem sidebar do starter kit.
+            case name.startsWith('radar/'):
+                return undefined;
             default:
                 return AppLayout;
         }
