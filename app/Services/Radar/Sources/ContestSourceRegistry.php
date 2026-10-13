@@ -3,8 +3,7 @@
 namespace App\Services\Radar\Sources;
 
 /**
- * Lista os adapters disponíveis. pci_concursos e official_pages entram na
- * T6 — ver docs/04-plano-execucao.md.
+ * Lista os adapters disponíveis.
  */
 class ContestSourceRegistry
 {
@@ -13,6 +12,8 @@ class ContestSourceRegistry
      */
     private array $classes = [
         ProvasDeTiSource::class,
+        PciConcursosSource::class,
+        OfficialPagesSource::class,
     ];
 
     /**

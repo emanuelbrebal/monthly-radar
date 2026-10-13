@@ -13,15 +13,23 @@ return [
     |--------------------------------------------------------------------------
     |
     | Uma entrada por adapter (App\Services\Radar\Sources\ContestSource),
-    | chaveada por ContestSource::key(). Ex.: 'provas_de_ti', 'pci_concursos',
-    | 'official_pages'. Cada entrada guarda 'enabled', URLs/seletores e limites
-    | de páginas por fonte (padrão 5, ver docs/02-pipeline.md).
+    | chaveada por ContestSource::key(). Cada entrada guarda 'enabled' e a
+    | config específica do adapter.
     |
     | 'provas_de_ti' desativada: verificado na T2 que
     | provasdeti.com.br/concursosdeti/abertos é uma SPA React sem HTML no
     | servidor (sem headless browser não tem o que raspar) — ver
-    | App\Services\Radar\Sources\ProvasDeTiSource. 'pci_concursos' e
-    | 'official_pages' entram na T6.
+    | App\Services\Radar\Sources\ProvasDeTiSource.
+    |
+    | 'pci_concursos' (T6): verificado em 18/09/2026 que
+    | pciconcursos.com.br/concursos/ lista nacional + todos os estados numa
+    | página só (não uma por estado, como a spec original supunha) — ver
+    | App\Services\Radar\Sources\PciConcursosSource. robots.txt permite.
+    |
+    | 'official_pages' (T6): 'pages' vazio por padrão — adicionar manualmente
+    | os concursos que você acompanha, ex.:
+    |   ['url' => 'https://exemplo.gov.br/concurso-2026', 'organ_label' => 'Exemplo 2026']
+    | Ver App\Services\Radar\Sources\OfficialPagesSource.
     |
     */
     'sources' => [
@@ -29,7 +37,27 @@ return [
             'enabled' => false,
             'max_pages' => 5,
         ],
+        'pci_concursos' => [
+            'enabled' => true,
+            'url' => 'https://www.pciconcursos.com.br/concursos/',
+        ],
+        'official_pages' => [
+            'enabled' => true,
+            'pages' => [],
+        ],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Contato do User-Agent de scraping
+    |--------------------------------------------------------------------------
+    |
+    | Usado no header User-Agent de toda fonte de scraping
+    | (docs/02-pipeline.md → "1. Fontes"), pra quem administra o site raspado
+    | poder identificar e contatar quem faz as requisições.
+    |
+    */
+    'contact_email' => env('RADAR_USER_EMAIL', 'contato@example.com'),
 
     /*
     |--------------------------------------------------------------------------
