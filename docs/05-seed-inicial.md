@@ -6,9 +6,20 @@ Os dados vêm das pesquisas feitas no Claude entre 20/07 e 17/09/2026. Eles serv
 
 ## O que o seeder faz
 
-Para cada item de `contests`:
+Para cada item de `contests`, o seeder procura o `slug` no banco. Rodar duas vezes não duplica nada.
 
-1. `updateOrCreate` por `slug`. Rodar o seeder duas vezes não duplica nada.
+**Concurso novo** (slug ainda não existe) — passos 1 a 7 abaixo.
+
+**Concurso que já existe** — o seeder pode ser rodado de novo depois que o app está em uso, para trazer pesquisa nova sem desfazer o que foi marcado na tela:
+
+- Campos com `field_sources` (os do passo 4) passam por `ContestMerger::merge` com `origin = seed`: valor nulo no JSON = "sem informação" (não apaga), e a prioridade de fonte vale — um dado que veio de fonte oficial não é sobrescrito por seed sem URL oficial.
+- Campos de curadoria manual (passo 2) e `summary`/`divergences`/`gaps` do dossiê vêm do JSON quando não forem nulos. `it_roles`/`syllabus` gerados pelo enriquecimento ficam; `sources` é somado por URL.
+- **Nunca toca** em `enrollment_status`, `pinned_slot`, `dismissed_at`/`dismissed_reason` nem em `enrichment_status`/`last_enriched_at`. `personal_notes` só é preenchido se estiver vazio.
+- `status_changed_at = now()` só se o status mudou; eventos são regenerados com os `extra_events` do JSON.
+
+Coberto por `tests/Feature/Database/ContestSeederTest.php`.
+
+1. Cria o concurso pelo `slug`.
 2. Colunas: copia os campos homônimos, incluindo os campos de curadoria manual descritos em `docs/01-modelo-de-dados.md` (`sphere`, `education_level`, `is_it_role`, `immediate_vacancies`/`reserve_vacancies`/`open_competition_vacancies`, `salary_note`, `board_affinity`/`board_affinity_note`, `workplace_city`/`workplace_state`, `distance_from_home_km`, `exam_city`, `essay_exam_date`, `validity_months`/`validity_extendable`, `source_checked_at`, `confidence`, `personal_notes`). `status_changed_at = now()`, `last_seen_at = now()`, `enrichment_status = pending`.
 3. `dossier` = `{summary, divergences, gaps, it_roles: [], syllabus: [], sources: [{url: source_url, name: null, kind, accessed: _meta.collected_between}]}`. `kind` vale `official` se o domínio for `.gov.br` ou de banca da config; senão, `aggregator`. Sem URL → `sources: []`.
 4. `field_sources`: para cada campo não nulo, `{url: source_url, fetched_at: null, origin: "seed", confidence}`.
@@ -17,7 +28,7 @@ Para cada item de `contests`:
 7. `pinned_slot`, `enrollment_status` e `dismissed_reason` vêm do JSON. Para os `dismissed`, `dismissed_at = now()`. Slot duplicado → exceção (o arquivo está errado).
 8. `UserSeeder` cria `preferences.states` com todos os estados + `NACIONAL`.
 
-**Regra ao atualizar este arquivo com pesquisa nova**: `enrollment_status`, `pinned_slot` e `dismissed_reason` de um concurso que já existe no seed são decisão do dono do radar — não sobrescrever com o resultado de uma pesquisa nova sem confirmar antes. Só os campos factuais (dinheiro, datas, vagas, notas) devem ser atualizados livremente.
+**Regra ao atualizar este arquivo com pesquisa nova**: `enrollment_status`, `pinned_slot` e `dismissed_reason` de um concurso que já existe no seed são decisão do dono do radar — não sobrescrever com o resultado de uma pesquisa nova sem confirmar antes. Só os campos factuais (dinheiro, datas, vagas, notas) devem ser atualizados livremente. Mudar esses campos no JSON só tem efeito em banco novo (`migrate:fresh --seed`); num banco em uso, o seeder os ignora — a maleta e a inscrição se ajustam pela tela.
 
 ## Ajustes nos outros docs
 
