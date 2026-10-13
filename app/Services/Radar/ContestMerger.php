@@ -69,7 +69,7 @@ class ContestMerger
 
         $contest->states = $isOfficial
             ? array_values(array_unique($incoming))
-            : array_values(array_unique([...$contest->states, ...$incoming]));
+            : array_values(array_unique([...($contest->states ?? []), ...$incoming]));
 
         $this->recordFieldSource($contest, 'states', $origin, $sourceUrl, $confidence);
     }
