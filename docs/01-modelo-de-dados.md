@@ -10,9 +10,11 @@ Postgres. Datas de edital em `date` (local `America/Maceio`), marcos de sistema 
 - `Regime`: `clt`, `statutory`, `temporary`, `unknown`
 - `EventType`: `registration_start`, `registration_end`, `fee_deadline`, `exam`, `result`, `other`
 - `EnrichmentStatus`: `pending`, `skipped`, `done`, `failed`
-- `Confidence`: `high`, `medium`, `low`
+- `Confidence`: `high`, `medium`, `low`, `unconfirmed` (curadoria manual sem fonte localizada)
 - `RunStatus`: `queued`, `scraping`, `enriching`, `done`, `failed`
 - `BrazilianState` (27 siglas, com `region()`) e `Region` — ver `docs/06-filtro-estados.md`
+- `Sphere`: `federal`, `estadual`, `distrital`, `municipal` — esfera do órgão, curadoria manual
+- `BoardAffinity`: `alta`, `media`, `media_baixa`, `baixa` — quanto o estudo em andamento aproveita para a banca, julgamento pessoal
 
 ## Tabelas
 
@@ -55,6 +57,30 @@ Postgres. Datas de edital em `date` (local `America/Maceio`), marcos de sistema 
 | timestamps | | |
 
 Índices: `status`, `registration_end`, `exam_date`, GIN em `areas` e em `states`.
+
+#### Campos de curadoria manual
+
+Adicionados em 18/09/2026 para receber uma pesquisa feita fora do app (fora do fluxo de scraping/LLM). **Nenhum é preenchido pela varredura** — nascem `null` em todo concurso raspado e só existem no que o dono do radar pesquisa e cola no seed. Não têm regra de negócio própria (`ContestStatusResolver`, `PinService` etc. os ignoram).
+
+| coluna | tipo | nota |
+|---|---|---|
+| sphere | string (`Sphere`) null | esfera do órgão |
+| education_level | string null | `superior` \| `medio_tecnico` — sem enum próprio, não tem lógica associada ainda |
+| is_it_role | boolean null | `null` = não confirmado se o cargo é de TI; `false` = confirmadamente não é (concurso mantido só para comparação) |
+| immediate_vacancies / reserve_vacancies / open_competition_vacancies | smallint null | granularidade que `it_vacancies` não tem |
+| salary_note | text null | observação sobre `salary_min_cents`/`salary_max_cents` (ex. "inclui gratificação") |
+| board_affinity | string (`BoardAffinity`) null | quanto o estudo em andamento aproveita pra essa banca |
+| board_affinity_note | text null | |
+| workplace_city / workplace_state | string / string(2) null | lotação específica — distinto de `locations`/`states`, que são pro filtro e exibição |
+| distance_from_home_km | smallint null | distância até a cidade de referência do dono do radar (Maceió) — critério de qualidade de vida, não usar pra custo de mudança |
+| exam_city | string null | cidade onde a prova é feita, quando diverge da lotação |
+| essay_exam_date | date null | prova discursiva, quando existe além da objetiva (`exam_date`) |
+| validity_months / validity_extendable | smallint null / boolean null | validade do concurso |
+| source_checked_at | date null | quando essa pesquisa manual foi conferida — distinto de `last_seen_at` (varredura automática) |
+| confidence | string (`Confidence`) null | confiança geral da linha, quando não há `field_sources` granular (curadoria manual costuma vir sem isso) |
+| personal_notes | text null | resumo/observações pessoais — distinto de `dossier`, que é saída do agente de enriquecimento |
+
+`dismissed_reason` passou de `string(120)` para `text` — motivos reais de descarte da curadoria manual passam de 120 caracteres.
 
 ### `users` (coluna nova)
 

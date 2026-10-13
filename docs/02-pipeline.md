@@ -28,11 +28,11 @@ public function fetch(): iterable;             // título, url, trecho de texto,
 
 | key | alvo | por quê |
 |---|---|---|
-| `provas_de_ti` | páginas de concursos de TI abertos e previstos do Provas de TI | agregador já focado em TI |
-| `pci_concursos` | páginas por estado + página nacional do PCI Concursos, só as marcadas no filtro | cobertura ampla; filtra por palavra-chave |
-| `official_pages` | lista curta de páginas oficiais em `config/radar.php` (ex.: página do concurso na banca/órgão) cadastradas à mão | fonte primária dos concursos que já acompanho |
+| `provas_de_ti` | páginas de concursos de TI abertos e previstos do Provas de TI | agregador já focado em TI — **desativada**, ver nota abaixo |
+| `pci_concursos` | `pciconcursos.com.br/concursos/` — uma página só, nacional + todos os estados | cobertura ampla; filtra por palavra-chave |
+| `official_pages` | lista curta de páginas oficiais em `config('radar.sources.official_pages.pages')` (ex.: página do concurso na banca/órgão) cadastradas à mão | fonte primária dos concursos que já acompanho |
 
-`[inferido]` As URLs e seletores exatos ficam em `config/radar.php` e **devem ser verificados na T2** (estrutura HTML muda). Antes de ativar cada fonte: checar `robots.txt` e termos de uso; se proibir, desativar e anotar no README.
+Verificado na T6 (18/09/2026): ao contrário do que a spec original supunha, o PCI Concursos **não** tem uma página por estado — `/concursos/` já lista nacional + os 26 estados + DF numa página só, agrupados por marcadores `<div id="{UF}" class="ua">` em ordem de documento (cada um seguido dos cartões `.na`/`.ea`/`.da` até o próximo marcador). `robots.txt` permite `/concursos/` (só bloqueia `/admin/`, `/pdf/`, `*.php` etc.). O cartão da listagem não traz o link do edital, só a notícia do PCI — o `edital_url` de verdade é uma lacuna que o enriquecimento por LLM preenche depois. `official_pages` não usa seletor por página de propósito: extrai texto visível + todos os links (`Crawler::links()`, resolvendo relativo→absoluto pela URL da página) e deixa o `ContestNormalizer`/enriquecimento fazerem o resto — cada banca/órgão tem HTML diferente demais pra valer a pena um seletor por página numa lista curta e pessoal.
 
 Regras de scraping:
 - `Http::withHeaders(['User-Agent' => 'radar-mensal/1.0 (uso pessoal; contato: <email>)'])->timeout(15)->retry(2, 1000)`.
@@ -101,14 +101,17 @@ Entrada: status armazenado, datas, hoje (local). Regras em ordem:
 | GET | `/` | tela principal (props: visibleContests, pinned, events do mês, lastRun, areas) |
 | POST | `/sweeps` | `{area}` → cria run (409 se já houver uma ativa) |
 | GET | `/sweeps/{run}` | status/counts para polling (JSON) |
-| GET | `/contests/{contest}` | dossiê completo (partial reload do modal) |
-| PATCH | `/contests/{contest}/enrollment` | `{status, reason?}`. `dismissed` preenche `dismissed_at`/`reason` e desafixa; sair de `dismissed` limpa os dois |
-| GET | `/contests/dismissed` | lista os descartados (partial reload da caixa de itens) |
+| PATCH | `/contests/{contest}/enrollment` | `{status}` — só passo do checklist sequencial (`EnrollmentStatus`, sem `dismissed`) |
+| POST | `/contests/{contest}/dismiss` | `{reason?}` — descarta, preenche `dismissed_at`/`dismissed_reason`, desafixa |
+| POST | `/contests/{contest}/restore` | "trazer de volta" — volta pra `not_enrolled`, limpa `dismissed_at`/`dismissed_reason` |
+| GET | `/contests/dismissed` | lista os descartados (fetch sob demanda do toggle da caixa de itens) |
 | POST | `/contests/{contest}/pin` | fixa no primeiro slot livre, ou `{slot}` |
 | DELETE | `/contests/{contest}/pin` | desafixa |
 | PATCH | `/preferences/states` | `{states}` — ver `docs/06-filtro-estados.md` |
-| PATCH | `/pins` | `{order: [contestId|null ×12]}` reordena |
+| PATCH | `/pins` | `{order: [contestId|null ×12]}` reordena a maleta (drag and drop) |
 | GET | `/calendar?month=YYYY-MM` | eventos do mês (partial reload) |
+
+Descartar/restaurar são endpoints próprios (T5), separados do `PATCH /enrollment` do desenho original deste doc — o motivo (`reason`) e o efeito colateral de liberar o slot ficaram mais claros como uma ação dedicada do que como um valor a mais dentro do checklist sequencial. Não existe `GET /contests/{contest}`: o dossiê é montado no cliente a partir do `ContestDto` já carregado (mesa/maleta/lista de descartados), sem round-trip extra.
 
 Todas as leituras de listagem usam `Contest::visible()`.
 
