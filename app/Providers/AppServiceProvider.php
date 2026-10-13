@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use App\Services\Radar\Llm\AnthropicProvider;
+use App\Services\Radar\Llm\NullProvider;
+use App\Services\Radar\LlmProvider;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -15,7 +18,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // CLAUDE.md regra 3/4: sem ANTHROPIC_API_KEY, o app inteiro usa o
+        // provider nulo — enriquecimento fica enrichment_status=skipped,
+        // nenhuma tela quebra.
+        $this->app->bind(LlmProvider::class, fn () => filled(config('radar.llm.api_key'))
+            ? new AnthropicProvider
+            : new NullProvider,
+        );
     }
 
     /**
