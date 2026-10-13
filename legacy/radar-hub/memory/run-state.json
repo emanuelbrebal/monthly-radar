@@ -1,0 +1,27 @@
+{
+  "_version": 1,
+  "_description": "Estado atual da esteira. Atualizado por librarian, reporter e orchestrator. Permite resume em caso de falha.",
+  "current_batch": {
+    "batch_id": null,
+    "created_at": null,
+    "total_ideas": 0,
+    "evaluated_ideas": 0,
+    "unevaluated_ideas": 0,
+    "low_watermark_triggered": false,
+    "low_watermark_threshold": 5
+  },
+  "last_monthly_run": null,
+  "last_weekly_run": null,
+  "last_firmeza_check_idea_id": null,
+  "rate_limit_state": {
+    "in_progress_chunk_index": null,
+    "resume_token": null,
+    "last_failure_reason": null,
+    "next_retry_at": null
+  },
+  "cadence": {
+    "weekly_day": "friday",
+    "weekly_hour_local": 18,
+    "weekly_timezone": "America/Sao_Paulo"
+  }
+}

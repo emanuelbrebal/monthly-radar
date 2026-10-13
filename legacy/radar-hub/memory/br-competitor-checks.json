@@ -1,0 +1,6 @@
+{
+  "_version": 1,
+  "_description": "Cache de queries de competidores BR. Chave: hash(query_normalizada). Valor: { query, normalized, ts, ttl_until, results_summary, num_competitors_found, confidence }",
+  "_ttl_days": 90,
+  "entries": {}
+}
