@@ -61,6 +61,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Credenciais do único usuário do app (UserSeeder)
+    |--------------------------------------------------------------------------
+    |
+    | Sem cadastro público — database/seeders/UserSeeder.php lê daqui (não
+    | via env() direto, pra não quebrar com config cacheada em produção).
+    |
+    */
+    'seed_user' => [
+        'email' => env('RADAR_USER_EMAIL'),
+        'password' => env('RADAR_USER_PASSWORD'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Palavras-chave por área (T2)
     |--------------------------------------------------------------------------
     |
