@@ -27,10 +27,18 @@ class SweepCommand extends Command
 
     public function handle(): int
     {
-        $area = TiArea::tryFrom($this->argument('area'));
+        $areaArgument = $this->argument('area');
+
+        if (! is_string($areaArgument)) {
+            $this->error('Argumento "area" inválido.');
+
+            return self::FAILURE;
+        }
+
+        $area = TiArea::tryFrom($areaArgument);
 
         if ($area === null) {
-            $this->error("Área desconhecida: {$this->argument('area')}. Valores válidos: ".implode(', ', array_column(TiArea::cases(), 'value')));
+            $this->error("Área desconhecida: {$areaArgument}. Valores válidos: ".implode(', ', array_column(TiArea::cases(), 'value')));
 
             return self::FAILURE;
         }

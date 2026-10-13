@@ -20,6 +20,13 @@ class SourceCommand extends Command
     public function handle(ContestSourceRegistry $registry): int
     {
         $key = $this->argument('key');
+
+        if (! is_string($key)) {
+            $this->error('Argumento "key" inválido.');
+
+            return self::FAILURE;
+        }
+
         $source = $registry->find($key);
 
         if ($source === null) {
