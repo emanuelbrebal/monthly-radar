@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
 /**
- * Semeia os 12 concursos mapeados em pesquisa manual — ver docs/05-seed-inicial.md.
+ * Semeia os concursos mapeados em pesquisa manual — ver docs/05-seed-inicial.md.
  * Idempotente (updateOrCreate por slug). Todo item nasce com
  * enrichment_status = pending e last_enriched_at = null: a primeira
  * varredura da área "all" confere e corrige o que vier de fonte não oficial.
@@ -53,6 +53,7 @@ class ContestSeeder extends Seeder
                 'areas' => $row['areas'],
                 'status' => $row['status'],
                 'status_changed_at' => $now,
+                'closed_at' => $row['closed_at'] ?? null,
                 'registration_start' => $row['registration_start'] ?? null,
                 'registration_end' => $row['registration_end'] ?? null,
                 'exam_date' => $row['exam_date'] ?? null,
@@ -61,12 +62,31 @@ class ContestSeeder extends Seeder
                 'salary_max_cents' => $row['salary_max_cents'] ?? null,
                 'it_vacancies' => $row['it_vacancies'] ?? null,
                 'regime' => $row['regime'] ?? Regime::Unknown->value,
+                'sphere' => $row['sphere'] ?? null,
+                'education_level' => $row['education_level'] ?? null,
+                'is_it_role' => $row['is_it_role'] ?? null,
+                'immediate_vacancies' => $row['immediate_vacancies'] ?? null,
+                'reserve_vacancies' => $row['reserve_vacancies'] ?? null,
+                'open_competition_vacancies' => $row['open_competition_vacancies'] ?? null,
+                'salary_note' => $row['salary_note'] ?? null,
+                'board_affinity' => $row['board_affinity'] ?? null,
+                'board_affinity_note' => $row['board_affinity_note'] ?? null,
                 'locations' => $row['locations'] ?? [],
+                'workplace_city' => $row['workplace_city'] ?? null,
+                'workplace_state' => $row['workplace_state'] ?? null,
+                'distance_from_home_km' => $row['distance_from_home_km'] ?? null,
                 'states' => $row['states'] ?? [],
                 'nationwide' => $row['nationwide'] ?? false,
+                'exam_city' => $row['exam_city'] ?? null,
+                'essay_exam_date' => $row['essay_exam_date'] ?? null,
+                'validity_months' => $row['validity_months'] ?? null,
+                'validity_extendable' => $row['validity_extendable'] ?? null,
                 'edital_url' => $row['edital_url'] ?? null,
                 'registration_url' => $row['registration_url'] ?? null,
+                'source_checked_at' => $row['source_checked_at'] ?? null,
+                'confidence' => $confidence,
                 'dossier' => $this->buildDossier($row, $collectedBetween),
+                'personal_notes' => $row['personal_notes'] ?? null,
                 'field_sources' => $this->buildFieldSources($row, $sourceUrl, $confidence),
                 'enrichment_status' => EnrichmentStatus::Pending->value,
                 'enrollment_status' => $row['enrollment_status'] ?? EnrollmentStatus::NotEnrolled->value,

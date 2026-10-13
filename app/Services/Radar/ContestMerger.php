@@ -184,6 +184,10 @@ class ContestMerger
             $rows[] = ['type' => EventType::Exam->value, 'date' => $contest->exam_date->toDateString(), 'label' => null];
         }
 
+        if ($contest->essay_exam_date !== null) {
+            $rows[] = ['type' => EventType::Exam->value, 'date' => $contest->essay_exam_date->toDateString(), 'label' => 'prova discursiva'];
+        }
+
         foreach ($extraEvents as $event) {
             $rows[] = [
                 'type' => $event['type'],

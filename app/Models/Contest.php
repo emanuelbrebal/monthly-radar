@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Enums\BoardAffinity;
+use App\Enums\Confidence;
 use App\Enums\EditalStatus;
 use App\Enums\EnrichmentStatus;
 use App\Enums\EnrollmentStatus;
 use App\Enums\Regime;
+use App\Enums\Sphere;
 use App\Services\Radar\ContestStatusResolver;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
@@ -36,12 +39,31 @@ use Illuminate\Support\Carbon;
  * @property int|null $salary_max_cents
  * @property int|null $it_vacancies
  * @property Regime $regime
+ * @property Sphere|null $sphere
+ * @property string|null $education_level
+ * @property bool|null $is_it_role
+ * @property int|null $immediate_vacancies
+ * @property int|null $reserve_vacancies
+ * @property int|null $open_competition_vacancies
+ * @property string|null $salary_note
+ * @property BoardAffinity|null $board_affinity
+ * @property string|null $board_affinity_note
  * @property array<int, string> $locations
+ * @property string|null $workplace_city
+ * @property string|null $workplace_state
+ * @property int|null $distance_from_home_km
  * @property array<int, string> $states
  * @property bool $nationwide
+ * @property string|null $exam_city
+ * @property Carbon|null $essay_exam_date
+ * @property int|null $validity_months
+ * @property bool|null $validity_extendable
  * @property string|null $edital_url
  * @property string|null $registration_url
+ * @property Carbon|null $source_checked_at
+ * @property Confidence|null $confidence
  * @property array<string, mixed>|null $dossier
+ * @property string|null $personal_notes
  * @property array<string, mixed> $field_sources
  * @property EnrichmentStatus $enrichment_status
  * @property EnrollmentStatus $enrollment_status
@@ -78,12 +100,31 @@ class Contest extends Model
         'salary_max_cents',
         'it_vacancies',
         'regime',
+        'sphere',
+        'education_level',
+        'is_it_role',
+        'immediate_vacancies',
+        'reserve_vacancies',
+        'open_competition_vacancies',
+        'salary_note',
+        'board_affinity',
+        'board_affinity_note',
         'locations',
+        'workplace_city',
+        'workplace_state',
+        'distance_from_home_km',
         'states',
         'nationwide',
+        'exam_city',
+        'essay_exam_date',
+        'validity_months',
+        'validity_extendable',
         'edital_url',
         'registration_url',
+        'source_checked_at',
+        'confidence',
         'dossier',
+        'personal_notes',
         'field_sources',
         'enrichment_status',
         'enrollment_status',
@@ -110,9 +151,21 @@ class Contest extends Model
             'salary_max_cents' => 'integer',
             'it_vacancies' => 'integer',
             'regime' => Regime::class,
+            'sphere' => Sphere::class,
+            'is_it_role' => 'boolean',
+            'immediate_vacancies' => 'integer',
+            'reserve_vacancies' => 'integer',
+            'open_competition_vacancies' => 'integer',
+            'board_affinity' => BoardAffinity::class,
             'locations' => 'array',
+            'distance_from_home_km' => 'integer',
             'states' => 'array',
             'nationwide' => 'boolean',
+            'essay_exam_date' => 'date',
+            'validity_months' => 'integer',
+            'validity_extendable' => 'boolean',
+            'source_checked_at' => 'date',
+            'confidence' => Confidence::class,
             'dossier' => 'array',
             'field_sources' => 'array',
             'enrichment_status' => EnrichmentStatus::class,
