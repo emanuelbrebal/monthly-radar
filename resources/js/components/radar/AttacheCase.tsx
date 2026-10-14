@@ -4,9 +4,30 @@ import { CaseSlot } from '@/components/radar/CaseSlot';
 import { ItemDescription } from '@/components/radar/ItemDescription';
 import { csrfFetch } from '@/lib/csrf-fetch';
 import { notifyError } from '@/lib/notify';
-import type { ContestDto } from '@/types/radar';
+import { CONTEST_TIERS } from '@/types/radar';
+import type { ContestDto, ContestTierValue } from '@/types/radar';
 
 const SLOTS = 12;
+const VIEW_STORAGE_KEY = 'radar.case.view';
+
+type CaseView = 'grid' | 'tiers';
+
+/** Preferência só deste navegador — falha silenciosa (aba privada etc.). */
+function readView(): CaseView {
+    try {
+        return window.localStorage.getItem(VIEW_STORAGE_KEY) === 'tiers' ? 'tiers' : 'grid';
+    } catch {
+        return 'grid';
+    }
+}
+
+function writeView(view: CaseView) {
+    try {
+        window.localStorage.setItem(VIEW_STORAGE_KEY, view);
+    } catch {
+        // sem storage: a escolha vale só até recarregar
+    }
+}
 
 type AttacheCaseProps = {
     contests: ContestDto[];
@@ -21,6 +42,7 @@ type AttacheCaseProps = {
  */
 export function AttacheCase({ contests, onOpen, onContestChange }: AttacheCaseProps) {
     const [selected, setSelected] = useState<number | null>(null);
+    const [view, setView] = useState<CaseView>(readView);
     // Overrida a ordem derivada da prop enquanto um drag está em voo (mesmo
     // motivo do bug de useState(propList) da T4: nunca copiar a prop pra
     // state, só sobrepor otimisticamente por cima dela).
@@ -31,6 +53,20 @@ export function AttacheCase({ contests, onOpen, onContestChange }: AttacheCasePr
     const byId = new Map(contests.map((c) => [c.id, c]));
     const filled = order.filter((id) => id !== null).length;
     const selectedContest = selected !== null && order[selected] !== null ? (byId.get(order[selected] as number) ?? null) : null;
+
+    const groups = buildTierGroups(order, byId);
+    const counts = new Map(groups.map((g) => [g.tier, g.slots.length]));
+    const top = (counts.get('elite') ?? 0) + (counts.get('alto') ?? 0);
+    const base = (counts.get('intermediario') ?? 0) + (counts.get('entrada') ?? 0);
+    // Ordem de navegação por teclado: na grade são os 12 slots; agrupado, só
+    // os ocupados, na ordem em que aparecem na tela.
+    const navOrder = view === 'grid' ? order.map((_, slot) => slot) : groups.flatMap((g) => g.slots);
+
+    function toggleView() {
+        const next: CaseView = view === 'grid' ? 'tiers' : 'grid';
+        setView(next);
+        writeView(next);
+    }
 
     async function unpinSelected() {
         if (selectedContest === null) {
@@ -83,8 +119,9 @@ export function AttacheCase({ contests, onOpen, onContestChange }: AttacheCasePr
 
         if (e.key in arrows) {
             e.preventDefault();
-            const next = Math.min(SLOTS - 1, Math.max(0, selected + arrows[e.key]));
-            setSelected(next);
+            const position = Math.max(0, navOrder.indexOf(selected));
+            const next = Math.min(navOrder.length - 1, Math.max(0, position + arrows[e.key]));
+            setSelected(navOrder[next] ?? selected);
         } else if (e.key === 'Enter' && selectedContest) {
             onOpen(selectedContest);
         } else if ((e.key === 'p' || e.key === 'P') && selectedContest) {
@@ -98,23 +135,80 @@ export function AttacheCase({ contests, onOpen, onContestChange }: AttacheCasePr
             tabIndex={0}
             onKeyDown={handleKeyDown}
         >
-            <p className="rm-eyebrow text-night-text-mid">
-                ¶ maleta · {filled}/{SLOTS}
-            </p>
-
-            <div className="grid grid-cols-4 gap-1.5">
-                {order.map((contestId, slot) => (
-                    <CaseSlot
-                        key={slot}
-                        slot={slot}
-                        contest={contestId !== null ? (byId.get(contestId) ?? null) : null}
-                        selected={selected === slot}
-                        onSelect={setSelected}
-                        onOpen={onOpen}
-                        onDropContest={moveTo}
-                    />
-                ))}
+            <div className="flex items-center justify-between gap-2">
+                <p className="rm-eyebrow text-night-text-mid">
+                    ¶ maleta · {filled}/{SLOTS}
+                </p>
+                <button
+                    type="button"
+                    onClick={toggleView}
+                    aria-pressed={view === 'tiers'}
+                    className="rm-mono rounded-sm border border-night-text-mid/40 px-1.5 py-0.5 text-[10px] uppercase text-night-text-mid hover:text-night-text"
+                    title={view === 'grid' ? 'agrupar por nível' : 'voltar para a grade'}
+                >
+                    {view === 'grid' ? 'por nível' : 'grade'}
+                </button>
             </div>
+
+            {filled > 0 && (
+                <div className="flex flex-col gap-1">
+                    <div className="flex flex-wrap gap-x-3 gap-y-1" aria-label="equilíbrio da maleta por nível">
+                        {CONTEST_TIERS.map((tier) => (
+                            <span key={tier.value} className="rm-mono inline-flex items-center gap-1 text-[10px] uppercase text-night-text-mid">
+                                <span className={`inline-block h-2 w-2 ${tier.color} ${counts.get(tier.value) ? '' : 'opacity-30'}`} />
+                                {tier.short} {counts.get(tier.value) ?? 0}
+                            </span>
+                        ))}
+                    </div>
+                    {top > base && (
+                        <p className="rm-serif text-[11px] text-night-text-mid italic">
+                            maleta pesada no topo — {top} de elite/alto contra {base} de base.
+                        </p>
+                    )}
+                </div>
+            )}
+
+            {view === 'grid' ? (
+                <div className="grid grid-cols-4 gap-1.5">
+                    {order.map((contestId, slot) => (
+                        <CaseSlot
+                            key={slot}
+                            slot={slot}
+                            contest={contestId !== null ? (byId.get(contestId) ?? null) : null}
+                            selected={selected === slot}
+                            onSelect={setSelected}
+                            onOpen={onOpen}
+                            onDropContest={moveTo}
+                        />
+                    ))}
+                </div>
+            ) : (
+                <div className="flex min-h-0 flex-col gap-3 overflow-y-auto">
+                    {groups.length === 0 && <p className="rm-serif text-sm text-night-text-mid italic">Maleta vazia.</p>}
+                    {groups.map((group) => (
+                        <div key={group.tier ?? 'none'} className="flex flex-col gap-1.5">
+                            <p className="rm-mono inline-flex items-center gap-1.5 text-[10px] uppercase text-night-text-mid">
+                                <span className={`inline-block h-2 w-2 ${group.color}`} />
+                                {group.label} · {group.slots.length}
+                            </p>
+                            <div className="grid grid-cols-4 gap-1.5">
+                                {group.slots.map((slot) => (
+                                    <CaseSlot
+                                        key={slot}
+                                        slot={slot}
+                                        contest={byId.get(order[slot] as number) ?? null}
+                                        selected={selected === slot}
+                                        onSelect={setSelected}
+                                        onOpen={onOpen}
+                                        onDropContest={moveTo}
+                                        reorderable={false}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
 
             <ItemDescription contest={selectedContest} onOpen={onOpen} onContestChange={onContestChange} />
         </section>
@@ -131,4 +225,29 @@ function buildOrder(contests: ContestDto[]): Array<number | null> {
     }
 
     return order;
+}
+
+type TierGroup = { tier: ContestTierValue | null; label: string; color: string; slots: number[] };
+
+/**
+ * Agrupa os slots ocupados por nível, do topo da escada para a base; quem não
+ * tem nível vai num grupo "sem nível" no fim. Dentro do grupo, a ordem é a do
+ * slot — a ordem manual da grade continua valendo.
+ */
+function buildTierGroups(order: Array<number | null>, byId: Map<number, ContestDto>): TierGroup[] {
+    const groups: TierGroup[] = [
+        ...CONTEST_TIERS.map((t) => ({ tier: t.value, label: t.label, color: t.color, slots: [] as number[] })),
+        { tier: null, label: 'sem nível', color: 'bg-night-text-mid', slots: [] },
+    ];
+
+    order.forEach((contestId, slot) => {
+        if (contestId === null) {
+            return;
+        }
+
+        const tier = byId.get(contestId)?.tier ?? null;
+        groups.find((g) => g.tier === tier)?.slots.push(slot);
+    });
+
+    return groups.filter((g) => g.slots.length > 0);
 }

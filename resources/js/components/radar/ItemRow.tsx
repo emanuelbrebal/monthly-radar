@@ -3,6 +3,7 @@ import { useState } from 'react';
 
 import { Stamp } from '@/components/radar/Stamp';
 import { Tag } from '@/components/radar/Tag';
+import { TierMark } from '@/components/radar/TierMark';
 import { csrfFetch } from '@/lib/csrf-fetch';
 import { notifyError } from '@/lib/notify';
 import { EDITAL_STATUS_BADGE } from '@/types/radar';
@@ -39,6 +40,9 @@ export function ItemRow({ contest, nextEventLabel, onPinChange, onSelect }: Item
 
     return (
         <div className="flex items-center gap-3 border-b border-ink/10 py-1.5 text-sm">
+            <span className="flex w-2 shrink-0 justify-center">
+                <TierMark tier={contest.tier} />
+            </span>
             <button type="button" className="rm-display flex-1 truncate text-left text-base" onClick={() => onSelect?.(contest)}>
                 {contest.organ_acronym ?? contest.organ}
             </button>

@@ -46,7 +46,7 @@ class ContestSeeder extends Seeder
     private const CURATION_FIELDS = [
         'sphere', 'education_level', 'is_it_role', 'immediate_vacancies',
         'reserve_vacancies', 'open_competition_vacancies', 'salary_note',
-        'board_affinity', 'board_affinity_note', 'workplace_city', 'workplace_state',
+        'board_affinity', 'board_affinity_note', 'tier', 'tier_note', 'workplace_city', 'workplace_state',
         'distance_from_home_km', 'exam_city', 'essay_exam_date', 'validity_months',
         'validity_extendable', 'source_checked_at', 'confidence',
     ];
@@ -188,6 +188,8 @@ class ContestSeeder extends Seeder
                 'salary_note' => $row['salary_note'] ?? null,
                 'board_affinity' => $row['board_affinity'] ?? null,
                 'board_affinity_note' => $row['board_affinity_note'] ?? null,
+                'tier' => $row['tier'] ?? null,
+                'tier_note' => $row['tier_note'] ?? null,
                 'locations' => $row['locations'] ?? [],
                 'workplace_city' => $row['workplace_city'] ?? null,
                 'workplace_state' => $row['workplace_state'] ?? null,
