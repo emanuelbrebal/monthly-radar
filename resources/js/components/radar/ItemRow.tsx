@@ -1,7 +1,6 @@
 import { Pin } from 'lucide-react';
 import { useState } from 'react';
 
-import { Stamp } from '@/components/radar/Stamp';
 import { Tag } from '@/components/radar/Tag';
 import { TierMark } from '@/components/radar/TierMark';
 import { csrfFetch } from '@/lib/csrf-fetch';
@@ -39,29 +38,31 @@ export function ItemRow({ contest, nextEventLabel, onPinChange, onSelect }: Item
     }
 
     return (
-        <div className="flex items-center gap-3 border-b border-ink/10 py-1.5 text-sm">
-            <span className="flex w-2 shrink-0 justify-center">
-                <TierMark tier={contest.tier} />
-            </span>
-            <button type="button" className="rm-display flex-1 truncate text-left text-base" onClick={() => onSelect?.(contest)}>
+        <div className="flex items-center gap-3 border-b border-line py-1.5">
+            <button type="button" className="t-title min-h-6 flex-1 truncate text-left text-ink" onClick={() => onSelect?.(contest)}>
                 {contest.organ_acronym ?? contest.organ}
             </button>
 
-            <span className="rm-mono w-28 shrink-0 truncate text-[11px] text-ink-mid">{nextEventLabel ?? '—'}</span>
+            <TierMark tier={contest.tier} variant="chip" />
+
+            <span className="t-body w-32 shrink-0 truncate text-muted-fg">{nextEventLabel ?? '—'}</span>
 
             <Tag label={contest.effective_status_label} kind={EDITAL_STATUS_BADGE[contest.effective_status]} />
 
-            {contest.hides_in_hours !== null && contest.hides_in_hours <= 24 && <Stamp rotate={-6}>some {contest.hides_in_hours}h</Stamp>}
+            {contest.hides_in_hours !== null && contest.hides_in_hours <= 24 && (
+                <span className="t-label shrink-0 rounded-sm border border-red-text px-1.5 py-0.5 whitespace-nowrap text-red-text">some {contest.hides_in_hours}h</span>
+            )}
 
             <button
                 type="button"
                 onClick={togglePin}
                 disabled={pinning}
                 aria-pressed={pinned}
-                className="shrink-0 disabled:opacity-50"
+                aria-label={pinned ? `desafixar ${contest.organ_acronym ?? contest.organ} da maleta` : `fixar ${contest.organ_acronym ?? contest.organ} na maleta`}
+                className="inline-flex size-6 shrink-0 items-center justify-center rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:text-muted-fg"
                 title={pinned ? 'desafixar' : 'fixar na maleta'}
             >
-                <Pin size={16} strokeWidth={1.5} className={pinned ? 'fill-red text-red' : 'text-ink-mid'} />
+                <Pin size={16} strokeWidth={2} aria-hidden="true" className={pinned ? 'fill-red-text text-red-text' : 'text-muted-fg'} />
             </button>
         </div>
     );
