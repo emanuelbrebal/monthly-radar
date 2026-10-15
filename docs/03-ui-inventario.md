@@ -17,7 +17,7 @@ Tokens de maleta, linha e foco:
 --case: var(--night);   --case-lining: #1b1610;
 --slot-border: #7d735f;            /* borda de slot, 3.8:1+ */
 --slot-selected: var(--highlight); /* anel de seleção */
---line-strong: #8a8070;            /* bordas de UI no claro, 3.28:1+ */
+--line-strong: #7c7264;            /* bordas de UI no claro, 3.28:1+ (paper-deep) */
 --focus: #1d3c63;  --focus-on-night: #f0d96b;
 ```
 

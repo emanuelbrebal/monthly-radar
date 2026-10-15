@@ -133,7 +133,7 @@
     --ink: #1a1612;
     --ink-mid: #4a443c;
     --ink-soft: #5c554b;
-    --line-strong: #8a8070;
+    --line-strong: #7c7264;
     --red: #9a4434;
     --red-deep: #783326;
     --red-text: #8a3526;
@@ -303,17 +303,17 @@
         color: var(--badge-info-fg);
     }
     .rm-stamp {
-        font-family: var(--font-mono);
-        font-weight: 700;
-        letter-spacing: 0.18em;
-        text-transform: uppercase;
+        font-family: var(--font-sans);
+        font-size: var(--text-label);
+        font-weight: 600;
+        letter-spacing: 0.04em;
         color: var(--red-text);
         border: 2px solid var(--red-text);
         border-radius: var(--radius-md);
-        padding: 6px 10px 5px;
+        padding: 4px 8px;
         display: inline-block;
         transform: rotate(-4deg);
-        background: rgba(138, 53, 38, 0.06);
+        background: transparent;
     }
 
     /*

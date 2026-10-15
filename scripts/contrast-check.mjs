@@ -95,11 +95,11 @@ for (const bg of ['--night', '--night-2', '--night-card', '--case-lining']) {
 P('--night-text-mid', bg, 4.5, 'texto 2 maleta');
 }
 
-for (const bg of ['--card', '--paper']) {
+for (const bg of ['--card', '--paper', '--paper-soft', '--paper-deep']) {
 P('--line-strong', bg, 3, 'borda UI');
 }
 
-for (const bg of ['--case-lining', '--night']) {
+for (const bg of ['--case-lining', '--night', '--night-2', '--night-card']) {
 P('--slot-border', bg, 3, 'borda slot');
 }
 

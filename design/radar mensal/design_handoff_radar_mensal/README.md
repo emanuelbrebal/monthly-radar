@@ -410,8 +410,8 @@ Gerada por `node scripts/contrast-check.mjs` (lê `resources/css/app.css`, confe
 | `--night-text-mid` / `--night-2` | texto 2 maleta | #d2c9b0 | #1f1a13 | 10.47 | 4.5 | sim |
 | `--night-text-mid` / `--night-card` | texto 2 maleta | #d2c9b0 | #221c14 | 10.22 | 4.5 | sim |
 | `--night-text-mid` / `--case-lining` | texto 2 maleta | #d2c9b0 | #1b1610 | 10.88 | 4.5 | sim |
-| `--line-strong` / `--card` | borda UI | #8a8070 | #fbf6e8 | 3.60 | 3 | sim |
-| `--line-strong` / `--paper` | borda UI | #8a8070 | #f3ebda | 3.28 | 3 | sim |
+| `--line-strong` / `--card` | borda UI | #7c7264 | #fbf6e8 | 4.37 | 3 | sim |
+| `--line-strong` / `--paper` | borda UI | #7c7264 | #f3ebda | 3.98 | 3 | sim |
 | `--slot-border` / `--case-lining` | borda slot | #7d735f | #1b1610 | 3.84 | 3 | sim |
 | `--slot-border` / `--night` | borda slot | #7d735f | #14110d | 4.02 | 3 | sim |
 | `--slot-selected` / `--case-lining` | slot selecionado | #f0d96b | #1b1610 | 12.70 | 3 | sim |
