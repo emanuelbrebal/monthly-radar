@@ -16,7 +16,7 @@ it('derives the current phase', function (
     EnrollmentStatus $enrollment,
     ContestPhase $expected,
 ) {
-    $phase = $this->resolver->resolve($effective, $enrollment, $this->today);
+    $phase = $this->resolver->resolve($effective, $enrollment);
 
     expect($phase)->toBe($expected);
 })->with([

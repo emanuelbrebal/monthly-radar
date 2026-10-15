@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/dialog';
 import { csrfFetch } from '@/lib/csrf-fetch';
 import { notifyError } from '@/lib/notify';
-import { dateLabel, money } from '@/lib/radar';
+import { dateLabel, money, todayIso } from '@/lib/radar';
 import type { ContestDto } from '@/types/radar';
 
 type DossierModalProps = {
@@ -51,6 +51,7 @@ export function DossierModal({
     }
 
     const pinned = contest.pinned_slot !== null;
+    const today = todayIso();
     const dismissed = contest.enrollment_status === 'dismissed';
 
     async function togglePin() {
@@ -188,9 +189,7 @@ export function DossierModal({
                         ) : (
                             <ul className="space-y-1">
                                 {contest.events.map((e) => {
-                                    const past =
-                                        e.date <
-                                        new Date().toISOString().slice(0, 10);
+                                    const past = e.date < today;
 
                                     return (
                                         <li

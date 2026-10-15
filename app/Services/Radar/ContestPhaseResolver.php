@@ -14,11 +14,8 @@ use Illuminate\Support\Carbon;
  */
 class ContestPhaseResolver
 {
-    public function resolve(
-        EditalStatus $effective,
-        EnrollmentStatus $enrollment,
-        ?CarbonInterface $now = null,
-    ): ContestPhase {
+    public function resolve(EditalStatus $effective, EnrollmentStatus $enrollment): ContestPhase
+    {
         if ($effective === EditalStatus::Suspended) {
             return ContestPhase::Suspended;
         }
@@ -27,20 +24,16 @@ class ContestPhaseResolver
             return ContestPhase::Finished;
         }
 
-        switch ($enrollment) {
-            case EnrollmentStatus::ExamTaken:
-                return ContestPhase::AwaitingResult;
-            case EnrollmentStatus::VenueReleased:
-                return ContestPhase::VenueReleased;
-            case EnrollmentStatus::FeePaid:
-                return ContestPhase::FeePaid;
-            case EnrollmentStatus::Enrolled:
-                return ContestPhase::Enrolled;
-            default:
-                // not_enrolled, interested e dismissed seguem o edital.
-        }
+        // not_enrolled, interested e dismissed seguem o edital.
+        $personal = match ($enrollment) {
+            EnrollmentStatus::ExamTaken => ContestPhase::AwaitingResult,
+            EnrollmentStatus::VenueReleased => ContestPhase::VenueReleased,
+            EnrollmentStatus::FeePaid => ContestPhase::FeePaid,
+            EnrollmentStatus::Enrolled => ContestPhase::Enrolled,
+            default => null,
+        };
 
-        return match ($effective) {
+        return $personal ?? match ($effective) {
             EditalStatus::ExamDone => ContestPhase::ExamDone,
             EditalStatus::RegistrationClosed => ContestPhase::RegistrationClosed,
             EditalStatus::RegistrationOpen => ContestPhase::RegistrationOpen,

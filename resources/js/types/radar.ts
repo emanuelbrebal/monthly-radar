@@ -44,6 +44,22 @@ export type RegimeValue = 'clt' | 'statutory' | 'temporary' | 'unknown';
 
 export type EnrichmentStatusValue = 'pending' | 'skipped' | 'done' | 'failed';
 
+/** Espelha `App\Enums\ContestPhase`. */
+export type ContestPhaseValue =
+    | 'expected'
+    | 'authorized'
+    | 'edital_in_preparation'
+    | 'edital_published'
+    | 'registration_open'
+    | 'registration_closed'
+    | 'enrolled'
+    | 'fee_paid'
+    | 'venue_released'
+    | 'exam_done'
+    | 'awaiting_result'
+    | 'finished'
+    | 'suspended';
+
 export type RunStatusValue =
     | 'queued'
     | 'scraping'
@@ -141,6 +157,14 @@ export const CONTEST_TIERS: TierMeta[] = [
 /** Badge visual (docs/03-ui-inventario.md → tabela de status/evento). */
 export type BadgeKind = 'pos' | 'neu' | 'neg' | 'info';
 
+/** Forma junto da cor: o tom nunca é transmitido só por cor. */
+export const TONE_ICON: Record<BadgeKind, string> = {
+    pos: '✓',
+    neu: '◐',
+    neg: '■',
+    info: '○',
+};
+
 /** Checklist sequencial — espelha a ordem de `EnrollmentStatus::order()` (Dismissed fica fora). */
 export const ENROLLMENT_STEPS: Array<{
     value: EnrollmentStatusValue;
@@ -203,7 +227,7 @@ export type ContestDto = {
     status: EditalStatusValue;
     effective_status: EditalStatusValue;
     effective_status_label: string;
-    phase: string;
+    phase: ContestPhaseValue;
     phase_label: string;
     phase_tone: BadgeKind;
     is_new: boolean;

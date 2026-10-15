@@ -5,22 +5,17 @@ import { NewTag, PhaseTag } from '@/components/radar/PhaseTag';
 import { TierMark } from '@/components/radar/TierMark';
 import { csrfFetch } from '@/lib/csrf-fetch';
 import { notifyError } from '@/lib/notify';
+import { nextEventLabel } from '@/lib/radar';
 import type { ContestDto } from '@/types/radar';
 
 type ItemRowProps = {
     contest: ContestDto;
-    nextEventLabel: string | null;
     onPinChange: (contest: ContestDto) => void;
     onSelect?: (contest: ContestDto) => void;
 };
 
 /** Linha compacta da caixa de itens — docs/03-ui-inventario.md → "Caixa de itens". */
-export function ItemRow({
-    contest,
-    nextEventLabel,
-    onPinChange,
-    onSelect,
-}: ItemRowProps) {
+export function ItemRow({ contest, onPinChange, onSelect }: ItemRowProps) {
     const [pinning, setPinning] = useState(false);
     const pinned = contest.pinned_slot !== null;
 
@@ -58,7 +53,7 @@ export function ItemRow({
             <TierMark tier={contest.tier} variant="chip" />
 
             <span className="t-body w-32 shrink-0 truncate text-muted-fg">
-                {nextEventLabel ?? '—'}
+                {nextEventLabel(contest) ?? '—'}
             </span>
 
             {contest.is_new && <NewTag />}

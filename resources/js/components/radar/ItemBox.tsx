@@ -5,7 +5,6 @@ import { StatusFilterPopover } from '@/components/radar/StatusFilterPopover';
 import { Checkbox } from '@/components/ui/checkbox';
 import { csrfFetch } from '@/lib/csrf-fetch';
 import { notifyError } from '@/lib/notify';
-import { nextEventLabel } from '@/lib/radar';
 import type { ContestDto, EditalStatusValue } from '@/types/radar';
 
 type ItemBoxProps = {
@@ -222,7 +221,6 @@ export function ItemBox({
                         <ItemRow
                             key={contest.id}
                             contest={contest}
-                            nextEventLabel={nextEventLabel(contest)}
                             onPinChange={onPinChange}
                             onSelect={onSelect}
                         />

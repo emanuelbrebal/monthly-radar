@@ -1,8 +1,13 @@
-import type { BadgeKind, ContestDto } from '@/types/radar';
+import type { ContestDto } from '@/types/radar';
+
+/** Hoje em `YYYY-MM-DD` (UTC), no mesmo formato das datas dos eventos. */
+export function todayIso(): string {
+    return new Date().toISOString().slice(0, 10);
+}
 
 /** Próximo evento (ou o último, se todos já passaram) no formato "prova · 13/10". */
 export function nextEventLabel(contest: ContestDto): string | null {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = todayIso();
     const upcoming =
         contest.events.find((e) => e.date >= today) ?? contest.events.at(-1);
 
@@ -31,11 +36,3 @@ export function dateLabel(date: string): string {
 
     return `${day}/${month}/${year}`;
 }
-
-/** Forma junto da cor: o tom nunca é transmitido só por cor. */
-export const TONE_ICON: Record<BadgeKind, string> = {
-    pos: '✓',
-    neu: '◐',
-    neg: '■',
-    info: '○',
-};

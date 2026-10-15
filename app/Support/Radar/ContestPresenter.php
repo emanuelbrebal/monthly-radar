@@ -23,7 +23,7 @@ class ContestPresenter
         $closedAt = $contest->effectiveClosedAt();
         $disappearsAt = $closedAt?->addDay();
         $resolver = app(ContestPhaseResolver::class);
-        $phase = $resolver->resolve($effectiveStatus, $contest->enrollment_status, $now);
+        $phase = $resolver->resolve($effectiveStatus, $contest->enrollment_status);
 
         return [
             'id' => $contest->id,
