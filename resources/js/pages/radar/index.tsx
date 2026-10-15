@@ -104,9 +104,9 @@ export default function RadarIndex() {
                 </header>
 
                 <main aria-label="Mesa de concursos" className="grid min-h-0 flex-1 gap-6 overflow-hidden p-6" style={{ gridTemplateColumns: 'minmax(420px, 5fr) 7fr' }}>
-                    <section aria-label="Maleta" className="flex min-h-0 flex-col overflow-hidden">
+                    <div className="flex min-h-0 flex-col overflow-hidden">
                         <AttacheCase contests={pinnedContests} onOpen={openDossier} onContestChange={updateContest} />
-                    </section>
+                    </div>
 
                     <div className="flex min-h-0 flex-col gap-6 overflow-hidden border border-line-strong bg-paper p-4">
                         <section aria-label="Calendário do mês" className="max-h-[52vh] shrink-0 overflow-y-auto">
