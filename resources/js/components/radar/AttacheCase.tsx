@@ -1,14 +1,22 @@
-import { useMemo, useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 
 import { CaseSlot } from '@/components/radar/CaseSlot';
 import { ItemDescription } from '@/components/radar/ItemDescription';
 import { TierMark } from '@/components/radar/TierMark';
+import { buildRows, moveSelection } from '@/lib/case-nav';
+import type { NavKey } from '@/lib/case-nav';
 import { csrfFetch } from '@/lib/csrf-fetch';
 import { notifyError } from '@/lib/notify';
 import { CONTEST_TIERS } from '@/types/radar';
 import type { ContestDto, ContestTierValue } from '@/types/radar';
 
 const SLOTS = 12;
+const ARROW_KEYS: NavKey[] = [
+    'ArrowLeft',
+    'ArrowRight',
+    'ArrowUp',
+    'ArrowDown',
+];
 const VIEW_STORAGE_KEY = 'radar.case.view';
 
 type CaseView = 'grid' | 'tiers';
@@ -71,12 +79,14 @@ export function AttacheCase({
     const top = (counts.get('elite') ?? 0) + (counts.get('alto') ?? 0);
     const base =
         (counts.get('intermediario') ?? 0) + (counts.get('entrada') ?? 0);
-    // Ordem de navegação por teclado: na grade são os 12 slots; agrupado, só
-    // os ocupados, na ordem em que aparecem na tela.
-    const navOrder =
+    // Linhas visuais para as setas: na grade são os 12 slots; agrupado, só os
+    // ocupados, cada grupo com a sua grade de 4 colunas.
+    const navRows = buildRows(
         view === 'grid'
-            ? order.map((_, slot) => slot)
-            : groups.flatMap((g) => g.slots);
+            ? [order.map((_, slot) => slot)]
+            : groups.map((g) => g.slots),
+    );
+    const hintId = useId();
 
     function toggleView() {
         const next: CaseView = view === 'grid' ? 'tiers' : 'grid';
@@ -137,21 +147,9 @@ export function AttacheCase({
             return;
         }
 
-        const arrows: Record<string, number> = {
-            ArrowRight: 1,
-            ArrowLeft: -1,
-            ArrowDown: 4,
-            ArrowUp: -4,
-        };
-
-        if (e.key in arrows) {
+        if (ARROW_KEYS.includes(e.key as NavKey)) {
             e.preventDefault();
-            const position = Math.max(0, navOrder.indexOf(selected));
-            const next = Math.min(
-                navOrder.length - 1,
-                Math.max(0, position + arrows[e.key]),
-            );
-            setSelected(navOrder[next] ?? selected);
+            setSelected(moveSelection(navRows, selected, e.key as NavKey));
         } else if (e.key === 'Enter' && selectedContest) {
             onOpen(selectedContest);
         } else if ((e.key === 'p' || e.key === 'P') && selectedContest) {
@@ -161,10 +159,15 @@ export function AttacheCase({
 
     return (
         <section
-            className="surface-night flex h-full min-h-0 flex-col gap-3 overflow-hidden rounded-lg border border-ink p-4 outline-none"
+            aria-label="Maleta"
+            aria-describedby={hintId}
+            className="surface-night flex h-full min-h-0 flex-col gap-3 overflow-hidden rounded-lg border border-ink p-4 outline-none focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-focus-on-night"
             tabIndex={0}
             onKeyDown={handleKeyDown}
         >
+            <p id={hintId} className="sr-only">
+                Setas movem a seleção, Enter abre o dossiê, P desafixa.
+            </p>
             <div className="flex shrink-0 items-center justify-between gap-2">
                 <p className="t-label text-night-text">
                     maleta · {filled}/{SLOTS}
