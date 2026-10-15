@@ -86,9 +86,10 @@ export function ItemBox({
         onRestored();
     }
 
+    // Fora do memo: se o app ficar aberto na virada do dia, a lista reordena.
+    const today = todayIso();
     const filtered = useMemo(() => {
         const term = search.trim().toLowerCase();
-        const today = todayIso();
 
         return contests
             .filter(
@@ -106,7 +107,7 @@ export function ItemBox({
                     (c.organ_acronym ?? '').toLowerCase().includes(term),
             )
             .sort((a, b) => compareByNextEvent(a, b, today));
-    }, [contests, statusFilter, onlyEnrolled, search]);
+    }, [contests, statusFilter, onlyEnrolled, search, today]);
 
     return (
         <div className="surface-card flex h-full min-h-0 flex-col rounded-lg border border-ink bg-card">
