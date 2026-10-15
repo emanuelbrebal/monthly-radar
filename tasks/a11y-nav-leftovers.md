@@ -157,3 +157,43 @@ Abordagem única coerente: guardar `{ month, contests }` do último fetch (dados
 **Passos de revisão após o `/exec`**: `/simplify` e `/code-review` no diff; reexecutar gates e a verificação no navegador.
 
 **Gate = Livre para execução.**
+
+## Stage de Execução — Entregáveis
+
+| # | Descrição | Caminho | Commit | Status |
+|---|---|---|---|---|
+| 1 | Baseline (Pest 200/202, pint/phpstan/eslint ok, `tsc` só em arquivo gerado) | — | — | ✅ |
+| 2 | `nextEvent`, `compareByNextEvent`, `nextEventLabel` refatorado | `resources/js/lib/radar.ts` | `35c3b41` | ✅ |
+| 2 | Testes `node --test` da ordenação (4 casos) + script `test:js` | `resources/js/lib/radar.test.ts`, `package.json` | `35c3b41` | ✅ |
+| 2 | `allowImportingTsExtensions` (necessário para o teste importar `./x.ts`) | `tsconfig.json` | `35c3b41` | ✅ (desvio) |
+| 3 | `ItemBox` ordena por `compareByNextEvent` | `components/radar/ItemBox.tsx` | `35c3b41` | ✅ |
+| 4 | Remove `color` legado (`TierMeta`, `CONTEST_TIERS`, `TierGroup`) | `types/radar.ts`, `AttacheCase.tsx` | `89916e1` | ✅ |
+| 5 | Navegação por linhas visuais (`buildRows`, `moveSelection`) + 5 testes | `lib/case-nav.ts`, `lib/case-nav.test.ts` | `381f6e7` | ✅ |
+| 5 | Ligação em `handleKeyDown` | `AttacheCase.tsx` | `381f6e7` | ✅ |
+| 6 | Região única "Maleta", `aria-describedby`, anel de foco | `AttacheCase.tsx`, `pages/radar/index.tsx` | `381f6e7`, `a64c78e` | ✅ |
+| 7 | `{month, contests}` + `loadError` + alerta "tentar de novo" | `MonthCalendar.tsx` | commit "show retryable error…" | ✅ |
+| 8 | Bug 6 confirmado e corrigido: `openDossier` usa o DTO completo da mesa | `pages/radar/index.tsx` | commit "open dossier with the full contest…" | ✅ |
+| 10 | Docs (teclas, ordem, erro do mês, região da maleta) | `docs/03-ui-inventario.md` | este commit | ✅ |
+
+**Desvios**
+1. `tsconfig.json` ganhou `allowImportingTsExtensions` (já havia `noEmit`): sem isso o `tsc` rejeita `import './radar.ts'` nos testes.
+2. O commit `381f6e7` ("row-based arrow navigation") também contém as mudanças de `aria-label`/foco do `AttacheCase.tsx` (mesmo arquivo); o `a64c78e` traz só o wrapper da página.
+3. Item 8 (bug 6) era condicional; foi confirmado no navegador (2 de 8 eventos no dossiê aberto de novembro) e corrigido.
+4. Na verificação, `public/hot` (arquivo local do Vite, ignorado pelo git) apontava para um servidor de desenvolvimento que não estava rodando e deixava a página em branco; foi movido de lado só durante o teste e **restaurado**.
+5. Comportamento intencional mudado: na grade 4×3, ↓/↑ na última/primeira linha agora não mudam a seleção (antes saltavam para a ponta).
+
+## Stage de Execução — Validação
+
+| Critério de aceite | Resultado | Observação |
+|---|---|---|
+| 1. Ordem da caixa = próximo evento exibido; teste com 1º evento passado | ✅ | `node --test`: 4 casos. No navegador: 15/10, 16/10, 16/10, 21/10, 01/12, 13/12, depois sem data (antes SEMA-MT, de evento mais antigo, vinha antes de SEFAZ-AL) |
+| 2. Erro de mês com "tentar de novo"; sem dados de um mês em outro | ✅ | `fetch` de `/calendar` forçado a falhar: `role=alert` aparece, grade sem eventos; após restaurar e clicar em "tentar de novo", alerta some e novembro mostra 2 eventos |
+| 3. Setas na vista "por nível" por linha; ←/→ ordem visual; teste puro | ✅ | 5 testes; no navegador CGU →BACEN ↓ANPD ↑CGU ↑(topo) CGU. Grade: coberta por teste (não repetida no navegador) |
+| 4. Região única "Maleta", nome, descrição das teclas, foco visível | ✅ | Regiões: Maleta, Calendário do mês, Caixa de itens (sem aninhamento); `matches(':focus-visible')` true com outline 2px `rgb(240,217,107)` sobre a maleta |
+| 5. `color` removido, sem mudança visual | ✅ | `grep` sem usos; capturas da maleta idênticas às anteriores a olho nu (não comparei pixel a pixel) |
+| 6. (item 6) Dossiê pelo calendário mostra todos os eventos | ✅ | CGU: 8 eventos abrindo do mês de novembro (antes 2) |
+| 7. Gates | ✅/⚠️ | pest 200/202 (2 skipped), pint ✅, phpstan ✅, eslint ✅, `test:js` 9/9 ✅, `tsc` só `RedirectController.ts` (gerado, preexistente), prettier só avisa `csrf-fetch.ts` (preexistente, não tocado) |
+
+**Verificação em SQLite temporário** (`scratchpad/verify.sqlite`, usuário de teste), sem tocar no Postgres. 1366×768 exato não aplicado pelo navegador (viewport medido 1920×911 e ~744px de altura em capturas anteriores); este plano não mexeu em layout de altura.
+
+**Revisão pós-exec (pendente)**: `/simplify` e `/code-review` no diff desta branch.
