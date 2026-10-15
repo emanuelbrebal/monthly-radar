@@ -304,7 +304,6 @@ function buildOrder(contests: ContestDto[]): Array<number | null> {
 type TierGroup = {
     tier: ContestTierValue | null;
     label: string;
-    color: string;
     slots: number[];
 };
 
@@ -321,13 +320,11 @@ function buildTierGroups(
         ...CONTEST_TIERS.map((t) => ({
             tier: t.value,
             label: t.label,
-            color: t.color,
             slots: [] as number[],
         })),
         {
             tier: null,
             label: 'sem nível',
-            color: 'bg-night-text-mid',
             slots: [],
         },
     ];

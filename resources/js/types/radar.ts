@@ -82,8 +82,6 @@ export type TierMeta = {
     value: ContestTierValue;
     label: string;
     short: string;
-    /** Legado: fundo sólido do token (faixa lateral do slot). Preferir os campos abaixo. */
-    color: string;
     /** Forma do ícone — o nível é distinguível sem cor. */
     icon: TierIcon;
     /** Texto no claro (par com `chipClass`/`bgClass`). */
@@ -107,7 +105,6 @@ export const CONTEST_TIERS: TierMeta[] = [
         value: 'elite',
         label: 'elite',
         short: 'elite',
-        color: 'bg-red',
         icon: 'diamond',
         fgClass: 'text-tier-elite-fg',
         chipClass: 'bg-tier-elite-bg text-tier-elite-fg border-tier-elite-line',
@@ -119,7 +116,6 @@ export const CONTEST_TIERS: TierMeta[] = [
         value: 'alto',
         label: 'alto',
         short: 'alto',
-        color: 'bg-gold',
         icon: 'square',
         fgClass: 'text-tier-alto-fg',
         chipClass: 'bg-tier-alto-bg text-tier-alto-fg border-tier-alto-line',
@@ -131,7 +127,6 @@ export const CONTEST_TIERS: TierMeta[] = [
         value: 'intermediario',
         label: 'intermediário',
         short: 'inter.',
-        color: 'bg-blue',
         icon: 'triangle',
         fgClass: 'text-tier-inter-fg',
         chipClass: 'bg-tier-inter-bg text-tier-inter-fg border-tier-inter-line',
@@ -143,7 +138,6 @@ export const CONTEST_TIERS: TierMeta[] = [
         value: 'entrada',
         label: 'entrada',
         short: 'entrada',
-        color: 'bg-green',
         icon: 'circle',
         fgClass: 'text-tier-entrada-fg',
         chipClass:
