@@ -84,7 +84,7 @@ Adapter `pci_concursos` (por estado) e `official_pages`. Estados de loading/vazi
 - [ ] Concurso encerrado e não inscrito some da tela entre 24h e 24h+1 request após o encerramento, some da maleta junto e continua no banco.
 - [ ] Descartar tira o concurso da mesa e da maleta na hora; "trazer de volta" devolve; varreduras não o enriquecem.
 - [ ] Marcar "inscrito" impede o sumiço; reabrir inscrições traz o concurso de volta.
-- [ ] `php artisan migrate:fresh --seed` sobe a tela com os 27 concursos semeados: 19 na mesa (6 deles na maleta), 4 no toggle de descartados e 4 já fora da mesa pela regra das 24h (janelas perdidas antes de existir o app).
+- [ ] `php artisan migrate:fresh --seed` sobe a tela com os 28 concursos semeados (seed de 13/10/2026): 20 na mesa (5 deles na maleta), 4 no toggle de descartados e 4 já fora da mesa pela regra das 24h (janelas perdidas antes de existir o app). Contagem medida em 13/10/2026; muda a cada seed novo.
 - [ ] Marcar só alguns estados muda o que aparece na mesa sem tirar nada da maleta, e a próxima varredura só busca as páginas desses estados.
 - [ ] Varrer duas vezes seguidas a mesma área não duplica concursos nem eventos.
 - [ ] Maleta: 12 slots, fixar/desafixar/reordenar por mouse e teclado, aviso de maleta cheia.

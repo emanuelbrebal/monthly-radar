@@ -1,6 +1,6 @@
 # Seed inicial — concursos já mapeados
 
-Arquivo: `database/seeders/data/contests-seed.json` (27 concursos, atualizado em 18/09/2026). Seeder: `ContestSeeder`, chamado pelo `DatabaseSeeder` depois do `UserSeeder`.
+Arquivo: `database/seeders/data/contests-seed.json` (28 concursos, atualizado em 13/10/2026; foco em CGU, ANPD, BACEN e TJPB). Seeder: `ContestSeeder`, chamado pelo `DatabaseSeeder` depois do `UserSeeder`.
 
 Os dados vêm das pesquisas feitas no Claude entre 20/07 e 17/09/2026. Eles servem de ponto de partida. **A primeira varredura com área `all` confere tudo:** todo concurso semeado nasce com `last_enriched_at = null`, então entra na fila de enriquecimento.
 
