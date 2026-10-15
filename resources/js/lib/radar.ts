@@ -1,8 +1,11 @@
 import type { ContestDto } from '@/types/radar';
 
-/** Hoje em `YYYY-MM-DD` (UTC), no mesmo formato das datas dos eventos. */
+/** Hoje em `YYYY-MM-DD` no fuso local (UTC viraria o dia às 21h no Brasil), igual às datas dos eventos. */
 export function todayIso(): string {
-    return new Date().toISOString().slice(0, 10);
+    const now = new Date();
+    const pad = (n: number) => n.toString().padStart(2, '0');
+
+    return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 }
 
 /** Próximo evento (ou o último, se todos já passaram) no formato "prova · 13/10". */
