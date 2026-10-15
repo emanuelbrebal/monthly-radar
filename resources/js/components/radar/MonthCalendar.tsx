@@ -2,7 +2,6 @@ import { useMemo, useRef, useState } from 'react';
 
 import { EventFolder } from '@/components/radar/EventFolder';
 import { csrfFetch } from '@/lib/csrf-fetch';
-import { notifyError } from '@/lib/notify';
 import type { ContestDto } from '@/types/radar';
 
 const MONTH_NAMES = [
@@ -75,20 +74,26 @@ export function MonthCalendar({
     onSelectContest,
 }: MonthCalendarProps) {
     const [month, setMonth] = useState(initialMonth);
-    const [fetchedContests, setFetchedContests] = useState<ContestDto[] | null>(
-        null,
-    );
+    // Os dados valem só para o mês em que foram buscados.
+    const [fetched, setFetched] = useState<{
+        month: string;
+        contests: ContestDto[];
+    } | null>(null);
     const [loadingMonth, setLoadingMonth] = useState(false);
+    const [loadError, setLoadError] = useState(false);
     const [expandedDate, setExpandedDate] = useState<string | null>(null);
     const requestedMonth = useRef(initialMonth);
-    const contests = useMemo(
-        () =>
-            month === initialMonth ? initialContests : (fetchedContests ?? []),
-        [month, initialMonth, initialContests, fetchedContests],
-    );
+    const contests = useMemo(() => {
+        if (month === initialMonth) {
+            return initialContests;
+        }
+
+        return fetched?.month === month ? fetched.contests : [];
+    }, [month, initialMonth, initialContests, fetched]);
 
     function goToMonth(target: string) {
         setMonth(target);
+        setLoadError(false);
         requestedMonth.current = target;
 
         if (target === initialMonth) {
@@ -107,12 +112,14 @@ export function MonthCalendar({
             })
             .then((data: { contests: ContestDto[] }) => {
                 if (requestedMonth.current === target) {
-                    setFetchedContests(data.contests);
+                    setFetched({ month: target, contests: data.contests });
                 }
             })
-            .catch(() =>
-                notifyError('Não deu pra carregar esse mês. Tenta de novo.'),
-            )
+            .catch(() => {
+                if (requestedMonth.current === target) {
+                    setLoadError(true);
+                }
+            })
             .finally(() => {
                 if (requestedMonth.current === target) {
                     setLoadingMonth(false);
@@ -180,6 +187,22 @@ export function MonthCalendar({
                     </button>
                 </div>
             </div>
+
+            {loadError && (
+                <div
+                    role="alert"
+                    className="surface-paper t-body mb-2 flex flex-wrap items-center gap-3 border border-line-strong px-3 py-1.5"
+                >
+                    <span>Não deu pra carregar esse mês.</span>
+                    <button
+                        type="button"
+                        onClick={() => goToMonth(month)}
+                        className="t-body min-h-6 text-ink underline underline-offset-2"
+                    >
+                        tentar de novo
+                    </button>
+                </div>
+            )}
 
             <div className="grid grid-cols-7 overflow-hidden rounded-lg border-t border-l border-line-strong">
                 {weekLabels.map((label) => (
