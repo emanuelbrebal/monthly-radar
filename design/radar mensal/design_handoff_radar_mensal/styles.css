@@ -1,5 +1,9 @@
 /* radar mensal — shared tokens for both directions */
 
+/*
+ * FONTE ÚNICA dos tokens (reconciliada com resources/css/app.css em 14/10/2026).
+ * `node scripts/contrast-check.mjs` valida os pares de contraste e falha se os dois arquivos divergirem.
+ */
 :root {
   /* paper & ink */
   --paper: #f3ebda;
@@ -9,30 +13,54 @@
   --rule: #1a1612;
   --rule-soft: rgba(26,22,18,0.18);
   --ink: #1a1612;
-  --ink-mid: #5a544c;
-  --ink-soft: #8a8175;
+  --ink-mid: #4a443c;
+  --ink-soft: #5c554b;
+  --line-strong: #8a8070;    /* bordas de UI (>= 3:1 em card/paper) */
 
   /* accents */
-  --red: #c8553d;          /* carimbo, ênfase */
-  --red-deep: #9c3d28;
-  --green: #4a7c3d;        /* validações positivas */
-  --blue: #2a4b6e;         /* metainfo */
-  --gold: #b08a3e;         /* destaque editorial */
-  --highlight: #f0d96b;    /* marca-texto */
+  --red: #9a4434;            /* decorativo / ênfase grande */
+  --red-deep: #783326;
+  --red-text: #8a3526;       /* texto vermelho e fundo de botão (AA) */
+  --green: #4f7844;
+  --blue: #2f4a67;
+  --gold: #aa8a4c;
+  --highlight: #f0d96b;      /* marca-texto, "hoje", seleção na maleta */
 
-  /* dark mode (radar/console) */
+  /* dark mode (maleta/console) */
   --night: #14110d;
   --night-2: #1f1a13;
   --night-card: #221c14;
   --night-rule: rgba(243,235,218,0.18);
-  --night-text: #f0e8d4;
-  --night-text-mid: #b7ad94;
+  --night-text: #f5eedb;
+  --night-text-mid: #d2c9b0;
+  --case: var(--night);
+  --case-lining: #1b1610;
+  --slot-border: #7d735f;
+  --slot-hover: rgba(243,235,218,0.06);
+  --slot-selected: var(--highlight);
+
+  /* tier (nível do concurso) — fg/bg/line no claro; on-night para a maleta */
+  --tier-elite-fg: #7a2a1d;   --tier-elite-bg: #f6d9d0;   --tier-elite-line: #a3392a;   --tier-elite-on-night: #ff9a86;
+  --tier-alto-fg: #5a4300;    --tier-alto-bg: #f6e6b4;    --tier-alto-line: #8a6a00;    --tier-alto-on-night: #f0c15a;
+  --tier-inter-fg: #1d3c63;   --tier-inter-bg: #d6e4f5;   --tier-inter-line: #2f5f9a;   --tier-inter-on-night: #8fbcf0;
+  --tier-entrada-fg: #22501c; --tier-entrada-bg: #d8ecd0; --tier-entrada-line: #3f7a36; --tier-entrada-on-night: #8fd08a;
+
+  /* badges de status/evento */
+  --badge-pos-fg: #1f4a19;  --badge-pos-bg: #d8ecd0;  --badge-pos-line: #3f7a36;
+  --badge-neu-fg: #5a4300;  --badge-neu-bg: #f6e6b4;  --badge-neu-line: #8a6a00;
+  --badge-neg-fg: #7a2a1d;  --badge-neg-bg: #f6d9d0;  --badge-neg-line: #a3392a;
+  --badge-info-fg: #1d3c63; --badge-info-bg: #d6e4f5; --badge-info-line: #2f5f9a;
+
+  /* foco */
+  --focus: #1d3c63;           /* superfícies claras */
+  --focus-on-night: #f0d96b;  /* superfícies escuras */
 
   /* type */
   --f-display: 'Instrument Serif', 'Newsreader', Georgia, serif;
   --f-serif: 'Newsreader', 'Source Serif Pro', Georgia, serif;
   --f-sans: 'Inter Tight', 'Inter', -apple-system, system-ui, sans-serif;
   --f-mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+
 }
 
 * { box-sizing: border-box; }
@@ -75,10 +103,10 @@
 .rm-display { font-family: var(--f-display); font-weight: 400; line-height: 0.95; letter-spacing: -0.01em; }
 .rm-mono { font-family: var(--f-mono); }
 .rm-eyebrow {
-  font-family: var(--f-mono);
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+  font-family: var(--f-sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
   color: var(--ink-mid);
 }
 
@@ -87,20 +115,19 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-family: var(--f-mono);
-  font-size: 10px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  padding: 4px 8px 3px;
+  font-family: var(--f-sans);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 8px;
   border: 1px solid var(--ink);
   color: var(--ink);
   background: var(--card);
   white-space: nowrap;
 }
-.rm-badge.pos { background: #d8e7c6; border-color: #4a7c3d; color: #2d4d22; }
-.rm-badge.neu { background: #f0e2b8; border-color: #b08a3e; color: #6b5220; }
-.rm-badge.neg { background: #f0d4c8; border-color: #c8553d; color: #7d2814; }
-.rm-badge.info { background: #d6e0ee; border-color: #2a4b6e; color: #1c3450; }
+.rm-badge.pos { background: var(--badge-pos-bg); border-color: var(--badge-pos-line); color: var(--badge-pos-fg); }
+.rm-badge.neu { background: var(--badge-neu-bg); border-color: var(--badge-neu-line); color: var(--badge-neu-fg); }
+.rm-badge.neg { background: var(--badge-neg-bg); border-color: var(--badge-neg-line); color: var(--badge-neg-fg); }
+.rm-badge.info { background: var(--badge-info-bg); border-color: var(--badge-info-line); color: var(--badge-info-fg); }
 
 /* stamp — red ink seal */
 .rm-stamp {
@@ -108,8 +135,8 @@
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--red);
-  border: 2px solid var(--red);
+  color: var(--red-text);
+  border: 2px solid var(--red-text);
   padding: 6px 10px 5px;
   display: inline-block;
   transform: rotate(-4deg);
@@ -118,3 +145,11 @@
 
 /* star rating */
 .rm-stars { letter-spacing: 0.05em; color: var(--gold); font-size: 14px; }
+
+/* superfícies — definem fundo, cor de texto e variáveis secundárias; todo cartão/painel declara a sua */
+.surface-paper { background: var(--paper); color: var(--ink); --muted-fg: var(--ink-mid); --line: var(--line-strong); --focus-ring: var(--focus); }
+.surface-card  { background: var(--card);  color: var(--ink); --muted-fg: var(--ink-mid); --line: var(--line-strong); --focus-ring: var(--focus); }
+.surface-night { background: var(--night); color: var(--night-text); --muted-fg: var(--night-text-mid); --line: var(--slot-border); --focus-ring: var(--focus-on-night); }
+
+/* anel de foco global */
+:focus-visible { outline: 2px solid var(--focus-ring, var(--focus)); outline-offset: 2px; }

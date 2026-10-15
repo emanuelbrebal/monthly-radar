@@ -4,22 +4,26 @@ Referência visual de cores, fontes e componentes-base: `design/radar mensal/des
 
 ## Tokens (Tailwind 4, `resources/css/app.css`)
 
-1. Copiar o bloco `:root` de `styles.css` do handoff (paper, ink, red, gold, green, blue, highlight, night…).
-2. Religar as variáveis do shadcn a esses tokens, para os componentes existentes herdarem a paleta:
-   `--background: var(--paper)`, `--foreground: var(--ink)`, `--card: var(--card)`, `--primary: var(--red)`, `--primary-foreground: var(--paper)`, `--border: var(--ink)`, `--muted: var(--paper-soft)`, `--muted-foreground: var(--ink-mid)`, `--destructive: var(--red-deep)`, `--ring: var(--red)`, `--radius: 0px`.
-3. `@theme`: expor `--color-paper`, `--color-ink`, `--color-night`… e as fontes `--font-display`, `--font-serif`, `--font-sans` (Inter Tight), `--font-mono`.
-4. Fontes do Google no `app.blade.php` (link do README do handoff).
-5. App sempre em tema claro (a maleta é escura por design). Esconder o toggle de aparência. `[inferido]`
+**Fonte única: `design/radar mensal/design_handoff_radar_mensal/styles.css`** (revisado 14/10/2026). `app.css` repete os mesmos valores em `:root`; `node scripts/contrast-check.mjs` falha se divergirem ou se algum par de contraste (WCAG 2.x AA) cair abaixo do mínimo. A tabela de razões está no README do handoff.
 
-Novos tokens da maleta:
+1. `:root` com paper/ink/red/gold/green/blue/highlight/night. Mudanças de 14/10: `--ink-mid #4a443c`, `--ink-soft #5c554b`, `--night-text #f5eedb`, `--night-text-mid #d2c9b0`, `--highlight #f0d96b`, `--red-text #8a3526` (texto/botão vermelho; `--red` fica só decorativo).
+2. Variáveis do shadcn religadas: `--background: var(--paper)`, `--foreground: var(--ink)`, `--primary: var(--red-text)`, `--primary-foreground: var(--paper)`, `--border: var(--ink)`, `--muted: var(--paper-soft)`, `--muted-foreground: var(--ink-mid)`, `--destructive: var(--red-deep)`, `--ring: var(--focus)`, `--radius: 10px` (o `0px` original foi alterado a pedido do dono em 18/09).
+3. `@theme` expõe `--color-*` de todos os tokens (inclusive `tier-*`, `line-strong`, `red-text`, `muted-fg`, `line`) e as fontes `--font-display|serif|sans|mono`.
+4. Fontes do Google no `app.blade.php`. App sempre em tema claro; a maleta é escura por design.
+
+Tokens de maleta, linha e foco:
 
 ```css
---case: var(--night);                 /* corpo da maleta */
---case-lining: #1b1610;               /* forro */
---slot-border: rgba(243,235,218,0.14);
---slot-hover: rgba(243,235,218,0.06);
---slot-selected: var(--red);
+--case: var(--night);   --case-lining: #1b1610;
+--slot-border: #7d735f;            /* borda de slot, 3.8:1+ */
+--slot-selected: var(--highlight); /* anel de seleção */
+--line-strong: #8a8070;            /* bordas de UI no claro, 3.28:1+ */
+--focus: #1d3c63;  --focus-on-night: #f0d96b;
 ```
+
+Nível (tier), um conjunto por degrau `elite|alto|inter|entrada`: `--tier-X-fg` (texto), `--tier-X-bg` (fundo do chip), `--tier-X-line` (borda/ícone, >= 3:1) e `--tier-X-on-night` (cor sobre a maleta). Badges: `--badge-{pos,neu,neg,info}-{fg,bg,line}`.
+
+Superfícies (`@layer components`): `.surface-paper`, `.surface-card`, `.surface-night` definem `background`, `color` e as variáveis `--muted-fg` (texto secundário), `--line` (divisória) e `--focus-ring`. Todo cartão/painel declara a sua; filhos usam `text-muted-fg` e `border-line`. Helpers `.rm-*` ficam em `@layer components` (utilitários Tailwind sempre vencem). `.rm-dot-grid` foi removido; `.rm-eyebrow` e `.rm-badge` são 12px/600, sem caixa-alta. Foco global: `:focus-visible` com anel de 2px e offset 2px.
 
 Cores de evento no calendário (reaproveitando as badges do handoff):
 

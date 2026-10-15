@@ -384,3 +384,72 @@ Mutations principais:
 4. **Construa o Feed (C1) antes do resto** — é o coração do produto e usa todos os componentes.
 5. **Use o `direction-c.jsx` como referência visual primária**, e `foundations.jsx` para o sistema de tags.
 6. Cada `Art*` function corresponde a uma tela completa — leia o JSX para entender layout exato.
+
+## Contraste WCAG 2.x (AA)
+
+Gerada por `node scripts/contrast-check.mjs` (lê `resources/css/app.css`, confere paridade com `styles.css`; exit 1 se algum par falhar). Texto >= 4.5:1; borda/ícone/foco de UI >= 3:1. Os valores da tabela de tokens acima estão defasados: a fonte da verdade é `styles.css`.
+
+| par | uso | fg | bg | razão | mín | ok |
+|---|---|---|---|---|---|---|
+| `--ink` / `--paper` | texto | #1a1612 | #f3ebda | 15.17 | 4.5 | sim |
+| `--ink` / `--paper-soft` | texto | #1a1612 | #ede2cb | 14.00 | 4.5 | sim |
+| `--ink` / `--paper-deep` | texto | #1a1612 | #e3d6b9 | 12.49 | 4.5 | sim |
+| `--ink` / `--card` | texto | #1a1612 | #fbf6e8 | 16.66 | 4.5 | sim |
+| `--ink-mid` / `--paper` | texto 2 | #4a443c | #f3ebda | 8.11 | 4.5 | sim |
+| `--ink-mid` / `--paper-soft` | texto 2 | #4a443c | #ede2cb | 7.49 | 4.5 | sim |
+| `--ink-mid` / `--paper-deep` | texto 2 | #4a443c | #e3d6b9 | 6.68 | 4.5 | sim |
+| `--ink-mid` / `--card` | texto 2 | #4a443c | #fbf6e8 | 8.91 | 4.5 | sim |
+| `--ink-soft` / `--paper-deep` | texto 3 | #5c554b | #e3d6b9 | 5.11 | 4.5 | sim |
+| `--ink-soft` / `--card` | texto 3 | #5c554b | #fbf6e8 | 6.81 | 4.5 | sim |
+| `--ink` / `--highlight` | hoje no calendário | #1a1612 | #f0d96b | 12.71 | 4.5 | sim |
+| `--night-text` / `--night` | texto maleta | #f5eedb | #14110d | 16.25 | 4.5 | sim |
+| `--night-text` / `--night-2` | texto maleta | #f5eedb | #1f1a13 | 14.92 | 4.5 | sim |
+| `--night-text` / `--night-card` | texto maleta | #f5eedb | #221c14 | 14.58 | 4.5 | sim |
+| `--night-text` / `--case-lining` | texto maleta | #f5eedb | #1b1610 | 15.52 | 4.5 | sim |
+| `--night-text-mid` / `--night` | texto 2 maleta | #d2c9b0 | #14110d | 11.40 | 4.5 | sim |
+| `--night-text-mid` / `--night-2` | texto 2 maleta | #d2c9b0 | #1f1a13 | 10.47 | 4.5 | sim |
+| `--night-text-mid` / `--night-card` | texto 2 maleta | #d2c9b0 | #221c14 | 10.22 | 4.5 | sim |
+| `--night-text-mid` / `--case-lining` | texto 2 maleta | #d2c9b0 | #1b1610 | 10.88 | 4.5 | sim |
+| `--line-strong` / `--card` | borda UI | #8a8070 | #fbf6e8 | 3.60 | 3 | sim |
+| `--line-strong` / `--paper` | borda UI | #8a8070 | #f3ebda | 3.28 | 3 | sim |
+| `--slot-border` / `--case-lining` | borda slot | #7d735f | #1b1610 | 3.84 | 3 | sim |
+| `--slot-border` / `--night` | borda slot | #7d735f | #14110d | 4.02 | 3 | sim |
+| `--slot-selected` / `--case-lining` | slot selecionado | #f0d96b | #1b1610 | 12.70 | 3 | sim |
+| `--red-text` / `--card` | texto vermelho | #8a3526 | #fbf6e8 | 7.43 | 4.5 | sim |
+| `--red-text` / `--paper` | texto vermelho | #8a3526 | #f3ebda | 6.76 | 4.5 | sim |
+| `--card` / `--red-text` | texto em botão vermelho | #fbf6e8 | #8a3526 | 7.43 | 4.5 | sim |
+| `--paper` / `--red-text` | texto paper em botão vermelho | #f3ebda | #8a3526 | 6.76 | 4.5 | sim |
+| `--tier-elite-fg` / `--tier-elite-bg` | tier elite chip texto | #7a2a1d | #f6d9d0 | 7.24 | 4.5 | sim |
+| `--tier-elite-line` / `--tier-elite-bg` | tier elite borda/ícone | #a3392a | #f6d9d0 | 4.96 | 3 | sim |
+| `--tier-elite-on-night` / `--night` | tier elite na maleta | #ff9a86 | #14110d | 9.16 | 4.5 | sim |
+| `--tier-elite-on-night` / `--case-lining` | tier elite na maleta | #ff9a86 | #1b1610 | 8.74 | 4.5 | sim |
+| `--tier-elite-on-night` / `--night-card` | tier elite na maleta | #ff9a86 | #221c14 | 8.21 | 4.5 | sim |
+| `--tier-alto-fg` / `--tier-alto-bg` | tier alto chip texto | #5a4300 | #f6e6b4 | 7.55 | 4.5 | sim |
+| `--tier-alto-line` / `--tier-alto-bg` | tier alto borda/ícone | #8a6a00 | #f6e6b4 | 4.08 | 3 | sim |
+| `--tier-alto-on-night` / `--night` | tier alto na maleta | #f0c15a | #14110d | 11.19 | 4.5 | sim |
+| `--tier-alto-on-night` / `--case-lining` | tier alto na maleta | #f0c15a | #1b1610 | 10.68 | 4.5 | sim |
+| `--tier-alto-on-night` / `--night-card` | tier alto na maleta | #f0c15a | #221c14 | 10.03 | 4.5 | sim |
+| `--tier-inter-fg` / `--tier-inter-bg` | tier inter chip texto | #1d3c63 | #d6e4f5 | 8.66 | 4.5 | sim |
+| `--tier-inter-line` / `--tier-inter-bg` | tier inter borda/ícone | #2f5f9a | #d6e4f5 | 5.05 | 3 | sim |
+| `--tier-inter-on-night` / `--night` | tier inter na maleta | #8fbcf0 | #14110d | 9.52 | 4.5 | sim |
+| `--tier-inter-on-night` / `--case-lining` | tier inter na maleta | #8fbcf0 | #1b1610 | 9.09 | 4.5 | sim |
+| `--tier-inter-on-night` / `--night-card` | tier inter na maleta | #8fbcf0 | #221c14 | 8.54 | 4.5 | sim |
+| `--tier-entrada-fg` / `--tier-entrada-bg` | tier entrada chip texto | #22501c | #d8ecd0 | 7.54 | 4.5 | sim |
+| `--tier-entrada-line` / `--tier-entrada-bg` | tier entrada borda/ícone | #3f7a36 | #d8ecd0 | 4.16 | 3 | sim |
+| `--tier-entrada-on-night` / `--night` | tier entrada na maleta | #8fd08a | #14110d | 10.36 | 4.5 | sim |
+| `--tier-entrada-on-night` / `--case-lining` | tier entrada na maleta | #8fd08a | #1b1610 | 9.89 | 4.5 | sim |
+| `--tier-entrada-on-night` / `--night-card` | tier entrada na maleta | #8fd08a | #221c14 | 9.29 | 4.5 | sim |
+| `--badge-pos-fg` / `--badge-pos-bg` | badge pos texto | #1f4a19 | #d8ecd0 | 8.20 | 4.5 | sim |
+| `--badge-pos-line` / `--badge-pos-bg` | badge pos borda | #3f7a36 | #d8ecd0 | 4.16 | 3 | sim |
+| `--badge-neu-fg` / `--badge-neu-bg` | badge neu texto | #5a4300 | #f6e6b4 | 7.55 | 4.5 | sim |
+| `--badge-neu-line` / `--badge-neu-bg` | badge neu borda | #8a6a00 | #f6e6b4 | 4.08 | 3 | sim |
+| `--badge-neg-fg` / `--badge-neg-bg` | badge neg texto | #7a2a1d | #f6d9d0 | 7.24 | 4.5 | sim |
+| `--badge-neg-line` / `--badge-neg-bg` | badge neg borda | #a3392a | #f6d9d0 | 4.96 | 3 | sim |
+| `--badge-info-fg` / `--badge-info-bg` | badge info texto | #1d3c63 | #d6e4f5 | 8.66 | 4.5 | sim |
+| `--badge-info-line` / `--badge-info-bg` | badge info borda | #2f5f9a | #d6e4f5 | 5.05 | 3 | sim |
+| `--focus` / `--paper` | foco (claro) | #1d3c63 | #f3ebda | 9.42 | 3 | sim |
+| `--focus` / `--card` | foco (claro) | #1d3c63 | #fbf6e8 | 10.35 | 3 | sim |
+| `--focus` / `--paper-soft` | foco (claro) | #1d3c63 | #ede2cb | 8.70 | 3 | sim |
+| `--focus-on-night` / `--night` | foco (night) | #f0d96b | #14110d | 13.30 | 3 | sim |
+| `--focus-on-night` / `--case-lining` | foco (night) | #f0d96b | #1b1610 | 12.70 | 3 | sim |
+| `--focus-on-night` / `--night-card` | foco (night) | #f0d96b | #221c14 | 11.93 | 3 | sim |
