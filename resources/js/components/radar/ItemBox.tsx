@@ -5,6 +5,7 @@ import { StatusFilterPopover } from '@/components/radar/StatusFilterPopover';
 import { Checkbox } from '@/components/ui/checkbox';
 import { csrfFetch } from '@/lib/csrf-fetch';
 import { notifyError } from '@/lib/notify';
+import { compareByNextEvent, todayIso } from '@/lib/radar';
 import type { ContestDto, EditalStatusValue } from '@/types/radar';
 
 type ItemBoxProps = {
@@ -87,6 +88,7 @@ export function ItemBox({
 
     const filtered = useMemo(() => {
         const term = search.trim().toLowerCase();
+        const today = todayIso();
 
         return contests
             .filter(
@@ -103,12 +105,7 @@ export function ItemBox({
                     c.organ.toLowerCase().includes(term) ||
                     (c.organ_acronym ?? '').toLowerCase().includes(term),
             )
-            .sort((a, b) => {
-                const dateA = a.events[0]?.date ?? '9999-99-99';
-                const dateB = b.events[0]?.date ?? '9999-99-99';
-
-                return dateA.localeCompare(dateB);
-            });
+            .sort((a, b) => compareByNextEvent(a, b, today));
     }, [contests, statusFilter, onlyEnrolled, search]);
 
     return (

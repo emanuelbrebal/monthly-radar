@@ -8,19 +8,64 @@ export function todayIso(): string {
     return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 }
 
-/** Próximo evento (ou o último, se todos já passaram) no formato "prova · 13/10". */
-export function nextEventLabel(contest: ContestDto): string | null {
-    const today = todayIso();
-    const upcoming =
-        contest.events.find((e) => e.date >= today) ?? contest.events.at(-1);
+type WithEvents = Pick<ContestDto, 'events'>;
 
-    if (!upcoming) {
+/** Próximo evento (≥ hoje) ou, se todos já passaram, o último; `null` sem eventos. */
+export function nextEvent<T extends WithEvents>(
+    contest: T,
+    today: string = todayIso(),
+): T['events'][number] | null {
+    return (
+        contest.events.find((e) => e.date >= today) ??
+        contest.events.at(-1) ??
+        null
+    );
+}
+
+/** Próximo evento no formato "prova · 13/10". */
+export function nextEventLabel(contest: WithEvents): string | null {
+    const event = nextEvent(contest);
+
+    if (!event) {
         return null;
     }
 
-    const [, month, day] = upcoming.date.split('-');
+    const [, month, day] = event.date.split('-');
 
-    return `${upcoming.label ?? upcoming.type_label} · ${day}/${month}`;
+    return `${event.label ?? event.type_label} · ${day}/${month}`;
+}
+
+/**
+ * Ordem da caixa de itens, coerente com `nextEventLabel`: quem tem evento
+ * futuro vem primeiro (mais cedo antes), depois quem só tem eventos passados
+ * (o mais recente antes), por fim quem não tem evento.
+ */
+export function compareByNextEvent(
+    a: WithEvents,
+    b: WithEvents,
+    today: string,
+): number {
+    const rank = (c: WithEvents): [number, string] => {
+        const date = nextEvent(c, today)?.date;
+
+        if (date === undefined) {
+            return [2, ''];
+        }
+
+        return date >= today ? [0, date] : [1, date];
+    };
+
+    const [rankA, dateA] = rank(a);
+    const [rankB, dateB] = rank(b);
+
+    if (rankA !== rankB) {
+        return rankA - rankB;
+    }
+
+    // Futuros: mais cedo primeiro. Só passados: mais recente primeiro.
+    return rankA === 1
+        ? dateB.localeCompare(dateA)
+        : dateA.localeCompare(dateB);
 }
 
 export function money(cents: number | null): string | null {
