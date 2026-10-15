@@ -197,3 +197,9 @@ Abordagem única coerente: guardar `{ month, contests }` do último fetch (dados
 **Verificação em SQLite temporário** (`scratchpad/verify.sqlite`, usuário de teste), sem tocar no Postgres. 1366×768 exato não aplicado pelo navegador (viewport medido 1920×911 e ~744px de altura em capturas anteriores); este plano não mexeu em layout de altura.
 
 **Revisão pós-exec (pendente)**: `/simplify` e `/code-review` no diff desta branch.
+
+## Stage de Execução — Revisão pós-exec
+
+**`/simplify` (4 agentes)** — aplicado: `CalendarController` envia a lista completa de eventos (causa raiz do dossiê parcial; `openDossier` voltou a `setSelected(contest)`; teste novo em `CalendarControllerTest`); `CASE_COLUMNS` único para setas e layout (`grid-template-columns` por `style`); `isNavKey`/`NAV_KEYS` sem casts; `nextEvent` sem genérico e com `today` obrigatório; `MonthCalendar` usa `todayIso()` de `lib/radar`. Ignorado: componente de retry compartilhado com `ItemBox` (layouts diferentes), micro-otimizações, `order.keys()`, simplificação do comparador. Efeito esperado: dias de meses vizinhos na grade passam a mostrar seus eventos nos meses navegados, como já ocorria no mês atual.
+
+**`/code-review` (5 achados)** — corrigido: `today` do `ItemBox` fora do `useMemo` (reordena na virada do dia); `engines.node >=22.18` em `package.json` (`node --test` com `.ts`). Falsos positivos: ordem dos eventos (o `ContestPresenter` já usa `sortBy('date')`) e ordem dos grupos nas setas (`buildTierGroups` já filtra os vazios e é a mesma fonte da renderização). Mantido: grade vazia com alerta quando o mês falha (o alerta é a sinalização).
