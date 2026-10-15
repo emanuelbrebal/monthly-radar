@@ -106,7 +106,8 @@ export function SweepControl({ areas, regions, states, lastRun }: SweepControlPr
     return (
         <div className="flex flex-wrap items-center gap-3">
             <select
-                className="rm-mono rounded-md border border-ink bg-card px-2 py-1.5 text-[11px] tracking-wide uppercase"
+                aria-label="Área de TI"
+                className="text-body border border-line-strong bg-card px-2 py-1.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
                 value={area}
                 disabled={sweeping}
                 onChange={(e) => setArea(e.target.value as TiAreaValue)}
@@ -121,7 +122,7 @@ export function SweepControl({ areas, regions, states, lastRun }: SweepControlPr
             <StateFilterPopover regions={regions} states={states} />
 
             <button
-                className="flex items-center gap-2 rounded-md border-[1.5px] border-ink bg-red px-4 py-1.5 text-sm font-semibold text-paper disabled:opacity-60"
+                className="flex items-center gap-2 border border-line-strong bg-red-text px-4 py-1.5 text-sm font-semibold text-card focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed"
                 disabled={sweeping}
                 onClick={startSweep}
                 type="button"
@@ -130,15 +131,22 @@ export function SweepControl({ areas, regions, states, lastRun }: SweepControlPr
                 {sweeping ? 'varrendo…' : 'varrer'}
             </button>
 
-            <span className="rm-mono text-[11px] text-ink-mid">{error ?? (starting ? 'Varrendo fontes…' : statusLine(run))}</span>
+            <span role="status" className="text-body text-muted-fg">{error ?? (starting ? 'Varrendo fontes…' : statusLine(run))}</span>
 
             {sourceErrors.length > 0 && (
-                <span
-                    className="rm-mono cursor-help text-[11px] text-red underline decoration-dotted"
-                    title={sourceErrors.map((e) => `${e.source}: ${e.message}`).join('\n')}
-                >
-                    {sourceErrors.length} fonte{sourceErrors.length > 1 ? 's' : ''} {sourceErrors.length > 1 ? 'falharam' : 'falhou'}
-                </span>
+                <>
+                    <span
+                        tabIndex={0}
+                        aria-describedby="sweep-source-errors"
+                        className="text-body cursor-help font-semibold text-red-text underline decoration-dotted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                        title={sourceErrors.map((e) => `${e.source}: ${e.message}`).join('\n')}
+                    >
+                        {sourceErrors.length} fonte{sourceErrors.length > 1 ? 's' : ''} {sourceErrors.length > 1 ? 'falharam' : 'falhou'}
+                    </span>
+                    <span id="sweep-source-errors" className="sr-only">
+                        {sourceErrors.map((e) => `${e.source}: ${e.message}`).join('. ')}
+                    </span>
+                </>
             )}
         </div>
     );

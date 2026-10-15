@@ -75,21 +75,21 @@ setDraft(states);
             }}
         >
             <PopoverTrigger asChild>
-                <button className="rm-mono rounded-md border border-ink bg-card px-3 py-1.5 text-[11px] tracking-wide uppercase">{label} ▾</button>
+                <button type="button" className="text-body border border-line-strong bg-card px-3 py-1.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus">{label} ▾</button>
             </PopoverTrigger>
-            <PopoverContent align="start" className="w-[560px] rounded-lg border border-ink bg-card p-4 shadow-[6px_6px_0_rgba(26,22,18,0.18)]">
-                <div className="mb-3 flex items-center gap-4 border-b border-dashed border-ink-soft/40 pb-2">
-                    <label className="flex items-center gap-2 text-xs font-bold uppercase">
+            <PopoverContent align="start" className="w-[560px] border border-line-strong bg-card p-4 shadow-md">
+                <div className="mb-3 flex items-center gap-4 border-b border-line pb-2">
+                    <label className="flex items-center gap-2 text-sm font-semibold">
                         <Checkbox checked={draft.includes(NACIONAL)} onCheckedChange={(c) => toggle(NACIONAL, c === true)} />
                         Nacional
                     </label>
-                    <button className="rm-mono text-[10px] underline" onClick={markAll} type="button">
+                    <button className="inline-flex min-h-6 items-center text-sm underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus" onClick={markAll} type="button">
                         marcar tudo
                     </button>
-                    <button className="rm-mono text-[10px] underline" onClick={clearAll} type="button">
+                    <button className="inline-flex min-h-6 items-center text-sm underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus" onClick={clearAll} type="button">
                         limpar
                     </button>
-                    <button className="rm-mono text-[10px] underline" onClick={onlyNortheast} type="button">
+                    <button className="inline-flex min-h-6 items-center text-sm underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus" onClick={onlyNortheast} type="button">
                         só nordeste
                     </button>
                 </div>
@@ -102,7 +102,7 @@ setDraft(states);
 
                         return (
                             <div key={region.value}>
-                                <label className="mb-1 flex items-center gap-1.5 border-b border-ink-soft/30 pb-1 text-[10px] font-bold uppercase">
+                                <label className="mb-1 flex items-center gap-1.5 border-b border-line pb-1 text-sm font-semibold">
                                     <Checkbox
                                         checked={regionState}
                                         onCheckedChange={(c) => toggleRegion(region, c === true)}
@@ -111,12 +111,12 @@ setDraft(states);
                                 </label>
                                 <ul className="space-y-1">
                                     {region.states.map((state) => (
-                                        <li key={state.value} className="flex items-center gap-1.5 text-xs">
+                                        <li key={state.value} className="flex items-center gap-1.5 text-sm">
                                             <Checkbox
                                                 checked={draft.includes(state.value)}
                                                 onCheckedChange={(c) => toggle(state.value, c === true)}
                                             />
-                                            <span className="rm-mono font-bold">{state.value}</span>
+                                            <span className="font-semibold">{state.value}</span>
                                             <span className="truncate">{state.label}</span>
                                         </li>
                                     ))}
@@ -126,12 +126,12 @@ setDraft(states);
                     })}
                 </div>
 
-                <div className="mt-3 flex justify-end gap-2 border-t border-ink pt-3">
-                    <button className="rounded-md border border-ink bg-card px-3 py-1.5 text-xs font-medium" onClick={cancel} type="button">
+                <div className="mt-3 flex justify-end gap-2 border-t border-line-strong pt-3">
+                    <button className="border border-line-strong bg-card px-3 py-1.5 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus" onClick={cancel} type="button">
                         cancelar
                     </button>
                     <button
-                        className="rounded-md border border-ink bg-red-deep px-3 py-1.5 text-xs font-semibold text-paper"
+                        className="border border-line-strong bg-red-text px-3 py-1.5 text-sm font-semibold text-card focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
                         onClick={apply}
                         type="button"
                     >

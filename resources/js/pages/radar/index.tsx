@@ -93,25 +93,29 @@ export default function RadarIndex() {
         <>
             <Head title="Radar Mensal · Concursos" />
             <div className="flex h-screen flex-col overflow-hidden bg-paper text-ink">
-                <header className="rm-rule-double shrink-0 border-b-[3px] border-double border-ink bg-paper px-6 py-3">
+                <header className="shrink-0 border-b border-line-strong bg-paper px-6 py-3">
                     <div className="flex flex-wrap items-center gap-4">
                         <RadarMark size={28} />
-                        <h1 className="rm-display text-2xl">radar mensal · concursos</h1>
+                        <h1 className="text-display">radar mensal · concursos</h1>
                         <div className="ml-auto">
                             <SweepControl areas={areas} regions={regions} states={preferences.states} lastRun={lastRun} />
                         </div>
                     </div>
                 </header>
 
-                <main className="grid min-h-0 flex-1 gap-6 overflow-hidden p-6" style={{ gridTemplateColumns: 'minmax(420px, 5fr) 7fr' }}>
-                    <AttacheCase contests={pinnedContests} onOpen={openDossier} onContestChange={updateContest} />
-
-                    <section className="rm-dot-grid flex min-h-0 flex-col gap-6 overflow-hidden rounded-lg border border-ink bg-paper p-4">
-                        <div className="max-h-[52vh] shrink-0 overflow-y-auto">
-                            <MonthCalendar initialMonth={month} initialContests={contests} onSelectContest={openDossier} />
-                        </div>
-                        <ItemBox contests={contests} onSelect={openDossier} onPinChange={updateContest} onRestored={reloadMesa} />
+                <main aria-label="Mesa de concursos" className="grid min-h-0 flex-1 gap-6 overflow-hidden p-6" style={{ gridTemplateColumns: 'minmax(420px, 5fr) 7fr' }}>
+                    <section aria-label="Maleta" className="flex min-h-0 flex-col overflow-hidden">
+                        <AttacheCase contests={pinnedContests} onOpen={openDossier} onContestChange={updateContest} />
                     </section>
+
+                    <div className="flex min-h-0 flex-col gap-6 overflow-hidden border border-line-strong bg-paper p-4">
+                        <section aria-label="Calendário do mês" className="max-h-[52vh] shrink-0 overflow-y-auto">
+                            <MonthCalendar initialMonth={month} initialContests={contests} onSelectContest={openDossier} />
+                        </section>
+                        <section aria-label="Caixa de itens" className="flex min-h-0 flex-1 flex-col overflow-hidden">
+                            <ItemBox contests={contests} onSelect={openDossier} onPinChange={updateContest} onRestored={reloadMesa} />
+                        </section>
+                    </div>
                 </main>
 
                 <DossierModal
@@ -122,9 +126,16 @@ export default function RadarIndex() {
                 />
 
                 {undoToast && (
-                    <div className="rm-mono fixed right-4 bottom-4 flex items-center gap-3 rounded-md border border-ink bg-card px-3 py-2 text-[11px] shadow-[4px_4px_0_rgba(26,22,18,0.18)]">
+                    <div
+                        role="status"
+                        className="surface-card text-body fixed right-4 bottom-4 flex items-center gap-3 border border-line-strong px-3 py-2"
+                    >
                         Descartado. Fora da mesa.
-                        <button type="button" className="underline" onClick={undoDismiss}>
+                        <button
+                            type="button"
+                            className="inline-flex min-h-6 items-center px-1 font-semibold underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                            onClick={undoDismiss}
+                        >
                             desfazer
                         </button>
                     </div>
