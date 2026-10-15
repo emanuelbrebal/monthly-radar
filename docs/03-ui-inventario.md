@@ -59,7 +59,8 @@ Grid: `grid-template-columns: minmax(420px, 5fr) 7fr`. Abaixo de 1024px: empilha
 ## Maleta (coluna esquerda)
 
 - Fundo `--case` com textura sutil: `repeating-linear-gradient(135deg, rgba(243,235,218,0.02) 0 2px, transparent 2px 6px)`. Borda 2px `--ink`, cantoneiras metálicas nos 4 cantos (quadradinhos 10×10 `--gold` com borda ink).
-- Header: eyebrow mono `¶ maleta · N/12` em `--night-text-mid`.
+- Header: eyebrow mono `¶ maleta · N/12` em `--night-text-mid` + botão secundário mono `por nível` / `grade` à direita (alterna a vista; escolha guardada só no navegador).
+- **Faixa de equilíbrio** (abaixo do header, só com item fixado): um quadradinho 8×8 por nível com contagem (`elite 2 · alto 1 · inter. 1 · entrada 0`), nível zerado a 30%. Cores do nível: elite `--red`, alto `--gold`, intermediário `--blue`, entrada `--green`. Se elite+alto > intermediário+entrada, linha serif italic: "maleta pesada no topo — X de elite/alto contra Y de base."
 - Grade 4×3, slots quadrados (`aspect-ratio: 1`), gap 6px, fundo `--case-lining`, borda 1px `--slot-border`, grade pontilhada interna.
 - **Slot vazio:** glifo `·` centralizado, `--night-text-mid` a 30%.
 - **Slot ocupado (item):** mini ficha papel (`--card`, borda ink, sombra `3px 3px 0 #000`) com:
@@ -67,9 +68,11 @@ Grid: `grid-template-columns: minmax(420px, 5fr) 7fr`. Abaixo de 1024px: empilha
   - linha mono 9px: próximo evento + dias ("prova · 26d");
   - pontinho de status no canto (cor da badge);
   - pin vermelho 8×8 no topo centro (igual ao PinCard do handoff);
+  - faixa vertical 4px na borda esquerda da ficha, na cor do nível (`tier`), quando há nível;
   - se está nas 24h finais: carimbo mini "some 18h" rotacionado -8°.
 - **Selecionado:** moldura 2px `--slot-selected` + cantoneiras em L animadas (pulse de opacidade 1.2s) — o cursor do RE.
-- **Painel "descrição do item"** (fixo embaixo da grade, borda-top régua dupla night): título display 26px `--night-text`, linha serif italic com próximo evento e situação da inscrição, dois botões secundários escuros (`abrir dossiê ↵`, `desafixar P`). Sem seleção: "Escolhe um item."
+- **Painel "descrição do item"** (fixo embaixo da grade, borda-top régua dupla night): título display 26px `--night-text` com a marca do nível (quadradinho + nome mono) à direita, linha serif italic com próximo evento e situação da inscrição, dois botões secundários escuros (`abrir dossiê ↵`, `desafixar P`). Abaixo da linha italic, `tier_note` em serif 11px quando existe. Sem seleção: "Escolhe um item."
+- **Vista "por nível":** os itens fixados aparecem em grupos (elite → alto → intermediário → entrada → sem nível), cada um com rótulo mono + quadradinho de cor e sua própria grade de 4 colunas; grupo vazio não aparece. Dentro do grupo, a ordem é a do slot. Nessa vista não há arrastar (a posição é derivada); setas percorrem só os itens na ordem da tela. Fixar/desafixar e abrir dossiê funcionam igual.
 
 Interação:
 - Setas movem a seleção; `Enter` abre dossiê; `P` fixa/desafixa (na caixa de itens também); `Esc` fecha modal.
@@ -108,7 +111,7 @@ Detalhes de regra em `docs/06-filtro-estados.md`.
 ### Caixa de itens
 - Box com título `¶ caixa de itens · N` (padrão Box do handoff).
 - Filtros: status (multi), "só inscritos", busca por texto (`/` foca) e o toggle `descartados (N)` no fim da barra. O toggle troca a lista pelos descartados: linhas a 50% de opacidade, motivo em mono ao lado e botão `trazer de volta`. Os descartados nunca aparecem no calendário.
-- Linhas compactas: sigla (display 16px) · próximo evento (mono) · badge de status · badge de situação · botão pin (lucide `Pin`, stroke 1.5; vermelho se fixado).
+- Linhas compactas: quadradinho 8×8 da cor do nível (vazio se sem nível) · sigla (display 16px) · próximo evento (mono) · badge de status · badge de situação · botão pin (lucide `Pin`, stroke 1.5; vermelho se fixado).
 - Ordenação: próximo evento mais cedo primeiro; sem data vai para o fim.
 - Linha nas 24h finais: carimbo "some em Xh" (Stamp do handoff, 10px).
 - Vazio: "Nada no radar. Escolhe uma área e varre."

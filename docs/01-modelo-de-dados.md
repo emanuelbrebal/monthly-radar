@@ -71,6 +71,8 @@ Adicionados em 18/09/2026 para receber uma pesquisa feita fora do app (fora do f
 | salary_note | text null | observação sobre `salary_min_cents`/`salary_max_cents` (ex. "inclui gratificação") |
 | board_affinity | string (`BoardAffinity`) null | quanto o estudo em andamento aproveita pra essa banca |
 | board_affinity_note | text null | |
+| tier | string (`ContestTier`) null | nível do concurso na escada: `elite` \| `alto` \| `intermediario` \| `entrada`. Régua: salário e tipo de órgão indicam o nível de quem disputa; número de vagas diz se é disputa ou loteria. Só alimenta a marca de cor e a vista "por nível" da maleta — sem regra de negócio |
+| tier_note | text null | justificativa curta do nível (ex. "R$ 20 mil, Cebraspe, 10 vagas por especialidade") |
 | workplace_city / workplace_state | string / string(2) null | lotação específica — distinto de `locations`/`states`, que são pro filtro e exibição |
 | distance_from_home_km | smallint null | distância até a cidade de referência do dono do radar (Maceió) — critério de qualidade de vida, não usar pra custo de mudança |
 | exam_city | string null | cidade onde a prova é feita, quando diverge da lotação |

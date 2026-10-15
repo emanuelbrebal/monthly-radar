@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\ContestTier;
 use App\Enums\EditalStatus;
 use App\Enums\EnrollmentStatus;
 use App\Models\Contest;
@@ -153,4 +154,27 @@ it('keeps what enrichment added to the dossier and does not duplicate sources', 
     expect($contest->dossier['it_roles'])->toBe(['Analista de Sistemas'])
         ->and(count($contest->dossier['sources']))->toBe(1)
         ->and(Contest::query()->where('slug', 'orgao-teste-2026')->count())->toBe(1);
+});
+
+it('seeds the tier and its note, and lets a later round reclassify it', function () {
+    runSeed(seedRow(['tier' => 'intermediario', 'tier_note' => 'estadual, salário de entrada']));
+
+    $contest = Contest::query()->where('slug', 'orgao-teste-2026')->sole();
+
+    expect($contest->tier)->toBe(ContestTier::Intermediate)
+        ->and($contest->tier_note)->toBe('estadual, salário de entrada');
+
+    runSeed(seedRow(['tier' => 'alto', 'tier_note' => 'salário confirmado acima do previsto']));
+
+    expect($contest->refresh()->tier)->toBe(ContestTier::High)
+        ->and($contest->tier_note)->toBe('salário confirmado acima do previsto');
+});
+
+it('gives every contest in the seed file a valid tier', function () {
+    $data = json_decode(file_get_contents(database_path('seeders/data/contests-seed.json')), true, flags: JSON_THROW_ON_ERROR);
+
+    foreach ($data['contests'] as $row) {
+        expect(ContestTier::tryFrom($row['tier'] ?? ''))->not->toBeNull("{$row['slug']} sem tier válido")
+            ->and($row['tier_note'] ?? null)->not->toBeEmpty();
+    }
 });

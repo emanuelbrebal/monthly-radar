@@ -48,4 +48,17 @@ class RadarPageControllerTest extends TestCase
             ->where('visibleContests.0.id', $rn->id)
         );
     }
+
+    public function test_it_exposes_the_contest_tier(): void
+    {
+        $this->actingAs(User::factory()->create());
+
+        Contest::factory()->create(['tier' => 'elite', 'tier_note' => 'auditor federal']);
+
+        $this->get('/')->assertInertia(fn (Assert $page) => $page
+            ->where('visibleContests.0.tier', 'elite')
+            ->where('visibleContests.0.tier_label', 'elite')
+            ->where('visibleContests.0.tier_note', 'auditor federal')
+        );
+    }
 }

@@ -28,6 +28,19 @@ export type RunStatusValue = 'queued' | 'scraping' | 'enriching' | 'done' | 'fai
 
 export type RegionValue = 'north' | 'northeast' | 'midwest' | 'southeast' | 'south';
 
+export type ContestTierValue = 'elite' | 'alto' | 'intermediario' | 'entrada';
+
+/**
+ * Espelha `ContestTier` (label + `order()`): do topo da escada para a base.
+ * `color` é a classe de fundo do token do handoff usada na marca do nível.
+ */
+export const CONTEST_TIERS: Array<{ value: ContestTierValue; label: string; short: string; color: string }> = [
+    { value: 'elite', label: 'elite', short: 'elite', color: 'bg-red' },
+    { value: 'alto', label: 'alto', short: 'alto', color: 'bg-gold' },
+    { value: 'intermediario', label: 'intermediário', short: 'inter.', color: 'bg-blue' },
+    { value: 'entrada', label: 'entrada', short: 'entrada', color: 'bg-green' },
+];
+
 /** Badge visual (docs/03-ui-inventario.md → tabela de status/evento). */
 export type BadgeKind = 'pos' | 'neu' | 'neg' | 'info';
 
@@ -100,6 +113,9 @@ export type ContestDto = {
     salary_min_cents: number | null;
     salary_max_cents: number | null;
     it_vacancies: number | null;
+    tier: ContestTierValue | null;
+    tier_label: string | null;
+    tier_note: string | null;
     field_sources: Record<string, FieldSourceDto>;
     edital_url: string | null;
     registration_url: string | null;

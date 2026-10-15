@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\BoardAffinity;
+use App\Enums\ContestTier;
 use App\Enums\Confidence;
 use App\Enums\EditalStatus;
 use App\Enums\EnrichmentStatus;
@@ -48,6 +49,8 @@ use Illuminate\Support\Carbon;
  * @property string|null $salary_note
  * @property BoardAffinity|null $board_affinity
  * @property string|null $board_affinity_note
+ * @property ContestTier|null $tier
+ * @property string|null $tier_note
  * @property array<int, string> $locations
  * @property string|null $workplace_city
  * @property string|null $workplace_state
@@ -109,6 +112,8 @@ class Contest extends Model
         'salary_note',
         'board_affinity',
         'board_affinity_note',
+        'tier',
+        'tier_note',
         'locations',
         'workplace_city',
         'workplace_state',
@@ -157,6 +162,7 @@ class Contest extends Model
             'reserve_vacancies' => 'integer',
             'open_competition_vacancies' => 'integer',
             'board_affinity' => BoardAffinity::class,
+            'tier' => ContestTier::class,
             'locations' => 'array',
             'distance_from_home_km' => 'integer',
             'states' => 'array',
