@@ -3,20 +3,22 @@ import { useId, useMemo, useState } from 'react';
 import { CaseSlot } from '@/components/radar/CaseSlot';
 import { ItemDescription } from '@/components/radar/ItemDescription';
 import { TierMark } from '@/components/radar/TierMark';
-import { buildRows, moveSelection } from '@/lib/case-nav';
-import type { NavKey } from '@/lib/case-nav';
+import {
+    buildRows,
+    CASE_COLUMNS,
+    isNavKey,
+    moveSelection,
+} from '@/lib/case-nav';
 import { csrfFetch } from '@/lib/csrf-fetch';
 import { notifyError } from '@/lib/notify';
 import { CONTEST_TIERS } from '@/types/radar';
 import type { ContestDto, ContestTierValue } from '@/types/radar';
 
 const SLOTS = 12;
-const ARROW_KEYS: NavKey[] = [
-    'ArrowLeft',
-    'ArrowRight',
-    'ArrowUp',
-    'ArrowDown',
-];
+// Mesmo número de colunas que `buildRows` usa para as setas.
+const CASE_GRID = {
+    gridTemplateColumns: `repeat(${CASE_COLUMNS}, minmax(0, 1fr))`,
+};
 const VIEW_STORAGE_KEY = 'radar.case.view';
 
 type CaseView = 'grid' | 'tiers';
@@ -147,9 +149,9 @@ export function AttacheCase({
             return;
         }
 
-        if (ARROW_KEYS.includes(e.key as NavKey)) {
+        if (isNavKey(e.key)) {
             e.preventDefault();
-            setSelected(moveSelection(navRows, selected, e.key as NavKey));
+            setSelected(moveSelection(navRows, selected, e.key));
         } else if (e.key === 'Enter' && selectedContest) {
             onOpen(selectedContest);
         } else if ((e.key === 'p' || e.key === 'P') && selectedContest) {
@@ -217,7 +219,10 @@ export function AttacheCase({
             )}
 
             {view === 'grid' ? (
-                <div className="grid min-h-0 flex-1 grid-cols-4 content-start gap-1.5 overflow-y-auto">
+                <div
+                    className="grid min-h-0 flex-1 content-start gap-1.5 overflow-y-auto"
+                    style={CASE_GRID}
+                >
                     {order.map((contestId, slot) => (
                         <CaseSlot
                             key={slot}
@@ -254,7 +259,7 @@ export function AttacheCase({
                                 />
                                 {group.label} · {group.slots.length}
                             </p>
-                            <div className="grid grid-cols-4 gap-1.5">
+                            <div className="grid gap-1.5" style={CASE_GRID}>
                                 {group.slots.map((slot) => (
                                     <CaseSlot
                                         key={slot}

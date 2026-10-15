@@ -38,7 +38,7 @@ class CalendarController
             ->visible()
             ->matchingStates($user->preferences->states)
             ->whereHas('events', fn ($q) => $q->whereBetween('date', [$start->toDateString(), $end->toDateString()]))
-            ->with(['events' => fn ($q) => $q->whereBetween('date', [$start->toDateString(), $end->toDateString()])])
+            ->with('events')
             ->get();
 
         return response()->json([

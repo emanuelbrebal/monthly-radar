@@ -11,10 +11,10 @@ export function todayIso(): string {
 type WithEvents = Pick<ContestDto, 'events'>;
 
 /** Próximo evento (≥ hoje) ou, se todos já passaram, o último; `null` sem eventos. */
-export function nextEvent<T extends WithEvents>(
-    contest: T,
-    today: string = todayIso(),
-): T['events'][number] | null {
+export function nextEvent(
+    contest: WithEvents,
+    today: string,
+): ContestDto['events'][number] | null {
     return (
         contest.events.find((e) => e.date >= today) ??
         contest.events.at(-1) ??
@@ -24,7 +24,7 @@ export function nextEvent<T extends WithEvents>(
 
 /** Próximo evento no formato "prova · 13/10". */
 export function nextEventLabel(contest: WithEvents): string | null {
-    const event = nextEvent(contest);
+    const event = nextEvent(contest, todayIso());
 
     if (!event) {
         return null;

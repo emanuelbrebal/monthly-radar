@@ -1,7 +1,18 @@
-export type NavKey = 'ArrowLeft' | 'ArrowRight' | 'ArrowUp' | 'ArrowDown';
+export const NAV_KEYS = [
+    'ArrowLeft',
+    'ArrowRight',
+    'ArrowUp',
+    'ArrowDown',
+] as const;
 
-/** Colunas da grade da maleta (`grid-cols-4`), na grade e em cada grupo de nível. */
-const COLUMNS = 4;
+export type NavKey = (typeof NAV_KEYS)[number];
+
+export function isNavKey(key: string): key is NavKey {
+    return (NAV_KEYS as readonly string[]).includes(key);
+}
+
+/** Colunas da grade da maleta, na grade e em cada grupo de nível (o layout usa este mesmo valor). */
+export const CASE_COLUMNS = 4;
 
 /**
  * Linhas visuais da maleta. Cada bloco (a grade inteira ou um grupo de nível)
@@ -10,8 +21,8 @@ const COLUMNS = 4;
  */
 export function buildRows(blocks: number[][]): number[][] {
     return blocks.flatMap((block) =>
-        Array.from({ length: Math.ceil(block.length / COLUMNS) }, (_, i) =>
-            block.slice(i * COLUMNS, (i + 1) * COLUMNS),
+        Array.from({ length: Math.ceil(block.length / CASE_COLUMNS) }, (_, i) =>
+            block.slice(i * CASE_COLUMNS, (i + 1) * CASE_COLUMNS),
         ),
     );
 }

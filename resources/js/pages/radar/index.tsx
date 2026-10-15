@@ -49,10 +49,8 @@ export default function RadarIndex() {
         setSelected((prev) => (prev !== null && prev.id === updated.id ? updated : prev));
     }
 
-    // O calendário de outros meses traz só os eventos do mês: o dossiê usa o
-    // DTO completo da mesa quando existe.
     function openDossier(contest: ContestDto) {
-        setSelected(contests.find((c) => c.id === contest.id) ?? contest);
+        setSelected(contest);
     }
 
     function handleDismissed(contest: ContestDto) {

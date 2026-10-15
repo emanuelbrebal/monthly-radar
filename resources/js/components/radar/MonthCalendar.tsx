@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from 'react';
 
 import { EventFolder } from '@/components/radar/EventFolder';
 import { csrfFetch } from '@/lib/csrf-fetch';
+import { todayIso } from '@/lib/radar';
 import type { ContestDto } from '@/types/radar';
 
 const MONTH_NAMES = [
@@ -146,7 +147,7 @@ export function MonthCalendar({
 
     const days = useMemo(() => buildGrid(month), [month]);
     const [year, m] = month.split('-').map(Number);
-    const todayIso = isoDate(new Date());
+    const today = todayIso();
     const weekLabels = ['seg', 'ter', 'qua', 'qui', 'sex', 'sáb', 'dom'];
 
     return (
@@ -217,7 +218,7 @@ export function MonthCalendar({
                 {days.map((day) => {
                     const iso = isoDate(day);
                     const inMonth = day.getMonth() === m - 1;
-                    const isToday = iso === todayIso;
+                    const isToday = iso === today;
                     const entries = eventsByDate.get(iso) ?? [];
                     const visible =
                         expandedDate === iso ? entries : entries.slice(0, 3);
