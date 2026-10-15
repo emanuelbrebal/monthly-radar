@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 
 import { CaseSlot } from '@/components/radar/CaseSlot';
 import { ItemDescription } from '@/components/radar/ItemDescription';
+import { TierMark } from '@/components/radar/TierMark';
 import { csrfFetch } from '@/lib/csrf-fetch';
 import { notifyError } from '@/lib/notify';
 import { CONTEST_TIERS } from '@/types/radar';
@@ -131,19 +132,19 @@ export function AttacheCase({ contests, onOpen, onContestChange }: AttacheCasePr
 
     return (
         <section
-            className="flex h-full min-h-0 flex-col gap-3 rounded-lg border border-ink bg-case p-4 text-night-text outline-none"
+            className="surface-night flex h-full min-h-0 flex-col gap-3 rounded-lg border border-ink p-4 outline-none"
             tabIndex={0}
             onKeyDown={handleKeyDown}
         >
             <div className="flex items-center justify-between gap-2">
-                <p className="rm-eyebrow text-night-text-mid">
-                    ¶ maleta · {filled}/{SLOTS}
+                <p className="t-label text-night-text">
+                    maleta · {filled}/{SLOTS}
                 </p>
                 <button
                     type="button"
                     onClick={toggleView}
                     aria-pressed={view === 'tiers'}
-                    className="rm-mono rounded-sm border border-night-text-mid/40 px-1.5 py-0.5 text-[10px] uppercase text-night-text-mid hover:text-night-text"
+                    className="t-label rounded-sm border-2 border-slot-border px-2 py-0.5 text-night-text hover:bg-slot-hover"
                     title={view === 'grid' ? 'agrupar por nível' : 'voltar para a grade'}
                 >
                     {view === 'grid' ? 'por nível' : 'grade'}
@@ -154,14 +155,14 @@ export function AttacheCase({ contests, onOpen, onContestChange }: AttacheCasePr
                 <div className="flex flex-col gap-1">
                     <div className="flex flex-wrap gap-x-3 gap-y-1" aria-label="equilíbrio da maleta por nível">
                         {CONTEST_TIERS.map((tier) => (
-                            <span key={tier.value} className="rm-mono inline-flex items-center gap-1 text-[10px] uppercase text-night-text-mid">
-                                <span className={`inline-block h-2 w-2 ${tier.color} ${counts.get(tier.value) ? '' : 'opacity-30'}`} />
+                            <span key={tier.value} className="t-label inline-flex items-center gap-1 text-night-text">
+                                <TierMark tier={tier.value} variant="dot" on="night" />
                                 {tier.short} {counts.get(tier.value) ?? 0}
                             </span>
                         ))}
                     </div>
                     {top > base && (
-                        <p className="rm-serif text-[11px] text-night-text-mid italic">
+                        <p className="rm-serif text-xs text-night-text-mid italic">
                             maleta pesada no topo — {top} de elite/alto contra {base} de base.
                         </p>
                     )}
@@ -187,8 +188,8 @@ export function AttacheCase({ contests, onOpen, onContestChange }: AttacheCasePr
                     {groups.length === 0 && <p className="rm-serif text-sm text-night-text-mid italic">Maleta vazia.</p>}
                     {groups.map((group) => (
                         <div key={group.tier ?? 'none'} className="flex flex-col gap-1.5">
-                            <p className="rm-mono inline-flex items-center gap-1.5 text-[10px] uppercase text-night-text-mid">
-                                <span className={`inline-block h-2 w-2 ${group.color}`} />
+                            <p className="t-label inline-flex items-center gap-1.5 text-night-text">
+                                <TierMark tier={group.tier} variant="dot" on="night" />
                                 {group.label} · {group.slots.length}
                             </p>
                             <div className="grid grid-cols-4 gap-1.5">

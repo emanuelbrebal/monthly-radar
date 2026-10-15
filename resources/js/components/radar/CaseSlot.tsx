@@ -1,5 +1,5 @@
 import { Stamp } from '@/components/radar/Stamp';
-import { tierMeta } from '@/components/radar/TierMark';
+import { TierMark, tierMeta } from '@/components/radar/TierMark';
 import type { ContestDto } from '@/types/radar';
 
 const DOT_KIND_COLOR: Record<string, string> = {
@@ -80,19 +80,24 @@ export function CaseSlot({ slot, contest, selected, onSelect, onOpen, onDropCont
                     e.dataTransfer.setData('text/contest-id', String(contest.id));
                 }
             }}
-            className={`relative flex aspect-square cursor-pointer flex-col justify-between border p-1.5 outline-none ${
-                selected ? 'border-2 border-slot-selected' : 'border-slot-border hover:bg-slot-hover'
-            } bg-case-lining`}
+            className={`relative flex aspect-square cursor-pointer flex-col justify-between p-1 bg-case-lining ${
+                selected ? 'ring-[3px] ring-highlight' : 'hover:bg-slot-hover'
+            } ${contest === null ? 'border border-dashed border-slot-border' : 'border border-slot-border'}`}
         >
             {contest === null ? (
-                <span className="flex h-full items-center justify-center text-night-text-mid/30">·</span>
+                <span className="text-label flex h-full items-start text-night-text-mid">{slot + 1}</span>
             ) : (
-                <div className="relative flex h-full flex-col justify-between rounded-sm border border-ink bg-card p-1.5 shadow-[3px_3px_0_rgba(0,0,0,0.6)]">
-                    <span className="absolute top-0 left-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-red" />
-                    {tier && <span className={`absolute inset-y-0 left-0 w-1 ${tier.color}`} title={`nível: ${tier.label}`} />}
-                    {badgeKind && <span className={`absolute top-1 right-1 h-1.5 w-1.5 rounded-full ${DOT_KIND_COLOR[badgeKind]}`} />}
-                    <p className="rm-display truncate text-base leading-none">{contest.organ_acronym ?? contest.organ}</p>
-                    <p className="rm-mono truncate text-[9px] text-ink-mid">{nextEventLabel(contest) ?? '—'}</p>
+                <div className="surface-card relative flex h-full min-w-0 flex-col justify-between gap-0.5 overflow-hidden rounded-sm border border-ink p-1">
+                    <div className="flex items-start justify-between gap-1">
+                        <p className="rm-display min-w-0 truncate text-lg leading-none text-ink">{contest.organ_acronym ?? contest.organ}</p>
+                        {badgeKind && (
+                            <span className={`mt-0.5 h-2 w-2 shrink-0 rounded-full ${DOT_KIND_COLOR[badgeKind]}`} title={contest.effective_status_label}>
+                                <span className="sr-only">{contest.effective_status_label}</span>
+                            </span>
+                        )}
+                    </div>
+                    <TierMark tier={contest.tier} variant="chip" className="self-start" />
+                    <p className="text-label truncate font-normal text-muted-fg">{nextEventLabel(contest) ?? '—'}</p>
                     {contest.hides_in_hours !== null && contest.hides_in_hours <= 24 && (
                         <Stamp rotate={-8} className="absolute -bottom-1 -right-1 scale-[0.6]">
                             some {contest.hides_in_hours}h
