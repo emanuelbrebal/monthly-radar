@@ -199,3 +199,48 @@ Notas: a inscrição pessoal (R) vence o estado do edital porque é o que o usu�
 3. Reexecutar os gates e o screenshot "depois" nas duas resoluções.
 
 **Gate = Livre para execução.**
+
+## Stage de Execução — Entregáveis
+
+| # | Descrição | Caminho | Status |
+|---|---|---|---|
+| 1 | Baseline dos gates (Pest 176/178, phpstan ok, eslint ok, tsc só em arquivo gerado, pint reprovava `Contest.php`) | — | ✅ |
+| 2 | Enum de fase (14 fases, `label()`, `tone()`) | `app/Enums/ContestPhase.php` | ✅ |
+| 2 | Resolver de fase + `isNew()` (PHP puro) | `app/Services/Radar/ContestPhaseResolver.php` | ✅ |
+| 2 | Janela da tag "novo" | `config/radar.php` (`new_window_days` = 7) | ✅ |
+| 3 | Testes Pest (19 fases + 7 casos de `isNew` + sem data) | `tests/Unit/Services/Radar/ContestPhaseResolverTest.php` | ✅ |
+| 4 | `phase`, `phase_label`, `phase_tone`, `is_new` no payload | `app/Support/Radar/ContestPresenter.php` | ✅ |
+| 4 | Teste de feature do payload | `tests/Feature/RadarPageControllerTest.php` | ✅ |
+| 5 | Tipos + util único (`nextEventLabel`, `money`, `dateLabel`, `TONE_ICON`) | `resources/js/types/radar.ts`, `resources/js/lib/radar.ts` | ✅ |
+| 5 | `PhaseTag` + `NewTag`; `Tag` aceita `className` | `resources/js/components/radar/PhaseTag.tsx`, `Tag.tsx` | ✅ |
+| 6 | Ano arábico; remoção de `toRoman` | `MonthCalendar.tsx` | ✅ |
+| 6 | Card curto `SIGLA · TÍTULO DO EVENTO` (abre dossiê) | `EventFolder.tsx` | ✅ |
+| 7 | Maleta: grade rola, painel `shrink-0`, botões com wrap | `AttacheCase.tsx`, `ItemDescription.tsx` | ✅ |
+| 8 | Slot com sigla sans, tag de fase, nível, "novo"; painel com dados + 2 links | `CaseSlot.tsx`, `ItemDescription.tsx` | ✅ |
+| 8 | Dossiê: fase/novo no topo, título em sans, fontes recolhidas | `DossierModal.tsx` | ✅ |
+| 8 | Caixa de itens: tag de fase + "novo"; remove `nextEventLabel` duplicado | `ItemRow.tsx`, `ItemBox.tsx` | ✅ |
+| 10 | Docs | `docs/03-ui-inventario.md` | ✅ |
+
+**Desvios do plano (justificados)**
+1. **Fase `result_out` ("resultado saiu") removida.** O teste visual mostrou DATAPREV como "resultado saiu" porque o gabarito preliminar (evento `result`) já passou, mas o resultado final não saiu — contradizia o exemplo do usuário ("aguardando resultado"). Distinguir pelo texto do evento seria frágil. Agora `exam_taken` = "aguardando resultado" até o edital virar `finished` (→ "encerrado"). Por isso o resolver não recebe mais os eventos.
+2. **Slot sem "próximo evento" nem dot de status** (a tag de fase os substitui; o próximo evento fica no painel). Cabia mal em ~90px.
+3. **`prettier --write` reformatou os arquivos tocados** (o repo não estava prettier-clean); arquivos não relacionados foram restaurados. `csrf-fetch.ts` segue com aviso do prettier (preexistente, não tocado).
+4. **`app/Models/Contest.php`**: o `pint` corrigiu só estilo (preexistente, reprovava o gate).
+5. **Limitação:** no primeiro seed, todos os concursos não inscritos/fixados ficam "novos" por 7 dias (já prevista no plano).
+
+## Stage de Execução — Validação
+
+| Critério de aceite | Resultado | Observação |
+|---|---|---|
+| 1. Ano arábico, muda com o mês | ✅ | "outubro · 2026" no navegador; navegação ←/→ preservada (não alterei `shiftMonth`); virada dez→jan **não testada** no navegador |
+| 2. Cartões só com edital + inscrição como links; dados listados | ✅ | Painel: vagas TI, salário, taxa, banca, inscrição até, prova, próximo; dossiê com "fontes (16)" recolhida |
+| 3. Card do calendário só com título e abre o dossiê certo | ✅ | Clique em "DATAPREV · GABARITO PRELIMINAR" (dia 13) abriu o dossiê do DATAPREV |
+| 4. Maleta sem corte em 1366×768 e 1920×1080 | ⚠️ | Viewport 1920×911: botões em y=870 (<911) ✅. Em ~744px de altura (grade e "por nível"): painel e botões visíveis ✅. O redimensionamento para 1366×768 exato **não foi aplicado** pelo navegador |
+| 5. Fase por função PHP pura, testada, sem migration | ✅ | 28 testes passam; nenhuma migration |
+| 6. Títulos legíveis | ✅ | Inter Tight 700; sem sobreposição nas capturas |
+| 7. Gates | ✅/⚠️ | pest 200/202 (2 skipped), pint ✅, phpstan ✅, eslint ✅, prettier ✅ nos arquivos tocados; `tsc` falha só em `RedirectController.ts` (gerado, preexistente) |
+| Exemplos do usuário | ✅ | DATAPREV "aguardando resultado"; TJPB "edital em formulação"; CGU "inscrições abertas" no seed (o seed não marca CGU como inscrito); "inscrito" coberto por teste |
+
+**Verificação visual feita em SQLite temporário** (`scratchpad/verify.sqlite`, usuário de teste), sem tocar no Postgres do projeto.
+
+**Revisão pós-exec (pendente)**: rodar `/simplify` e `/code-review` no diff da branch.
