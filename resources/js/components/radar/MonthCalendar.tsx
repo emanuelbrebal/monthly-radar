@@ -72,7 +72,10 @@ function buildGrid(month: string): Date[] {
     const start = new Date(firstOfMonth);
     start.setDate(start.getDate() - mondayIndex(firstOfMonth.getDay()));
 
-    return Array.from({ length: 42 }, (_, i) => {
+    const daysInMonth = new Date(year, m, 0).getDate();
+    const weeks = Math.ceil((mondayIndex(firstOfMonth.getDay()) + daysInMonth) / 7);
+
+    return Array.from({ length: weeks * 7 }, (_, i) => {
         const day = new Date(start);
         day.setDate(start.getDate() + i);
 
@@ -199,7 +202,7 @@ export function MonthCalendar({ initialMonth, initialContests, onSelectContest }
                     return (
                         <div
                             key={iso}
-                            className={`relative flex min-h-20 flex-col gap-0.5 border-r border-b border-line-strong p-1 ${cellTone}`}
+                            className={`relative flex min-h-[4.5rem] flex-col gap-0.5 border-r border-b border-line-strong p-1 ${cellTone}`}
                         >
                             <span className={`t-body self-end px-1 ${isToday ? 'font-semibold' : inMonth ? '' : 'font-normal'}`}>
                                 {day.getDate()}

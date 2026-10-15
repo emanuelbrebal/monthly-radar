@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 
 import { ItemRow } from '@/components/radar/ItemRow';
 import { StatusFilterPopover } from '@/components/radar/StatusFilterPopover';
+import { Checkbox } from '@/components/ui/checkbox';
 import { csrfFetch } from '@/lib/csrf-fetch';
 import { notifyError } from '@/lib/notify';
 import type { ContestDto, EditalStatusValue } from '@/types/radar';
@@ -110,13 +111,7 @@ export function ItemBox({ contests, onSelect, onPinChange, onRestored }: ItemBox
                 <StatusFilterPopover options={STATUS_OPTIONS} selected={statusFilter} onChange={setStatusFilter} disabled={showDismissed} />
 
                 <label className="t-body flex min-h-6 items-center gap-2 text-ink">
-                    <input
-                        type="checkbox"
-                        checked={onlyEnrolled}
-                        onChange={(e) => setOnlyEnrolled(e.target.checked)}
-                        disabled={showDismissed}
-                        className="size-4"
-                    />
+                    <Checkbox checked={onlyEnrolled} onCheckedChange={(c) => setOnlyEnrolled(c === true)} disabled={showDismissed} />
                     só inscritos
                 </label>
 
