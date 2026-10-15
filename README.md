@@ -100,6 +100,17 @@ To actually process a sweep you also need a queue worker running (jobs are dispa
 php artisan queue:work
 ```
 
+### Local on Windows
+
+Notes for running on Windows 11 (PowerShell) with a local PostgreSQL:
+
+- **Postgres password:** PostgreSQL rejects empty passwords on `127.0.0.1`. Set `DB_PASSWORD` in `.env` and create the database once with `psql -U postgres -c "CREATE DATABASE monthly_radar"` (`psql` lives in `C:\Program Files\PostgreSQL\<version>\bin`, usually not on `PATH`).
+- **SSL for scraping:** PHP on Windows ships without a CA bundle, so `radar:source`/`radar:sweep` fail with `cURL error 60: SSL certificate problem`. Download `https://curl.se/ca/cacert.pem` to a fixed folder outside the repo and set both `curl.cainfo` and `openssl.cafile` in your `php.ini` to its path (forward slashes work), then open a new terminal. Never disable certificate verification in code. Check with `php -r "echo ini_get('curl.cainfo');"` and `php artisan radar:source pci_concursos --dry`.
+- **One command to start everything:** `composer dev` runs the web server (`localhost:8000`), the queue worker and Vite. The queue worker is required — without it a sweep started from the UI stays `queued` forever. Laravel Pail is not part of it (it needs `pcntl`, unavailable on Windows); follow logs with `composer dev:logs` in another terminal.
+- **Stale `public/hot`:** if the page loads blank without `composer dev` running, delete `public/hot` (Vite leaves it behind when it is killed) or run `npm run build`.
+- **Updating the seed:** drop the new `database/seeders/data/contests-seed.json` and run `php artisan db:seed --class=ContestSeeder`. It is idempotent by `slug` and never overwrites `enrollment_status`, `pinned_slot`, dismissals or `personal_notes` of existing contests. Do not use `migrate:fresh` once the app has data.
+- **No API key:** leave `ANTHROPIC_API_KEY` empty; sweeps still scrape and enrichment stays `skipped`.
+
 ## Artisan commands
 
 ```bash

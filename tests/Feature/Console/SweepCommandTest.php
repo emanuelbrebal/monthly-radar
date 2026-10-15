@@ -6,6 +6,7 @@ use App\Models\Contest;
 use App\Models\SearchRun;
 use App\Services\Radar\Llm\LlmResponse;
 use App\Services\Radar\LlmProvider;
+use Illuminate\Support\Facades\Http;
 
 class SweepStubProvider implements LlmProvider
 {
@@ -23,6 +24,16 @@ class SweepStubProvider implements LlmProvider
         return new LlmResponse(json_encode(['campos' => []]), 1, 1, 0);
     }
 }
+
+// A varredura passa por todas as fontes habilitadas; sem isolar a rede o teste
+// depende de internet, do site no ar e do CA bundle do PHP local.
+beforeEach(function () {
+    Http::preventStrayRequests();
+    Http::fake([
+        'pciconcursos.com.br/*' => Http::response(file_get_contents(base_path('tests/Fixtures/pci_concursos_sample.html'))),
+        '*.gov.br/*' => Http::response(file_get_contents(base_path('tests/Fixtures/official_page_sample.html'))),
+    ]);
+});
 
 it('fails with an unknown area', function () {
     $this->artisan('radar:sweep', ['area' => 'nao_existe'])->assertFailed();
