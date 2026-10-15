@@ -20,36 +20,6 @@ const MONTH_NAMES = [
     'dezembro',
 ];
 
-const ROMAN_TABLE: Array<[number, string]> = [
-    [1000, 'M'],
-    [900, 'CM'],
-    [500, 'D'],
-    [400, 'CD'],
-    [100, 'C'],
-    [90, 'XC'],
-    [50, 'L'],
-    [40, 'XL'],
-    [10, 'X'],
-    [9, 'IX'],
-    [5, 'V'],
-    [4, 'IV'],
-    [1, 'I'],
-];
-
-function toRoman(year: number): string {
-    let remainder = year;
-    let result = '';
-
-    for (const [value, symbol] of ROMAN_TABLE) {
-        while (remainder >= value) {
-            result += symbol;
-            remainder -= value;
-        }
-    }
-
-    return result;
-}
-
 function pad(n: number): string {
     return n.toString().padStart(2, '0');
 }
@@ -73,7 +43,9 @@ function buildGrid(month: string): Date[] {
     start.setDate(start.getDate() - mondayIndex(firstOfMonth.getDay()));
 
     const daysInMonth = new Date(year, m, 0).getDate();
-    const weeks = Math.ceil((mondayIndex(firstOfMonth.getDay()) + daysInMonth) / 7);
+    const weeks = Math.ceil(
+        (mondayIndex(firstOfMonth.getDay()) + daysInMonth) / 7,
+    );
 
     return Array.from({ length: weeks * 7 }, (_, i) => {
         const day = new Date(start);
@@ -97,14 +69,21 @@ type MonthCalendarProps = {
 };
 
 /** docs/03-ui-inventario.md → "Calendário". */
-export function MonthCalendar({ initialMonth, initialContests, onSelectContest }: MonthCalendarProps) {
+export function MonthCalendar({
+    initialMonth,
+    initialContests,
+    onSelectContest,
+}: MonthCalendarProps) {
     const [month, setMonth] = useState(initialMonth);
-    const [fetchedContests, setFetchedContests] = useState<ContestDto[] | null>(null);
+    const [fetchedContests, setFetchedContests] = useState<ContestDto[] | null>(
+        null,
+    );
     const [loadingMonth, setLoadingMonth] = useState(false);
     const [expandedDate, setExpandedDate] = useState<string | null>(null);
     const requestedMonth = useRef(initialMonth);
     const contests = useMemo(
-        () => (month === initialMonth ? initialContests : (fetchedContests ?? [])),
+        () =>
+            month === initialMonth ? initialContests : (fetchedContests ?? []),
         [month, initialMonth, initialContests, fetchedContests],
     );
 
@@ -131,7 +110,9 @@ export function MonthCalendar({ initialMonth, initialContests, onSelectContest }
                     setFetchedContests(data.contests);
                 }
             })
-            .catch(() => notifyError('Não deu pra carregar esse mês. Tenta de novo.'))
+            .catch(() =>
+                notifyError('Não deu pra carregar esse mês. Tenta de novo.'),
+            )
             .finally(() => {
                 if (requestedMonth.current === target) {
                     setLoadingMonth(false);
@@ -140,7 +121,10 @@ export function MonthCalendar({ initialMonth, initialContests, onSelectContest }
     }
 
     const eventsByDate = useMemo(() => {
-        const map = new Map<string, Array<{ contest: ContestDto; eventId: number }>>();
+        const map = new Map<
+            string,
+            Array<{ contest: ContestDto; eventId: number }>
+        >();
 
         for (const contest of contests) {
             for (const event of contest.events) {
@@ -162,17 +146,36 @@ export function MonthCalendar({ initialMonth, initialContests, onSelectContest }
         <div>
             <div className="mb-2 flex items-center justify-between gap-2">
                 <h2 className="rm-display text-display">
-                    {MONTH_NAMES[m - 1]} · {toRoman(year)}
-                    {loadingMonth && <span className="t-body ml-2 align-middle text-muted-fg">carregando…</span>}
+                    {MONTH_NAMES[m - 1]} · {year}
+                    {loadingMonth && (
+                        <span className="t-body ml-2 align-middle text-muted-fg">
+                            carregando…
+                        </span>
+                    )}
                 </h2>
                 <div className="flex items-center gap-2">
-                    <button type="button" aria-label="mês anterior" className={NAV_BUTTON} onClick={() => goToMonth(shiftMonth(month, -1))}>
+                    <button
+                        type="button"
+                        aria-label="mês anterior"
+                        className={NAV_BUTTON}
+                        onClick={() => goToMonth(shiftMonth(month, -1))}
+                    >
                         <span aria-hidden="true">←</span>
                     </button>
-                    <button type="button" aria-label="ir para hoje" className={NAV_BUTTON} onClick={() => goToMonth(initialMonth)}>
+                    <button
+                        type="button"
+                        aria-label="ir para hoje"
+                        className={NAV_BUTTON}
+                        onClick={() => goToMonth(initialMonth)}
+                    >
                         hoje
                     </button>
-                    <button type="button" aria-label="próximo mês" className={NAV_BUTTON} onClick={() => goToMonth(shiftMonth(month, 1))}>
+                    <button
+                        type="button"
+                        aria-label="próximo mês"
+                        className={NAV_BUTTON}
+                        onClick={() => goToMonth(shiftMonth(month, 1))}
+                    >
                         <span aria-hidden="true">→</span>
                     </button>
                 </div>
@@ -180,7 +183,10 @@ export function MonthCalendar({ initialMonth, initialContests, onSelectContest }
 
             <div className="grid grid-cols-7 overflow-hidden rounded-lg border-t border-l border-line-strong">
                 {weekLabels.map((label) => (
-                    <div key={label} className="t-label border-r border-b border-line-strong bg-paper-soft px-1 py-1">
+                    <div
+                        key={label}
+                        className="t-label border-r border-b border-line-strong bg-paper-soft px-1 py-1"
+                    >
                         {label}
                     </div>
                 ))}
@@ -190,7 +196,8 @@ export function MonthCalendar({ initialMonth, initialContests, onSelectContest }
                     const inMonth = day.getMonth() === m - 1;
                     const isToday = iso === todayIso;
                     const entries = eventsByDate.get(iso) ?? [];
-                    const visible = expandedDate === iso ? entries : entries.slice(0, 3);
+                    const visible =
+                        expandedDate === iso ? entries : entries.slice(0, 3);
                     const overflow = entries.length - visible.length;
 
                     const cellTone = isToday
@@ -204,15 +211,28 @@ export function MonthCalendar({ initialMonth, initialContests, onSelectContest }
                             key={iso}
                             className={`relative flex min-h-[4.5rem] flex-col gap-0.5 border-r border-b border-line-strong p-1 ${cellTone}`}
                         >
-                            <span className={`t-body self-end px-1 ${isToday ? 'font-semibold' : inMonth ? '' : 'font-normal'}`}>
+                            <span
+                                className={`t-body self-end px-1 ${isToday ? 'font-semibold' : inMonth ? '' : 'font-normal'}`}
+                            >
                                 {day.getDate()}
-                                {isToday && <span className="sr-only"> hoje</span>}
+                                {isToday && (
+                                    <span className="sr-only"> hoje</span>
+                                )}
                             </span>
 
                             {visible.map(({ contest, eventId }) => {
-                                const event = contest.events.find((e) => e.id === eventId)!;
+                                const event = contest.events.find(
+                                    (e) => e.id === eventId,
+                                )!;
 
-                                return <EventFolder key={`${contest.id}-${eventId}`} contest={contest} event={event} onSelect={onSelectContest} />;
+                                return (
+                                    <EventFolder
+                                        key={`${contest.id}-${eventId}`}
+                                        contest={contest}
+                                        event={event}
+                                        onSelect={onSelectContest}
+                                    />
+                                );
                             })}
 
                             {overflow > 0 && (

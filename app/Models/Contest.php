@@ -3,8 +3,8 @@
 namespace App\Models;
 
 use App\Enums\BoardAffinity;
-use App\Enums\ContestTier;
 use App\Enums\Confidence;
+use App\Enums\ContestTier;
 use App\Enums\EditalStatus;
 use App\Enums\EnrichmentStatus;
 use App\Enums\EnrollmentStatus;

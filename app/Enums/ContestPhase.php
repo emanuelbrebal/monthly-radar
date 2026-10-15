@@ -20,7 +20,6 @@ enum ContestPhase: string
     case VenueReleased = 'venue_released';
     case ExamDone = 'exam_done';
     case AwaitingResult = 'awaiting_result';
-    case ResultOut = 'result_out';
     case Finished = 'finished';
     case Suspended = 'suspended';
 
@@ -38,7 +37,6 @@ enum ContestPhase: string
             self::VenueReleased => 'local de prova saiu',
             self::ExamDone => 'prova aplicada',
             self::AwaitingResult => 'aguardando resultado',
-            self::ResultOut => 'resultado saiu',
             self::Finished => 'encerrado',
             self::Suspended => 'suspenso',
         };
@@ -50,7 +48,7 @@ enum ContestPhase: string
     public function tone(): string
     {
         return match ($this) {
-            self::Enrolled, self::FeePaid, self::VenueReleased, self::ResultOut, self::RegistrationOpen => 'pos',
+            self::Enrolled, self::FeePaid, self::VenueReleased, self::RegistrationOpen => 'pos',
             self::EditalInPreparation, self::EditalPublished, self::ExamDone => 'neu',
             self::Expected, self::Authorized, self::AwaitingResult => 'info',
             self::RegistrationClosed, self::Finished, self::Suspended => 'neg',

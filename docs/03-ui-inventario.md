@@ -68,14 +68,14 @@ Grid: `grid-template-columns: minmax(420px, 5fr) 7fr`. Abaixo de 1024px: empilha
 - Grade 4×3, slots quadrados (`aspect-ratio: 1`), gap 6px, fundo `--case-lining`, borda 1px `--slot-border`, grade pontilhada interna.
 - **Slot vazio:** glifo `·` centralizado, `--night-text-mid` a 30%.
 - **Slot ocupado (item):** mini ficha papel (`--card`, borda ink, sombra `3px 3px 0 #000`) com:
-  - sigla do órgão em `font-display` 22px (trunca);
-  - linha mono 9px: próximo evento + dias ("prova · 26d");
-  - pontinho de status no canto (cor da badge);
+  - sigla do órgão em Inter Tight 15px/700 (trunca; `title` com o título completo);
+  - **tag de fase** (`phase_label`, forma + texto + cor, até 2 linhas) — ex. "aguardando resultado", "inscrito", "edital em formulação"; regras em `ContestPhaseResolver` (a situação pessoal vence o estado do edital; ver `tasks/calendar-case-phase-polish.md`);
+  - marca do nível (ícone) e, se `is_new`, a tag "NOVO" (concurso criado nos últimos `radar.new_window_days` dias, sem inscrição/interesse, fixação ou descarte);
   - pin vermelho 8×8 no topo centro (igual ao PinCard do handoff);
   - faixa vertical 4px na borda esquerda da ficha, na cor do nível (`tier`), quando há nível;
   - se está nas 24h finais: carimbo mini "some 18h" rotacionado -8°.
 - **Selecionado:** moldura 2px `--slot-selected` + cantoneiras em L animadas (pulse de opacidade 1.2s) — o cursor do RE.
-- **Painel "descrição do item"** (fixo embaixo da grade, borda-top régua dupla night): título display 26px `--night-text` com a marca do nível (quadradinho + nome mono) à direita, linha serif italic com próximo evento e situação da inscrição, dois botões secundários escuros (`abrir dossiê ↵`, `desafixar P`). Abaixo da linha italic, `tier_note` em serif 11px quando existe. Sem seleção: "Escolhe um item."
+- **Painel "descrição do item"** (fixo embaixo da grade, borda-top régua dupla night): título Inter Tight 18px/700 com "NOVO" e a marca do nível à direita, tag de fase em destaque, grade de dados (vagas TI, salário, taxa, banca, inscrição até, prova), linha serif italic "próximo: …", só os links de edital e inscrição, e dois botões secundários escuros (`abrir dossiê ↵`, `desafixar P`, quebram de linha em largura estreita). O painel é fixo (`shrink-0`); a grade 4×3 é a região que encolhe e rola, para nada ser cortado. Sem seleção: "Escolhe um item."
 - **Vista "por nível":** os itens fixados aparecem em grupos (elite → alto → intermediário → entrada → sem nível), cada um com rótulo mono + quadradinho de cor e sua própria grade de 4 colunas; grupo vazio não aparece. Dentro do grupo, a ordem é a do slot. Nessa vista não há arrastar (a posição é derivada); setas percorrem só os itens na ordem da tela. Fixar/desafixar e abrir dossiê funcionam igual.
 
 Interação:
@@ -105,9 +105,9 @@ Detalhes de regra em `docs/06-filtro-estados.md`.
 - Tags novas: `fora do filtro` (neu) em item da maleta ou em inscrito fora da seleção; `local a definir` (info) em concurso sem estado. A caixa de itens mostra as siglas dos estados em mono ao lado do órgão (`DATAPREV · RN CE PB SC`; nacional → `BR`).
 
 ### Calendário
-- Mês em grade 7 colunas (segunda primeiro), navegação ← → e "hoje". Título `font-display` 32px "setembro · MMXXVI".
+- Mês em grade 7 colunas (segunda primeiro), navegação ← → e "hoje". Título `font-display` 32px "outubro · 2026" (ano arábico, derivado do mês exibido).
 - Célula: `min-height: 96px`, borda `--rule-soft`, número do dia mono 10px no canto. Hoje: número com fundo `--highlight`. Dias fora do mês: 40% de opacidade.
-- **Pasta (evento):** chip de 20px de altura com aba de pasta manila — `::before` de 14×5px acima à esquerda com a mesma cor da borda. Texto mono 9px uppercase: `DATAPREV · PROVA`. Cor pela tabela de EventType. Concurso fixado ganha o pin vermelho 6px na pasta.
+- **Pasta (evento):** chip de 20px de altura com aba de pasta manila — `::before` de 14×5px acima à esquerda com a mesma cor da borda. Card curto, uppercase: `SIGLA · TÍTULO DO EVENTO` (`label` do evento, ou o tipo se não houver), ex. `DATAPREV · GABARITO PRELIMINAR`. Cor pela tabela de EventType. Concurso fixado ganha o pin vermelho 6px na pasta.
 - Máximo 3 pastas por célula; excedente vira `+2` que abre um popover com a lista.
 - Clique na pasta → modal do dossiê.
 - Só eventos de concursos visíveis.
@@ -115,7 +115,7 @@ Detalhes de regra em `docs/06-filtro-estados.md`.
 ### Caixa de itens
 - Box com título `¶ caixa de itens · N` (padrão Box do handoff).
 - Filtros: status (multi), "só inscritos", busca por texto (`/` foca) e o toggle `descartados (N)` no fim da barra. O toggle troca a lista pelos descartados: linhas a 50% de opacidade, motivo em mono ao lado e botão `trazer de volta`. Os descartados nunca aparecem no calendário.
-- Linhas compactas: quadradinho 8×8 da cor do nível (vazio se sem nível) · sigla (display 16px) · próximo evento (mono) · badge de status · badge de situação · botão pin (lucide `Pin`, stroke 1.5; vermelho se fixado).
+- Linhas compactas: quadradinho 8×8 da cor do nível (vazio se sem nível) · sigla (display 16px) · próximo evento (mono) · tag "NOVO" (se `is_new`) · tag de fase · botão pin (lucide `Pin`, stroke 1.5; vermelho se fixado).
 - Ordenação: próximo evento mais cedo primeiro; sem data vai para o fim.
 - Linha nas 24h finais: carimbo "some em Xh" (Stamp do handoff, 10px).
 - Vazio: "Nada no radar. Escolhe uma área e varre."
@@ -132,6 +132,7 @@ Radix `Dialog`, largura `min(1040px, 94vw)`, altura máx 88vh com scroll interno
 - Eyebrow vermelho: `órgão · banca · regime`.
 - Manchete display 40px (`title`). Lead serif italic: primeiro bullet do resumo.
 - Tags: status, regime; se `statutory`, tag vermelha `estatutário · art. 117` (lembrete de incompatibilidade com gerência de empresa, Lei 8.112) `[inferido — confirmar se quer esse alerta]`.
+- **Fontes:** lista recolhida por padrão (`fontes (N)`); os únicos links em destaque são `abrir edital` e `inscrição`.
 - **Resumo** (bullets do dossiê).
 - **Cargos de TI**: tabela mono (cargo · vagas · salário · requisito · lotação).
 - **Conteúdo cobrado**: lista curta.

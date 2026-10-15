@@ -16,7 +16,9 @@ type CaseView = 'grid' | 'tiers';
 /** Preferência só deste navegador — falha silenciosa (aba privada etc.). */
 function readView(): CaseView {
     try {
-        return window.localStorage.getItem(VIEW_STORAGE_KEY) === 'tiers' ? 'tiers' : 'grid';
+        return window.localStorage.getItem(VIEW_STORAGE_KEY) === 'tiers'
+            ? 'tiers'
+            : 'grid';
     } catch {
         return 'grid';
     }
@@ -41,27 +43,40 @@ type AttacheCaseProps = {
  * navegação por teclado (setas/Enter/P) e arrastar-e-soltar (HTML5 nativo)
  * pra reordenar via `PATCH /pins`, otimista com rollback em erro.
  */
-export function AttacheCase({ contests, onOpen, onContestChange }: AttacheCaseProps) {
+export function AttacheCase({
+    contests,
+    onOpen,
+    onContestChange,
+}: AttacheCaseProps) {
     const [selected, setSelected] = useState<number | null>(null);
     const [view, setView] = useState<CaseView>(readView);
     // Overrida a ordem derivada da prop enquanto um drag está em voo (mesmo
     // motivo do bug de useState(propList) da T4: nunca copiar a prop pra
     // state, só sobrepor otimisticamente por cima dela).
-    const [pendingOrder, setPendingOrder] = useState<Array<number | null> | null>(null);
+    const [pendingOrder, setPendingOrder] = useState<Array<
+        number | null
+    > | null>(null);
     const baseOrder = useMemo(() => buildOrder(contests), [contests]);
     const order = pendingOrder ?? baseOrder;
 
     const byId = new Map(contests.map((c) => [c.id, c]));
     const filled = order.filter((id) => id !== null).length;
-    const selectedContest = selected !== null && order[selected] !== null ? (byId.get(order[selected] as number) ?? null) : null;
+    const selectedContest =
+        selected !== null && order[selected] !== null
+            ? (byId.get(order[selected] as number) ?? null)
+            : null;
 
     const groups = buildTierGroups(order, byId);
     const counts = new Map(groups.map((g) => [g.tier, g.slots.length]));
     const top = (counts.get('elite') ?? 0) + (counts.get('alto') ?? 0);
-    const base = (counts.get('intermediario') ?? 0) + (counts.get('entrada') ?? 0);
+    const base =
+        (counts.get('intermediario') ?? 0) + (counts.get('entrada') ?? 0);
     // Ordem de navegação por teclado: na grade são os 12 slots; agrupado, só
     // os ocupados, na ordem em que aparecem na tela.
-    const navOrder = view === 'grid' ? order.map((_, slot) => slot) : groups.flatMap((g) => g.slots);
+    const navOrder =
+        view === 'grid'
+            ? order.map((_, slot) => slot)
+            : groups.flatMap((g) => g.slots);
 
     function toggleView() {
         const next: CaseView = view === 'grid' ? 'tiers' : 'grid';
@@ -74,7 +89,10 @@ export function AttacheCase({ contests, onOpen, onContestChange }: AttacheCasePr
             return;
         }
 
-        const response = await csrfFetch(`/contests/${selectedContest.id}/pin`, { method: 'DELETE' });
+        const response = await csrfFetch(
+            `/contests/${selectedContest.id}/pin`,
+            { method: 'DELETE' },
+        );
 
         if (!response.ok) {
             notifyError('Não deu pra desafixar. Tenta de novo.');
@@ -97,7 +115,10 @@ export function AttacheCase({ contests, onOpen, onContestChange }: AttacheCasePr
         next[slot] = contestId;
         setPendingOrder(next);
 
-        const response = await csrfFetch('/pins', { method: 'PATCH', body: JSON.stringify({ order: next }) });
+        const response = await csrfFetch('/pins', {
+            method: 'PATCH',
+            body: JSON.stringify({ order: next }),
+        });
 
         if (!response.ok) {
             setPendingOrder(null);
@@ -116,12 +137,20 @@ export function AttacheCase({ contests, onOpen, onContestChange }: AttacheCasePr
             return;
         }
 
-        const arrows: Record<string, number> = { ArrowRight: 1, ArrowLeft: -1, ArrowDown: 4, ArrowUp: -4 };
+        const arrows: Record<string, number> = {
+            ArrowRight: 1,
+            ArrowLeft: -1,
+            ArrowDown: 4,
+            ArrowUp: -4,
+        };
 
         if (e.key in arrows) {
             e.preventDefault();
             const position = Math.max(0, navOrder.indexOf(selected));
-            const next = Math.min(navOrder.length - 1, Math.max(0, position + arrows[e.key]));
+            const next = Math.min(
+                navOrder.length - 1,
+                Math.max(0, position + arrows[e.key]),
+            );
             setSelected(navOrder[next] ?? selected);
         } else if (e.key === 'Enter' && selectedContest) {
             onOpen(selectedContest);
@@ -132,11 +161,11 @@ export function AttacheCase({ contests, onOpen, onContestChange }: AttacheCasePr
 
     return (
         <section
-            className="surface-night flex h-full min-h-0 flex-col gap-3 rounded-lg border border-ink p-4 outline-none"
+            className="surface-night flex h-full min-h-0 flex-col gap-3 overflow-hidden rounded-lg border border-ink p-4 outline-none"
             tabIndex={0}
             onKeyDown={handleKeyDown}
         >
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex shrink-0 items-center justify-between gap-2">
                 <p className="t-label text-night-text">
                     maleta · {filled}/{SLOTS}
                 </p>
@@ -145,37 +174,56 @@ export function AttacheCase({ contests, onOpen, onContestChange }: AttacheCasePr
                     onClick={toggleView}
                     aria-pressed={view === 'tiers'}
                     className="t-label rounded-sm border-2 border-slot-border px-2 py-0.5 text-night-text hover:bg-slot-hover"
-                    title={view === 'grid' ? 'agrupar por nível' : 'voltar para a grade'}
+                    title={
+                        view === 'grid'
+                            ? 'agrupar por nível'
+                            : 'voltar para a grade'
+                    }
                 >
                     {view === 'grid' ? 'por nível' : 'grade'}
                 </button>
             </div>
 
             {filled > 0 && (
-                <div className="flex flex-col gap-1">
-                    <div className="flex flex-wrap gap-x-3 gap-y-1" aria-label="equilíbrio da maleta por nível">
+                <div className="flex shrink-0 flex-col gap-1">
+                    <div
+                        className="flex flex-wrap gap-x-3 gap-y-1"
+                        aria-label="equilíbrio da maleta por nível"
+                    >
                         {CONTEST_TIERS.map((tier) => (
-                            <span key={tier.value} className="t-label inline-flex items-center gap-1 text-night-text">
-                                <TierMark tier={tier.value} variant="dot" on="night" />
+                            <span
+                                key={tier.value}
+                                className="t-label inline-flex items-center gap-1 text-night-text"
+                            >
+                                <TierMark
+                                    tier={tier.value}
+                                    variant="dot"
+                                    on="night"
+                                />
                                 {tier.short} {counts.get(tier.value) ?? 0}
                             </span>
                         ))}
                     </div>
                     {top > base && (
                         <p className="rm-serif text-xs text-night-text-mid italic">
-                            maleta pesada no topo — {top} de elite/alto contra {base} de base.
+                            maleta pesada no topo — {top} de elite/alto contra{' '}
+                            {base} de base.
                         </p>
                     )}
                 </div>
             )}
 
             {view === 'grid' ? (
-                <div className="grid grid-cols-4 gap-1.5">
+                <div className="grid min-h-0 flex-1 grid-cols-4 content-start gap-1.5 overflow-y-auto">
                     {order.map((contestId, slot) => (
                         <CaseSlot
                             key={slot}
                             slot={slot}
-                            contest={contestId !== null ? (byId.get(contestId) ?? null) : null}
+                            contest={
+                                contestId !== null
+                                    ? (byId.get(contestId) ?? null)
+                                    : null
+                            }
                             selected={selected === slot}
                             onSelect={setSelected}
                             onOpen={onOpen}
@@ -185,11 +233,22 @@ export function AttacheCase({ contests, onOpen, onContestChange }: AttacheCasePr
                 </div>
             ) : (
                 <div className="flex min-h-0 flex-col gap-3 overflow-y-auto">
-                    {groups.length === 0 && <p className="rm-serif text-sm text-night-text-mid italic">Maleta vazia.</p>}
+                    {groups.length === 0 && (
+                        <p className="rm-serif text-sm text-night-text-mid italic">
+                            Maleta vazia.
+                        </p>
+                    )}
                     {groups.map((group) => (
-                        <div key={group.tier ?? 'none'} className="flex flex-col gap-1.5">
+                        <div
+                            key={group.tier ?? 'none'}
+                            className="flex flex-col gap-1.5"
+                        >
                             <p className="t-label inline-flex items-center gap-1.5 text-night-text">
-                                <TierMark tier={group.tier} variant="dot" on="night" />
+                                <TierMark
+                                    tier={group.tier}
+                                    variant="dot"
+                                    on="night"
+                                />
                                 {group.label} · {group.slots.length}
                             </p>
                             <div className="grid grid-cols-4 gap-1.5">
@@ -197,7 +256,10 @@ export function AttacheCase({ contests, onOpen, onContestChange }: AttacheCasePr
                                     <CaseSlot
                                         key={slot}
                                         slot={slot}
-                                        contest={byId.get(order[slot] as number) ?? null}
+                                        contest={
+                                            byId.get(order[slot] as number) ??
+                                            null
+                                        }
                                         selected={selected === slot}
                                         onSelect={setSelected}
                                         onOpen={onOpen}
@@ -211,16 +273,27 @@ export function AttacheCase({ contests, onOpen, onContestChange }: AttacheCasePr
                 </div>
             )}
 
-            <ItemDescription contest={selectedContest} onOpen={onOpen} onContestChange={onContestChange} />
+            <ItemDescription
+                contest={selectedContest}
+                onOpen={onOpen}
+                onContestChange={onContestChange}
+            />
         </section>
     );
 }
 
 function buildOrder(contests: ContestDto[]): Array<number | null> {
-    const order: Array<number | null> = Array.from({ length: SLOTS }, () => null);
+    const order: Array<number | null> = Array.from(
+        { length: SLOTS },
+        () => null,
+    );
 
     for (const contest of contests) {
-        if (contest.pinned_slot !== null && contest.pinned_slot >= 0 && contest.pinned_slot < SLOTS) {
+        if (
+            contest.pinned_slot !== null &&
+            contest.pinned_slot >= 0 &&
+            contest.pinned_slot < SLOTS
+        ) {
             order[contest.pinned_slot] = contest.id;
         }
     }
@@ -228,17 +301,35 @@ function buildOrder(contests: ContestDto[]): Array<number | null> {
     return order;
 }
 
-type TierGroup = { tier: ContestTierValue | null; label: string; color: string; slots: number[] };
+type TierGroup = {
+    tier: ContestTierValue | null;
+    label: string;
+    color: string;
+    slots: number[];
+};
 
 /**
  * Agrupa os slots ocupados por nível, do topo da escada para a base; quem não
  * tem nível vai num grupo "sem nível" no fim. Dentro do grupo, a ordem é a do
  * slot — a ordem manual da grade continua valendo.
  */
-function buildTierGroups(order: Array<number | null>, byId: Map<number, ContestDto>): TierGroup[] {
+function buildTierGroups(
+    order: Array<number | null>,
+    byId: Map<number, ContestDto>,
+): TierGroup[] {
     const groups: TierGroup[] = [
-        ...CONTEST_TIERS.map((t) => ({ tier: t.value, label: t.label, color: t.color, slots: [] as number[] })),
-        { tier: null, label: 'sem nível', color: 'bg-night-text-mid', slots: [] },
+        ...CONTEST_TIERS.map((t) => ({
+            tier: t.value,
+            label: t.label,
+            color: t.color,
+            slots: [] as number[],
+        })),
+        {
+            tier: null,
+            label: 'sem nível',
+            color: 'bg-night-text-mid',
+            slots: [],
+        },
     ];
 
     order.forEach((contestId, slot) => {

@@ -5,11 +5,8 @@ namespace App\Services\Radar;
 use App\Enums\ContestPhase;
 use App\Enums\EditalStatus;
 use App\Enums\EnrollmentStatus;
-use App\Enums\EventType;
-use App\Models\ContestEvent;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection;
 
 /**
  * Fase atual e flag "novo". PHP puro, sem I/O — a situação pessoal
@@ -17,13 +14,9 @@ use Illuminate\Support\Collection;
  */
 class ContestPhaseResolver
 {
-    /**
-     * @param  Collection<int, ContestEvent>  $events
-     */
     public function resolve(
         EditalStatus $effective,
         EnrollmentStatus $enrollment,
-        Collection $events,
         ?CarbonInterface $now = null,
     ): ContestPhase {
         if ($effective === EditalStatus::Suspended) {
@@ -36,7 +29,7 @@ class ContestPhaseResolver
 
         switch ($enrollment) {
             case EnrollmentStatus::ExamTaken:
-                return $this->hasPublishedResult($events, $now) ? ContestPhase::ResultOut : ContestPhase::AwaitingResult;
+                return ContestPhase::AwaitingResult;
             case EnrollmentStatus::VenueReleased:
                 return ContestPhase::VenueReleased;
             case EnrollmentStatus::FeePaid:
@@ -77,23 +70,5 @@ class ContestPhaseResolver
         $days = (int) config('radar.new_window_days', 7);
 
         return $createdAt->greaterThanOrEqualTo($now->copy()->subDays($days));
-    }
-
-    /**
-     * Resultado "saiu" = há evento `result` já passado e nenhum futuro.
-     * Sem nenhum evento `result`, assume-se que ainda se espera.
-     *
-     * @param  Collection<int, ContestEvent>  $events
-     */
-    private function hasPublishedResult(Collection $events, ?CarbonInterface $now): bool
-    {
-        $today = ($now ?? Carbon::now())->toDateString();
-        $results = $events->filter(fn (ContestEvent $e) => $e->type === EventType::Result);
-
-        if ($results->isEmpty()) {
-            return false;
-        }
-
-        return $results->every(fn (ContestEvent $e) => $e->date->toDateString() < $today);
     }
 }

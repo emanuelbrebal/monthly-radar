@@ -3,7 +3,14 @@
  * Manter em sincronia manualmente — não há geração automática no MVP.
  */
 
-export type TiAreaValue = 'development' | 'data' | 'infrastructure' | 'security' | 'support' | 'it_governance' | 'all';
+export type TiAreaValue =
+    | 'development'
+    | 'data'
+    | 'infrastructure'
+    | 'security'
+    | 'support'
+    | 'it_governance'
+    | 'all';
 
 export type EditalStatusValue =
     | 'expected'
@@ -16,17 +23,40 @@ export type EditalStatusValue =
     | 'finished'
     | 'suspended';
 
-export type EnrollmentStatusValue = 'not_enrolled' | 'interested' | 'enrolled' | 'fee_paid' | 'venue_released' | 'exam_taken' | 'dismissed';
+export type EnrollmentStatusValue =
+    | 'not_enrolled'
+    | 'interested'
+    | 'enrolled'
+    | 'fee_paid'
+    | 'venue_released'
+    | 'exam_taken'
+    | 'dismissed';
 
-export type EventTypeValue = 'registration_start' | 'registration_end' | 'fee_deadline' | 'exam' | 'result' | 'other';
+export type EventTypeValue =
+    | 'registration_start'
+    | 'registration_end'
+    | 'fee_deadline'
+    | 'exam'
+    | 'result'
+    | 'other';
 
 export type RegimeValue = 'clt' | 'statutory' | 'temporary' | 'unknown';
 
 export type EnrichmentStatusValue = 'pending' | 'skipped' | 'done' | 'failed';
 
-export type RunStatusValue = 'queued' | 'scraping' | 'enriching' | 'done' | 'failed';
+export type RunStatusValue =
+    | 'queued'
+    | 'scraping'
+    | 'enriching'
+    | 'done'
+    | 'failed';
 
-export type RegionValue = 'north' | 'northeast' | 'midwest' | 'southeast' | 'south';
+export type RegionValue =
+    | 'north'
+    | 'northeast'
+    | 'midwest'
+    | 'southeast'
+    | 'south';
 
 export type ContestTierValue = 'elite' | 'alto' | 'intermediario' | 'entrada';
 
@@ -100,7 +130,8 @@ export const CONTEST_TIERS: TierMeta[] = [
         color: 'bg-green',
         icon: 'circle',
         fgClass: 'text-tier-entrada-fg',
-        chipClass: 'bg-tier-entrada-bg text-tier-entrada-fg border-tier-entrada-line',
+        chipClass:
+            'bg-tier-entrada-bg text-tier-entrada-fg border-tier-entrada-line',
         lineClass: 'text-tier-entrada-line',
         onNightClass: 'text-tier-entrada-on-night',
         onNightBorderClass: 'border-tier-entrada-on-night',
@@ -111,7 +142,10 @@ export const CONTEST_TIERS: TierMeta[] = [
 export type BadgeKind = 'pos' | 'neu' | 'neg' | 'info';
 
 /** Checklist sequencial — espelha a ordem de `EnrollmentStatus::order()` (Dismissed fica fora). */
-export const ENROLLMENT_STEPS: Array<{ value: EnrollmentStatusValue; label: string }> = [
+export const ENROLLMENT_STEPS: Array<{
+    value: EnrollmentStatusValue;
+    label: string;
+}> = [
     { value: 'not_enrolled', label: 'não inscrito' },
     { value: 'interested', label: 'quero fazer' },
     { value: 'enrolled', label: 'inscrito' },
@@ -169,6 +203,10 @@ export type ContestDto = {
     status: EditalStatusValue;
     effective_status: EditalStatusValue;
     effective_status_label: string;
+    phase: string;
+    phase_label: string;
+    phase_tone: BadgeKind;
+    is_new: boolean;
     regime: RegimeValue;
     states: string[];
     nationwide: boolean;
@@ -210,4 +248,8 @@ export type AreaOption = { value: TiAreaValue; label: string };
 
 export type StateOption = { value: string; label: string };
 
-export type RegionOption = { value: RegionValue; label: string; states: StateOption[] };
+export type RegionOption = {
+    value: RegionValue;
+    label: string;
+    states: StateOption[];
+};
