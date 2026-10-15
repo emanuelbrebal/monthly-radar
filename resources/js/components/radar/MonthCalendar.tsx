@@ -84,6 +84,9 @@ function isoDate(d: Date): string {
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
+const NAV_BUTTON =
+    't-body inline-flex min-h-6 min-w-6 items-center justify-center rounded-md border border-ink bg-card px-2 py-0.5';
+
 type MonthCalendarProps = {
     initialMonth: string;
     initialContests: ContestDto[];
@@ -154,31 +157,27 @@ export function MonthCalendar({ initialMonth, initialContests, onSelectContest }
 
     return (
         <div>
-            <div className="mb-2 flex items-center justify-between">
-                <h2 className="rm-display text-3xl">
+            <div className="mb-2 flex items-center justify-between gap-2">
+                <h2 className="rm-display text-display">
                     {MONTH_NAMES[m - 1]} · {toRoman(year)}
-                    {loadingMonth && <span className="rm-mono ml-2 align-middle text-xs text-ink-mid">carregando…</span>}
+                    {loadingMonth && <span className="t-body ml-2 align-middle text-muted-fg">carregando…</span>}
                 </h2>
                 <div className="flex items-center gap-2">
-                    <button type="button" className="rounded-md border border-ink px-2 py-0.5" onClick={() => goToMonth(shiftMonth(month, -1))}>
-                        ←
+                    <button type="button" aria-label="mês anterior" className={NAV_BUTTON} onClick={() => goToMonth(shiftMonth(month, -1))}>
+                        <span aria-hidden="true">←</span>
                     </button>
-                    <button
-                        type="button"
-                        className="rm-mono rounded-md border border-ink px-2 py-0.5 text-[10px] uppercase"
-                        onClick={() => goToMonth(initialMonth)}
-                    >
+                    <button type="button" aria-label="ir para hoje" className={NAV_BUTTON} onClick={() => goToMonth(initialMonth)}>
                         hoje
                     </button>
-                    <button type="button" className="rounded-md border border-ink px-2 py-0.5" onClick={() => goToMonth(shiftMonth(month, 1))}>
-                        →
+                    <button type="button" aria-label="próximo mês" className={NAV_BUTTON} onClick={() => goToMonth(shiftMonth(month, 1))}>
+                        <span aria-hidden="true">→</span>
                     </button>
                 </div>
             </div>
 
-            <div className="grid grid-cols-7 overflow-hidden rounded-lg border-t border-l border-ink/20 rm-dot-grid">
+            <div className="grid grid-cols-7 overflow-hidden rounded-lg border-t border-l border-line-strong">
                 {weekLabels.map((label) => (
-                    <div key={label} className="rm-mono border-r border-b border-ink/20 bg-paper-soft px-1 py-0.5 text-[10px] uppercase">
+                    <div key={label} className="t-label border-r border-b border-line-strong bg-paper-soft px-1 py-1">
                         {label}
                     </div>
                 ))}
@@ -186,19 +185,25 @@ export function MonthCalendar({ initialMonth, initialContests, onSelectContest }
                 {days.map((day) => {
                     const iso = isoDate(day);
                     const inMonth = day.getMonth() === m - 1;
+                    const isToday = iso === todayIso;
                     const entries = eventsByDate.get(iso) ?? [];
                     const visible = expandedDate === iso ? entries : entries.slice(0, 3);
                     const overflow = entries.length - visible.length;
 
+                    const cellTone = isToday
+                        ? 'bg-highlight outline-2 -outline-offset-2 outline-ink text-ink z-10'
+                        : inMonth
+                          ? 'bg-card text-ink'
+                          : 'bg-paper-soft text-muted-fg';
+
                     return (
                         <div
                             key={iso}
-                            className={`relative flex min-h-16 flex-col gap-0.5 border-r border-b border-ink/20 p-1 ${inMonth ? '' : 'opacity-40'}`}
+                            className={`relative flex min-h-20 flex-col gap-0.5 border-r border-b border-line-strong p-1 ${cellTone}`}
                         >
-                            <span
-                                className={`rm-mono self-end px-1 text-[10px] ${iso === todayIso ? 'bg-highlight' : ''}`}
-                            >
+                            <span className={`t-body self-end px-1 ${isToday ? 'font-semibold' : inMonth ? '' : 'font-normal'}`}>
                                 {day.getDate()}
+                                {isToday && <span className="sr-only"> hoje</span>}
                             </span>
 
                             {visible.map(({ contest, eventId }) => {
@@ -210,7 +215,7 @@ export function MonthCalendar({ initialMonth, initialContests, onSelectContest }
                             {overflow > 0 && (
                                 <button
                                     type="button"
-                                    className="rm-mono self-start text-[9px] text-ink-mid underline"
+                                    className="t-label inline-flex min-h-6 min-w-6 items-center self-start px-1 text-ink underline"
                                     onClick={() => setExpandedDate(iso)}
                                 >
                                     +{overflow}
