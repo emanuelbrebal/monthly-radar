@@ -3,6 +3,7 @@
 namespace App\Support\Radar;
 
 use App\Models\Contest;
+use App\Services\Radar\ContestPhaseResolver;
 use Illuminate\Support\Carbon;
 
 /**
@@ -21,6 +22,8 @@ class ContestPresenter
         $effectiveStatus = $contest->effectiveStatus($now);
         $closedAt = $contest->effectiveClosedAt();
         $disappearsAt = $closedAt?->addDay();
+        $resolver = app(ContestPhaseResolver::class);
+        $phase = $resolver->resolve($effectiveStatus, $contest->enrollment_status, $contest->events, $now);
 
         return [
             'id' => $contest->id,
@@ -42,6 +45,16 @@ class ContestPresenter
             'status' => $contest->status->value,
             'effective_status' => $effectiveStatus->value,
             'effective_status_label' => $effectiveStatus->label(),
+            'phase' => $phase->value,
+            'phase_label' => $phase->label(),
+            'phase_tone' => $phase->tone(),
+            'is_new' => $resolver->isNew(
+                $contest->created_at,
+                $contest->enrollment_status,
+                $contest->pinned_slot,
+                $contest->isDismissed(),
+                $now,
+            ),
             'regime' => $contest->regime->value,
             'states' => $contest->states,
             'nationwide' => $contest->nationwide,
