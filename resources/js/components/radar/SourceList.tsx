@@ -44,22 +44,22 @@ export function SourceList({ fieldSources }: SourceListProps) {
     const entries = Object.entries(fieldSources ?? {});
 
     if (entries.length === 0) {
-        return <p className="rm-serif text-xs text-ink-mid italic">Nenhuma fonte registrada ainda.</p>;
+        return <p className="t-body text-muted-fg">Nenhuma fonte registrada ainda.</p>;
     }
 
     return (
-        <ul className="space-y-1.5">
+        <ul className="space-y-2">
             {entries.map(([field, source]) => (
-                <li key={field} className="flex items-center gap-2 text-xs">
-                    <span className="rm-mono w-32 shrink-0 truncate uppercase text-ink-mid">{FIELD_LABELS[field] ?? field}</span>
+                <li key={field} className="t-body flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <span className="t-label w-36 shrink-0 truncate text-muted-fg">{FIELD_LABELS[field] ?? field}</span>
                     {source.url ? (
-                        <a href={source.url} target="_blank" rel="noreferrer" className="truncate underline">
+                        <a href={source.url} target="_blank" rel="noreferrer" className="inline-flex min-h-6 items-center truncate underline underline-offset-2 hover:text-red-text">
                             {domain(source.url)}
                         </a>
                     ) : (
-                        <span className="truncate text-ink-mid">{source.origin}</span>
+                        <span className="truncate text-muted-fg">{source.origin}</span>
                     )}
-                    <span className="rm-mono shrink-0 text-[10px] text-ink-mid">
+                    <span className="t-label shrink-0 text-muted-fg">
                         {source.fetched_at ? new Date(source.fetched_at).toLocaleDateString('pt-BR') : '—'}
                     </span>
                     <Tag label={source.confidence} kind={CONFIDENCE_BADGE[source.confidence] ?? 'info'} />

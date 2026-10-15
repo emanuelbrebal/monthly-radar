@@ -47,7 +47,7 @@ export function EnrollmentChecklist({ contest, onChange }: EnrollmentChecklistPr
     }
 
     return (
-        <ul className="space-y-1.5">
+        <ul className="space-y-1">
             {ENROLLMENT_STEPS.map((step, i) => {
                 const done = !disabled && currentIndex >= 0 && i <= currentIndex;
 
@@ -57,16 +57,23 @@ export function EnrollmentChecklist({ contest, onChange }: EnrollmentChecklistPr
                             type="button"
                             disabled={disabled || saving !== null}
                             onClick={() => setStep(step.value)}
-                            className="flex w-full items-center gap-2 text-left text-sm disabled:cursor-not-allowed disabled:opacity-50"
+                            role="checkbox"
+                            aria-checked={done}
+                            aria-current={i === currentIndex && !disabled ? 'step' : undefined}
+                            className="t-body flex min-h-7 w-full items-center gap-2 text-left disabled:cursor-not-allowed"
                         >
                             <span
-                                className={`flex h-4 w-4 shrink-0 items-center justify-center border text-[10px] ${
-                                    done ? 'border-red bg-red text-paper' : 'border-ink-mid text-ink-mid'
+                                aria-hidden="true"
+                                className={`flex h-5 w-5 shrink-0 items-center justify-center border-2 text-xs font-bold ${
+                                    done ? 'border-red-text bg-red-text text-paper' : 'border-line-strong text-muted-fg'
                                 }`}
                             >
                                 {done ? '✕' : ''}
                             </span>
-                            <span className={done ? 'text-ink' : 'text-ink-mid'}>{step.label}</span>
+                            <span className={done ? 'font-semibold text-ink' : 'text-muted-fg'}>
+                                {step.label}
+                                {i === currentIndex && !disabled ? ' (atual)' : ''}
+                            </span>
                         </button>
                     </li>
                 );
