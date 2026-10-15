@@ -3,7 +3,14 @@
  * Manter em sincronia manualmente — não há geração automática no MVP.
  */
 
-export type TiAreaValue = 'development' | 'data' | 'infrastructure' | 'security' | 'support' | 'it_governance' | 'all';
+export type TiAreaValue =
+    | 'development'
+    | 'data'
+    | 'infrastructure'
+    | 'security'
+    | 'support'
+    | 'it_governance'
+    | 'all';
 
 export type EditalStatusValue =
     | 'expected'
@@ -16,36 +23,147 @@ export type EditalStatusValue =
     | 'finished'
     | 'suspended';
 
-export type EnrollmentStatusValue = 'not_enrolled' | 'interested' | 'enrolled' | 'fee_paid' | 'venue_released' | 'exam_taken' | 'dismissed';
+export type EnrollmentStatusValue =
+    | 'not_enrolled'
+    | 'interested'
+    | 'enrolled'
+    | 'fee_paid'
+    | 'venue_released'
+    | 'exam_taken'
+    | 'dismissed';
 
-export type EventTypeValue = 'registration_start' | 'registration_end' | 'fee_deadline' | 'exam' | 'result' | 'other';
+export type EventTypeValue =
+    | 'registration_start'
+    | 'registration_end'
+    | 'fee_deadline'
+    | 'exam'
+    | 'result'
+    | 'other';
 
 export type RegimeValue = 'clt' | 'statutory' | 'temporary' | 'unknown';
 
 export type EnrichmentStatusValue = 'pending' | 'skipped' | 'done' | 'failed';
 
-export type RunStatusValue = 'queued' | 'scraping' | 'enriching' | 'done' | 'failed';
+/** Espelha `App\Enums\ContestPhase`. */
+export type ContestPhaseValue =
+    | 'expected'
+    | 'authorized'
+    | 'edital_in_preparation'
+    | 'edital_published'
+    | 'registration_open'
+    | 'registration_closed'
+    | 'enrolled'
+    | 'fee_paid'
+    | 'venue_released'
+    | 'exam_done'
+    | 'awaiting_result'
+    | 'finished'
+    | 'suspended';
 
-export type RegionValue = 'north' | 'northeast' | 'midwest' | 'southeast' | 'south';
+export type RunStatusValue =
+    | 'queued'
+    | 'scraping'
+    | 'enriching'
+    | 'done'
+    | 'failed';
+
+export type RegionValue =
+    | 'north'
+    | 'northeast'
+    | 'midwest'
+    | 'southeast'
+    | 'south';
 
 export type ContestTierValue = 'elite' | 'alto' | 'intermediario' | 'entrada';
 
+export type TierIcon = 'diamond' | 'square' | 'triangle' | 'circle';
+
+export type TierMeta = {
+    value: ContestTierValue;
+    label: string;
+    short: string;
+    /** Forma do ícone — o nível é distinguível sem cor. */
+    icon: TierIcon;
+    /** Texto no claro (par com `chipClass`/`bgClass`). */
+    fgClass: string;
+    /** Chip completo no claro: fundo + texto + borda. */
+    chipClass: string;
+    /** Cor do ícone/borda no claro (>= 3:1 sobre o fundo do chip). */
+    lineClass: string;
+    /** Cor do ícone e do texto sobre a maleta (night). */
+    onNightClass: string;
+    /** Borda sobre a maleta (night). */
+    onNightBorderClass: string;
+};
+
 /**
  * Espelha `ContestTier` (label + `order()`): do topo da escada para a base.
- * `color` é a classe de fundo do token do handoff usada na marca do nível.
+ * Classes completas (sem interpolação) para o Tailwind enxergá-las.
  */
-export const CONTEST_TIERS: Array<{ value: ContestTierValue; label: string; short: string; color: string }> = [
-    { value: 'elite', label: 'elite', short: 'elite', color: 'bg-red' },
-    { value: 'alto', label: 'alto', short: 'alto', color: 'bg-gold' },
-    { value: 'intermediario', label: 'intermediário', short: 'inter.', color: 'bg-blue' },
-    { value: 'entrada', label: 'entrada', short: 'entrada', color: 'bg-green' },
+export const CONTEST_TIERS: TierMeta[] = [
+    {
+        value: 'elite',
+        label: 'elite',
+        short: 'elite',
+        icon: 'diamond',
+        fgClass: 'text-tier-elite-fg',
+        chipClass: 'bg-tier-elite-bg text-tier-elite-fg border-tier-elite-line',
+        lineClass: 'text-tier-elite-line',
+        onNightClass: 'text-tier-elite-on-night',
+        onNightBorderClass: 'border-tier-elite-on-night',
+    },
+    {
+        value: 'alto',
+        label: 'alto',
+        short: 'alto',
+        icon: 'square',
+        fgClass: 'text-tier-alto-fg',
+        chipClass: 'bg-tier-alto-bg text-tier-alto-fg border-tier-alto-line',
+        lineClass: 'text-tier-alto-line',
+        onNightClass: 'text-tier-alto-on-night',
+        onNightBorderClass: 'border-tier-alto-on-night',
+    },
+    {
+        value: 'intermediario',
+        label: 'intermediário',
+        short: 'inter.',
+        icon: 'triangle',
+        fgClass: 'text-tier-inter-fg',
+        chipClass: 'bg-tier-inter-bg text-tier-inter-fg border-tier-inter-line',
+        lineClass: 'text-tier-inter-line',
+        onNightClass: 'text-tier-inter-on-night',
+        onNightBorderClass: 'border-tier-inter-on-night',
+    },
+    {
+        value: 'entrada',
+        label: 'entrada',
+        short: 'entrada',
+        icon: 'circle',
+        fgClass: 'text-tier-entrada-fg',
+        chipClass:
+            'bg-tier-entrada-bg text-tier-entrada-fg border-tier-entrada-line',
+        lineClass: 'text-tier-entrada-line',
+        onNightClass: 'text-tier-entrada-on-night',
+        onNightBorderClass: 'border-tier-entrada-on-night',
+    },
 ];
 
 /** Badge visual (docs/03-ui-inventario.md → tabela de status/evento). */
 export type BadgeKind = 'pos' | 'neu' | 'neg' | 'info';
 
+/** Forma junto da cor: o tom nunca é transmitido só por cor. */
+export const TONE_ICON: Record<BadgeKind, string> = {
+    pos: '✓',
+    neu: '◐',
+    neg: '■',
+    info: '○',
+};
+
 /** Checklist sequencial — espelha a ordem de `EnrollmentStatus::order()` (Dismissed fica fora). */
-export const ENROLLMENT_STEPS: Array<{ value: EnrollmentStatusValue; label: string }> = [
+export const ENROLLMENT_STEPS: Array<{
+    value: EnrollmentStatusValue;
+    label: string;
+}> = [
     { value: 'not_enrolled', label: 'não inscrito' },
     { value: 'interested', label: 'quero fazer' },
     { value: 'enrolled', label: 'inscrito' },
@@ -103,6 +221,10 @@ export type ContestDto = {
     status: EditalStatusValue;
     effective_status: EditalStatusValue;
     effective_status_label: string;
+    phase: ContestPhaseValue;
+    phase_label: string;
+    phase_tone: BadgeKind;
+    is_new: boolean;
     regime: RegimeValue;
     states: string[];
     nationwide: boolean;
@@ -144,4 +266,8 @@ export type AreaOption = { value: TiAreaValue; label: string };
 
 export type StateOption = { value: string; label: string };
 
-export type RegionOption = { value: RegionValue; label: string; states: StateOption[] };
+export type RegionOption = {
+    value: RegionValue;
+    label: string;
+    states: StateOption[];
+};

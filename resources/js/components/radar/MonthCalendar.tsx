@@ -2,7 +2,7 @@ import { useMemo, useRef, useState } from 'react';
 
 import { EventFolder } from '@/components/radar/EventFolder';
 import { csrfFetch } from '@/lib/csrf-fetch';
-import { notifyError } from '@/lib/notify';
+import { todayIso } from '@/lib/radar';
 import type { ContestDto } from '@/types/radar';
 
 const MONTH_NAMES = [
@@ -19,36 +19,6 @@ const MONTH_NAMES = [
     'novembro',
     'dezembro',
 ];
-
-const ROMAN_TABLE: Array<[number, string]> = [
-    [1000, 'M'],
-    [900, 'CM'],
-    [500, 'D'],
-    [400, 'CD'],
-    [100, 'C'],
-    [90, 'XC'],
-    [50, 'L'],
-    [40, 'XL'],
-    [10, 'X'],
-    [9, 'IX'],
-    [5, 'V'],
-    [4, 'IV'],
-    [1, 'I'],
-];
-
-function toRoman(year: number): string {
-    let remainder = year;
-    let result = '';
-
-    for (const [value, symbol] of ROMAN_TABLE) {
-        while (remainder >= value) {
-            result += symbol;
-            remainder -= value;
-        }
-    }
-
-    return result;
-}
 
 function pad(n: number): string {
     return n.toString().padStart(2, '0');
@@ -72,7 +42,12 @@ function buildGrid(month: string): Date[] {
     const start = new Date(firstOfMonth);
     start.setDate(start.getDate() - mondayIndex(firstOfMonth.getDay()));
 
-    return Array.from({ length: 42 }, (_, i) => {
+    const daysInMonth = new Date(year, m, 0).getDate();
+    const weeks = Math.ceil(
+        (mondayIndex(firstOfMonth.getDay()) + daysInMonth) / 7,
+    );
+
+    return Array.from({ length: weeks * 7 }, (_, i) => {
         const day = new Date(start);
         day.setDate(start.getDate() + i);
 
@@ -84,6 +59,9 @@ function isoDate(d: Date): string {
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
+const NAV_BUTTON =
+    't-body inline-flex min-h-6 min-w-6 items-center justify-center rounded-md border border-ink bg-card px-2 py-0.5';
+
 type MonthCalendarProps = {
     initialMonth: string;
     initialContests: ContestDto[];
@@ -91,19 +69,32 @@ type MonthCalendarProps = {
 };
 
 /** docs/03-ui-inventario.md → "Calendário". */
-export function MonthCalendar({ initialMonth, initialContests, onSelectContest }: MonthCalendarProps) {
+export function MonthCalendar({
+    initialMonth,
+    initialContests,
+    onSelectContest,
+}: MonthCalendarProps) {
     const [month, setMonth] = useState(initialMonth);
-    const [fetchedContests, setFetchedContests] = useState<ContestDto[] | null>(null);
+    // Os dados valem só para o mês em que foram buscados.
+    const [fetched, setFetched] = useState<{
+        month: string;
+        contests: ContestDto[];
+    } | null>(null);
     const [loadingMonth, setLoadingMonth] = useState(false);
+    const [loadError, setLoadError] = useState(false);
     const [expandedDate, setExpandedDate] = useState<string | null>(null);
     const requestedMonth = useRef(initialMonth);
-    const contests = useMemo(
-        () => (month === initialMonth ? initialContests : (fetchedContests ?? [])),
-        [month, initialMonth, initialContests, fetchedContests],
-    );
+    const contests = useMemo(() => {
+        if (month === initialMonth) {
+            return initialContests;
+        }
+
+        return fetched?.month === month ? fetched.contests : [];
+    }, [month, initialMonth, initialContests, fetched]);
 
     function goToMonth(target: string) {
         setMonth(target);
+        setLoadError(false);
         requestedMonth.current = target;
 
         if (target === initialMonth) {
@@ -122,10 +113,14 @@ export function MonthCalendar({ initialMonth, initialContests, onSelectContest }
             })
             .then((data: { contests: ContestDto[] }) => {
                 if (requestedMonth.current === target) {
-                    setFetchedContests(data.contests);
+                    setFetched({ month: target, contests: data.contests });
                 }
             })
-            .catch(() => notifyError('Não deu pra carregar esse mês. Tenta de novo.'))
+            .catch(() => {
+                if (requestedMonth.current === target) {
+                    setLoadError(true);
+                }
+            })
             .finally(() => {
                 if (requestedMonth.current === target) {
                     setLoadingMonth(false);
@@ -134,7 +129,10 @@ export function MonthCalendar({ initialMonth, initialContests, onSelectContest }
     }
 
     const eventsByDate = useMemo(() => {
-        const map = new Map<string, Array<{ contest: ContestDto; eventId: number }>>();
+        const map = new Map<
+            string,
+            Array<{ contest: ContestDto; eventId: number }>
+        >();
 
         for (const contest of contests) {
             for (const event of contest.events) {
@@ -149,36 +147,70 @@ export function MonthCalendar({ initialMonth, initialContests, onSelectContest }
 
     const days = useMemo(() => buildGrid(month), [month]);
     const [year, m] = month.split('-').map(Number);
-    const todayIso = isoDate(new Date());
+    const today = todayIso();
     const weekLabels = ['seg', 'ter', 'qua', 'qui', 'sex', 'sáb', 'dom'];
 
     return (
         <div>
-            <div className="mb-2 flex items-center justify-between">
-                <h2 className="rm-display text-3xl">
-                    {MONTH_NAMES[m - 1]} · {toRoman(year)}
-                    {loadingMonth && <span className="rm-mono ml-2 align-middle text-xs text-ink-mid">carregando…</span>}
+            <div className="mb-2 flex items-center justify-between gap-2">
+                <h2 className="rm-display text-display">
+                    {MONTH_NAMES[m - 1]} · {year}
+                    {loadingMonth && (
+                        <span className="t-body ml-2 align-middle text-muted-fg">
+                            carregando…
+                        </span>
+                    )}
                 </h2>
                 <div className="flex items-center gap-2">
-                    <button type="button" className="rounded-md border border-ink px-2 py-0.5" onClick={() => goToMonth(shiftMonth(month, -1))}>
-                        ←
+                    <button
+                        type="button"
+                        aria-label="mês anterior"
+                        className={NAV_BUTTON}
+                        onClick={() => goToMonth(shiftMonth(month, -1))}
+                    >
+                        <span aria-hidden="true">←</span>
                     </button>
                     <button
                         type="button"
-                        className="rm-mono rounded-md border border-ink px-2 py-0.5 text-[10px] uppercase"
+                        aria-label="ir para hoje"
+                        className={NAV_BUTTON}
                         onClick={() => goToMonth(initialMonth)}
                     >
                         hoje
                     </button>
-                    <button type="button" className="rounded-md border border-ink px-2 py-0.5" onClick={() => goToMonth(shiftMonth(month, 1))}>
-                        →
+                    <button
+                        type="button"
+                        aria-label="próximo mês"
+                        className={NAV_BUTTON}
+                        onClick={() => goToMonth(shiftMonth(month, 1))}
+                    >
+                        <span aria-hidden="true">→</span>
                     </button>
                 </div>
             </div>
 
-            <div className="grid grid-cols-7 overflow-hidden rounded-lg border-t border-l border-ink/20 rm-dot-grid">
+            {loadError && (
+                <div
+                    role="alert"
+                    className="surface-paper t-body mb-2 flex flex-wrap items-center gap-3 border border-line-strong px-3 py-1.5"
+                >
+                    <span>Não deu pra carregar esse mês.</span>
+                    <button
+                        type="button"
+                        onClick={() => goToMonth(month)}
+                        className="t-body min-h-6 text-ink underline underline-offset-2"
+                    >
+                        tentar de novo
+                    </button>
+                </div>
+            )}
+
+            <div className="grid grid-cols-7 overflow-hidden rounded-lg border-t border-l border-line-strong">
                 {weekLabels.map((label) => (
-                    <div key={label} className="rm-mono border-r border-b border-ink/20 bg-paper-soft px-1 py-0.5 text-[10px] uppercase">
+                    <div
+                        key={label}
+                        className="t-label border-r border-b border-line-strong bg-paper-soft px-1 py-1"
+                    >
                         {label}
                     </div>
                 ))}
@@ -186,31 +218,51 @@ export function MonthCalendar({ initialMonth, initialContests, onSelectContest }
                 {days.map((day) => {
                     const iso = isoDate(day);
                     const inMonth = day.getMonth() === m - 1;
+                    const isToday = iso === today;
                     const entries = eventsByDate.get(iso) ?? [];
-                    const visible = expandedDate === iso ? entries : entries.slice(0, 3);
+                    const visible =
+                        expandedDate === iso ? entries : entries.slice(0, 3);
                     const overflow = entries.length - visible.length;
+
+                    const cellTone = isToday
+                        ? 'bg-highlight outline-2 -outline-offset-2 outline-ink text-ink z-10'
+                        : inMonth
+                          ? 'bg-card text-ink'
+                          : 'bg-paper-soft text-muted-fg';
 
                     return (
                         <div
                             key={iso}
-                            className={`relative flex min-h-16 flex-col gap-0.5 border-r border-b border-ink/20 p-1 ${inMonth ? '' : 'opacity-40'}`}
+                            className={`relative flex min-h-[4.5rem] flex-col gap-0.5 border-r border-b border-line-strong p-1 ${cellTone}`}
                         >
                             <span
-                                className={`rm-mono self-end px-1 text-[10px] ${iso === todayIso ? 'bg-highlight' : ''}`}
+                                className={`t-body self-end px-1 ${isToday ? 'font-semibold' : inMonth ? '' : 'font-normal'}`}
                             >
                                 {day.getDate()}
+                                {isToday && (
+                                    <span className="sr-only"> hoje</span>
+                                )}
                             </span>
 
                             {visible.map(({ contest, eventId }) => {
-                                const event = contest.events.find((e) => e.id === eventId)!;
+                                const event = contest.events.find(
+                                    (e) => e.id === eventId,
+                                )!;
 
-                                return <EventFolder key={`${contest.id}-${eventId}`} contest={contest} event={event} onSelect={onSelectContest} />;
+                                return (
+                                    <EventFolder
+                                        key={`${contest.id}-${eventId}`}
+                                        contest={contest}
+                                        event={event}
+                                        onSelect={onSelectContest}
+                                    />
+                                );
                             })}
 
                             {overflow > 0 && (
                                 <button
                                     type="button"
-                                    className="rm-mono self-start text-[9px] text-ink-mid underline"
+                                    className="t-label inline-flex min-h-6 min-w-6 items-center self-start px-1 text-ink underline"
                                     onClick={() => setExpandedDate(iso)}
                                 >
                                     +{overflow}

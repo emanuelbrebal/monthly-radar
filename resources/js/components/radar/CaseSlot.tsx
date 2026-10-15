@@ -1,13 +1,7 @@
+import { NewTag, PhaseTag } from '@/components/radar/PhaseTag';
 import { Stamp } from '@/components/radar/Stamp';
-import { tierMeta } from '@/components/radar/TierMark';
+import { TierMark, tierMeta } from '@/components/radar/TierMark';
 import type { ContestDto } from '@/types/radar';
-
-const DOT_KIND_COLOR: Record<string, string> = {
-    pos: 'bg-green',
-    neu: 'bg-gold',
-    neg: 'bg-red',
-    info: 'bg-blue',
-};
 
 type CaseSlotProps = {
     slot: number;
@@ -20,30 +14,17 @@ type CaseSlotProps = {
     reorderable?: boolean;
 };
 
-function nextEventLabel(contest: ContestDto): string | null {
-    const upcoming = contest.events.find((e) => e.date >= new Date().toISOString().slice(0, 10)) ?? contest.events.at(-1);
-
-    if (!upcoming) {
-        return null;
-    }
-
-    const [, month, day] = upcoming.date.split('-');
-
-    return `${upcoming.type_label} · ${day}/${month}`;
-}
-
 /** Um slot da maleta — docs/03-ui-inventario.md → "Maleta (coluna esquerda)". */
-export function CaseSlot({ slot, contest, selected, onSelect, onOpen, onDropContest, reorderable = true }: CaseSlotProps) {
+export function CaseSlot({
+    slot,
+    contest,
+    selected,
+    onSelect,
+    onOpen,
+    onDropContest,
+    reorderable = true,
+}: CaseSlotProps) {
     const tier = contest ? tierMeta(contest.tier) : null;
-    const badgeKind = contest
-        ? contest.effective_status === 'registration_open'
-            ? 'pos'
-            : ['published', 'in_preparation', 'authorized'].includes(contest.effective_status)
-              ? 'neu'
-              : contest.effective_status === 'expected'
-                ? 'info'
-                : 'neg'
-        : null;
 
     return (
         <div
@@ -51,7 +32,7 @@ export function CaseSlot({ slot, contest, selected, onSelect, onOpen, onDropCont
             tabIndex={0}
             aria-label={
                 contest
-                    ? `${contest.organ_acronym ?? contest.organ}, slot ${slot + 1}${tier ? `, nível ${tier.label}` : ''}`
+                    ? `${contest.organ_acronym ?? contest.organ}, ${contest.phase_label}${contest.is_new ? ', novo' : ''}, slot ${slot + 1}${tier ? `, nível ${tier.label}` : ''}`
                     : `slot ${slot + 1} vazio`
             }
             onClick={() => onSelect(slot)}
@@ -77,27 +58,48 @@ export function CaseSlot({ slot, contest, selected, onSelect, onOpen, onDropCont
             draggable={reorderable && contest !== null}
             onDragStart={(e) => {
                 if (contest) {
-                    e.dataTransfer.setData('text/contest-id', String(contest.id));
+                    e.dataTransfer.setData(
+                        'text/contest-id',
+                        String(contest.id),
+                    );
                 }
             }}
-            className={`relative flex aspect-square cursor-pointer flex-col justify-between border p-1.5 outline-none ${
-                selected ? 'border-2 border-slot-selected' : 'border-slot-border hover:bg-slot-hover'
-            } bg-case-lining`}
+            className={`relative flex aspect-square cursor-pointer flex-col justify-between bg-case-lining p-1 ${
+                selected ? 'ring-[3px] ring-highlight' : 'hover:bg-slot-hover'
+            } ${contest === null ? 'border border-dashed border-slot-border' : 'border border-slot-border'}`}
         >
             {contest === null ? (
-                <span className="flex h-full items-center justify-center text-night-text-mid/30">·</span>
+                <span className="flex h-full items-start text-label text-night-text-mid">
+                    {slot + 1}
+                </span>
             ) : (
-                <div className="relative flex h-full flex-col justify-between rounded-sm border border-ink bg-card p-1.5 shadow-[3px_3px_0_rgba(0,0,0,0.6)]">
-                    <span className="absolute top-0 left-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-red" />
-                    {tier && <span className={`absolute inset-y-0 left-0 w-1 ${tier.color}`} title={`nível: ${tier.label}`} />}
-                    {badgeKind && <span className={`absolute top-1 right-1 h-1.5 w-1.5 rounded-full ${DOT_KIND_COLOR[badgeKind]}`} />}
-                    <p className="rm-display truncate text-base leading-none">{contest.organ_acronym ?? contest.organ}</p>
-                    <p className="rm-mono truncate text-[9px] text-ink-mid">{nextEventLabel(contest) ?? '—'}</p>
-                    {contest.hides_in_hours !== null && contest.hides_in_hours <= 24 && (
-                        <Stamp rotate={-8} className="absolute -bottom-1 -right-1 scale-[0.6]">
-                            some {contest.hides_in_hours}h
-                        </Stamp>
-                    )}
+                <div className="surface-card relative flex h-full min-w-0 flex-col justify-between gap-0.5 overflow-hidden rounded-sm border border-ink p-1">
+                    <p
+                        className="min-w-0 truncate text-[15px] leading-tight font-bold text-ink"
+                        title={contest.title}
+                    >
+                        {contest.organ_acronym ?? contest.organ}
+                    </p>
+                    <PhaseTag
+                        contest={contest}
+                        wrap
+                        className="line-clamp-2 px-1 py-0.5"
+                    />
+                    <div className="flex min-w-0 items-center justify-between gap-1">
+                        <TierMark tier={contest.tier} variant="dot" />
+                        {contest.is_new && (
+                            <NewTag className="px-1 py-0 text-[10px]" />
+                        )}
+                    </div>
+                    {contest.hides_in_hours !== null &&
+                        contest.hides_in_hours <= 24 && (
+                            <Stamp
+                                rotate={-8}
+                                className="absolute -right-1 -bottom-1 scale-[0.6]"
+                            >
+                                some {contest.hides_in_hours}h
+                            </Stamp>
+                        )}
                 </div>
             )}
         </div>

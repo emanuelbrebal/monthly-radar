@@ -23,9 +23,18 @@ export function ErrorToast() {
     }
 
     return (
-        <div className="rm-mono fixed bottom-4 left-4 flex items-center gap-3 rounded-md border border-red bg-card px-3 py-2 text-[11px] text-red shadow-[4px_4px_0_rgba(26,22,18,0.18)]">
-            {message}
-            <button type="button" className="underline" onClick={() => setMessage(null)}>
+        <div
+            role="alert"
+            aria-live="assertive"
+            className="surface-card t-body fixed bottom-4 left-4 flex items-center gap-3 border-2 border-red-text px-3 py-2 text-red-text shadow-[4px_4px_0_rgba(26,22,18,0.18)]"
+        >
+            <span>{message}</span>
+            <button
+                type="button"
+                aria-label="Fechar aviso de erro"
+                className="inline-flex min-h-6 min-w-6 items-center justify-center px-1 underline"
+                onClick={() => setMessage(null)}
+            >
                 fechar
             </button>
         </div>

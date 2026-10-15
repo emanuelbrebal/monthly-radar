@@ -4,13 +4,14 @@ type TagProps = {
     label: string;
     kind: BadgeKind;
     icon?: string;
+    className?: string;
 };
 
-/** Badge mono uppercase — docs/03-ui-inventario.md → tabelas de status/evento. */
-export function Tag({ label, kind, icon }: TagProps) {
+/** Badge de status/evento (12px/600, texto + cor) — docs/03-ui-inventario.md → tabelas de status/evento. */
+export function Tag({ label, kind, icon, className = '' }: TagProps) {
     return (
-        <span className={`rm-badge ${kind}`}>
-            {icon && <span className="opacity-70">{icon}</span>}
+        <span className={`rm-badge ${kind} ${className}`}>
+            {icon && <span aria-hidden="true">{icon}</span>}
             <span>{label}</span>
         </span>
     );

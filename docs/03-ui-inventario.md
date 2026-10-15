@@ -4,22 +4,26 @@ Referência visual de cores, fontes e componentes-base: `design/radar mensal/des
 
 ## Tokens (Tailwind 4, `resources/css/app.css`)
 
-1. Copiar o bloco `:root` de `styles.css` do handoff (paper, ink, red, gold, green, blue, highlight, night…).
-2. Religar as variáveis do shadcn a esses tokens, para os componentes existentes herdarem a paleta:
-   `--background: var(--paper)`, `--foreground: var(--ink)`, `--card: var(--card)`, `--primary: var(--red)`, `--primary-foreground: var(--paper)`, `--border: var(--ink)`, `--muted: var(--paper-soft)`, `--muted-foreground: var(--ink-mid)`, `--destructive: var(--red-deep)`, `--ring: var(--red)`, `--radius: 0px`.
-3. `@theme`: expor `--color-paper`, `--color-ink`, `--color-night`… e as fontes `--font-display`, `--font-serif`, `--font-sans` (Inter Tight), `--font-mono`.
-4. Fontes do Google no `app.blade.php` (link do README do handoff).
-5. App sempre em tema claro (a maleta é escura por design). Esconder o toggle de aparência. `[inferido]`
+**Fonte única: `design/radar mensal/design_handoff_radar_mensal/styles.css`** (revisado 14/10/2026). `app.css` repete os mesmos valores em `:root`; `node scripts/contrast-check.mjs` falha se divergirem ou se algum par de contraste (WCAG 2.x AA) cair abaixo do mínimo. A tabela de razões está no README do handoff.
 
-Novos tokens da maleta:
+1. `:root` com paper/ink/red/gold/green/blue/highlight/night. Mudanças de 14/10: `--ink-mid #4a443c`, `--ink-soft #5c554b`, `--night-text #f5eedb`, `--night-text-mid #d2c9b0`, `--highlight #f0d96b`, `--red-text #8a3526` (texto/botão vermelho; `--red` fica só decorativo).
+2. Variáveis do shadcn religadas: `--background: var(--paper)`, `--foreground: var(--ink)`, `--primary: var(--red-text)`, `--primary-foreground: var(--paper)`, `--border: var(--ink)`, `--muted: var(--paper-soft)`, `--muted-foreground: var(--ink-mid)`, `--destructive: var(--red-deep)`, `--ring: var(--focus)`, `--radius: 10px` (o `0px` original foi alterado a pedido do dono em 18/09).
+3. `@theme` expõe `--color-*` de todos os tokens (inclusive `tier-*`, `line-strong`, `red-text`, `muted-fg`, `line`) e as fontes `--font-display|serif|sans|mono`.
+4. Fontes do Google no `app.blade.php`. App sempre em tema claro; a maleta é escura por design.
+
+Tokens de maleta, linha e foco:
 
 ```css
---case: var(--night);                 /* corpo da maleta */
---case-lining: #1b1610;               /* forro */
---slot-border: rgba(243,235,218,0.14);
---slot-hover: rgba(243,235,218,0.06);
---slot-selected: var(--red);
+--case: var(--night);   --case-lining: #1b1610;
+--slot-border: #7d735f;            /* borda de slot, 3.8:1+ */
+--slot-selected: var(--highlight); /* anel de seleção */
+--line-strong: #7c7264;            /* bordas de UI no claro, 3.28:1+ (paper-deep) */
+--focus: #1d3c63;  --focus-on-night: #f0d96b;
 ```
+
+Nível (tier), um conjunto por degrau `elite|alto|inter|entrada`: `--tier-X-fg` (texto), `--tier-X-bg` (fundo do chip), `--tier-X-line` (borda/ícone, >= 3:1) e `--tier-X-on-night` (cor sobre a maleta). Badges: `--badge-{pos,neu,neg,info}-{fg,bg,line}`.
+
+Superfícies (`@layer components`): `.surface-paper`, `.surface-card`, `.surface-night` definem `background`, `color` e as variáveis `--muted-fg` (texto secundário), `--line` (divisória) e `--focus-ring`. Todo cartão/painel declara a sua; filhos usam `text-muted-fg` e `border-line`. Helpers `.rm-*` ficam em `@layer components` (utilitários Tailwind sempre vencem). `.rm-dot-grid` foi removido; `.rm-eyebrow` e `.rm-badge` são 12px/600, sem caixa-alta. Foco global: `:focus-visible` com anel de 2px e offset 2px.
 
 Cores de evento no calendário (reaproveitando as badges do handoff):
 
@@ -59,23 +63,24 @@ Grid: `grid-template-columns: minmax(420px, 5fr) 7fr`. Abaixo de 1024px: empilha
 ## Maleta (coluna esquerda)
 
 - Fundo `--case` com textura sutil: `repeating-linear-gradient(135deg, rgba(243,235,218,0.02) 0 2px, transparent 2px 6px)`. Borda 2px `--ink`, cantoneiras metálicas nos 4 cantos (quadradinhos 10×10 `--gold` com borda ink).
+- Região única `aria-label="Maleta"` (focável, com `aria-describedby` das teclas e anel de foco amarelo `--focus-on-night`).
 - Header: eyebrow mono `¶ maleta · N/12` em `--night-text-mid` + botão secundário mono `por nível` / `grade` à direita (alterna a vista; escolha guardada só no navegador).
 - **Faixa de equilíbrio** (abaixo do header, só com item fixado): um quadradinho 8×8 por nível com contagem (`elite 2 · alto 1 · inter. 1 · entrada 0`), nível zerado a 30%. Cores do nível: elite `--red`, alto `--gold`, intermediário `--blue`, entrada `--green`. Se elite+alto > intermediário+entrada, linha serif italic: "maleta pesada no topo — X de elite/alto contra Y de base."
 - Grade 4×3, slots quadrados (`aspect-ratio: 1`), gap 6px, fundo `--case-lining`, borda 1px `--slot-border`, grade pontilhada interna.
 - **Slot vazio:** glifo `·` centralizado, `--night-text-mid` a 30%.
 - **Slot ocupado (item):** mini ficha papel (`--card`, borda ink, sombra `3px 3px 0 #000`) com:
-  - sigla do órgão em `font-display` 22px (trunca);
-  - linha mono 9px: próximo evento + dias ("prova · 26d");
-  - pontinho de status no canto (cor da badge);
+  - sigla do órgão em Inter Tight 15px/700 (trunca; `title` com o título completo);
+  - **tag de fase** (`phase_label`, forma + texto + cor, até 2 linhas) — ex. "aguardando resultado", "inscrito", "edital em formulação"; regras em `ContestPhaseResolver` (a situação pessoal vence o estado do edital; ver `tasks/calendar-case-phase-polish.md`);
+  - marca do nível (ícone) e, se `is_new`, a tag "NOVO" (concurso criado nos últimos `radar.new_window_days` dias, sem inscrição/interesse, fixação ou descarte);
   - pin vermelho 8×8 no topo centro (igual ao PinCard do handoff);
   - faixa vertical 4px na borda esquerda da ficha, na cor do nível (`tier`), quando há nível;
   - se está nas 24h finais: carimbo mini "some 18h" rotacionado -8°.
 - **Selecionado:** moldura 2px `--slot-selected` + cantoneiras em L animadas (pulse de opacidade 1.2s) — o cursor do RE.
-- **Painel "descrição do item"** (fixo embaixo da grade, borda-top régua dupla night): título display 26px `--night-text` com a marca do nível (quadradinho + nome mono) à direita, linha serif italic com próximo evento e situação da inscrição, dois botões secundários escuros (`abrir dossiê ↵`, `desafixar P`). Abaixo da linha italic, `tier_note` em serif 11px quando existe. Sem seleção: "Escolhe um item."
-- **Vista "por nível":** os itens fixados aparecem em grupos (elite → alto → intermediário → entrada → sem nível), cada um com rótulo mono + quadradinho de cor e sua própria grade de 4 colunas; grupo vazio não aparece. Dentro do grupo, a ordem é a do slot. Nessa vista não há arrastar (a posição é derivada); setas percorrem só os itens na ordem da tela. Fixar/desafixar e abrir dossiê funcionam igual.
+- **Painel "descrição do item"** (fixo embaixo da grade, borda-top régua dupla night): título Inter Tight 18px/700 com "NOVO" e a marca do nível à direita, tag de fase em destaque, grade de dados (vagas TI, salário, taxa, banca, inscrição até, prova), linha serif italic "próximo: …", só os links de edital e inscrição, e dois botões secundários escuros (`abrir dossiê ↵`, `desafixar P`, quebram de linha em largura estreita). O painel é fixo (`shrink-0`); a grade 4×3 é a região que encolhe e rola, para nada ser cortado. Sem seleção: "Escolhe um item."
+- **Vista "por nível":** os itens fixados aparecem em grupos (elite → alto → intermediário → entrada → sem nível), cada um com rótulo mono + quadradinho de cor e sua própria grade de 4 colunas; grupo vazio não aparece. Dentro do grupo, a ordem é a do slot. Nessa vista não há arrastar (a posição é derivada); ←/→ percorrem só os itens na ordem da tela; ↑/↓ vão para a linha de cima/baixo na mesma coluna (cruzando grupos; linha mais curta usa a última coluna). Fixar/desafixar e abrir dossiê funcionam igual.
 
 Interação:
-- Setas movem a seleção; `Enter` abre dossiê; `P` fixa/desafixa (na caixa de itens também); `Esc` fecha modal.
+- Setas movem a seleção (←/→ em ordem visual, ↑/↓ por linha; sem linha acima/abaixo, a seleção não muda); `Enter` abre dossiê; `P` fixa/desafixa (na caixa de itens também); `Esc` fecha modal.
 - Arrastar item entre slots (HTML5 drag and drop nativo, sem lib) → troca de posição → `PATCH /pins`. Otimista, com rollback em erro.
 - Soltar um item da caixa de itens num slot vazio = fixar naquele slot.
 - Hover: `--slot-hover`. Transições 120ms. Sem som no MVP.
@@ -101,9 +106,10 @@ Detalhes de regra em `docs/06-filtro-estados.md`.
 - Tags novas: `fora do filtro` (neu) em item da maleta ou em inscrito fora da seleção; `local a definir` (info) em concurso sem estado. A caixa de itens mostra as siglas dos estados em mono ao lado do órgão (`DATAPREV · RN CE PB SC`; nacional → `BR`).
 
 ### Calendário
-- Mês em grade 7 colunas (segunda primeiro), navegação ← → e "hoje". Título `font-display` 32px "setembro · MMXXVI".
+- Se o mês não carrega, um aviso (`role=alert`) com "tentar de novo" aparece acima da grade; os dados de um mês nunca aparecem em outro.
+- Mês em grade 7 colunas (segunda primeiro), navegação ← → e "hoje". Título `font-display` 32px "outubro · 2026" (ano arábico, derivado do mês exibido).
 - Célula: `min-height: 96px`, borda `--rule-soft`, número do dia mono 10px no canto. Hoje: número com fundo `--highlight`. Dias fora do mês: 40% de opacidade.
-- **Pasta (evento):** chip de 20px de altura com aba de pasta manila — `::before` de 14×5px acima à esquerda com a mesma cor da borda. Texto mono 9px uppercase: `DATAPREV · PROVA`. Cor pela tabela de EventType. Concurso fixado ganha o pin vermelho 6px na pasta.
+- **Pasta (evento):** chip de 20px de altura com aba de pasta manila — `::before` de 14×5px acima à esquerda com a mesma cor da borda. Card curto, uppercase: `SIGLA · TÍTULO DO EVENTO` (`label` do evento, ou o tipo se não houver), ex. `DATAPREV · GABARITO PRELIMINAR`. Cor pela tabela de EventType. Concurso fixado ganha o pin vermelho 6px na pasta.
 - Máximo 3 pastas por célula; excedente vira `+2` que abre um popover com a lista.
 - Clique na pasta → modal do dossiê.
 - Só eventos de concursos visíveis.
@@ -111,8 +117,8 @@ Detalhes de regra em `docs/06-filtro-estados.md`.
 ### Caixa de itens
 - Box com título `¶ caixa de itens · N` (padrão Box do handoff).
 - Filtros: status (multi), "só inscritos", busca por texto (`/` foca) e o toggle `descartados (N)` no fim da barra. O toggle troca a lista pelos descartados: linhas a 50% de opacidade, motivo em mono ao lado e botão `trazer de volta`. Os descartados nunca aparecem no calendário.
-- Linhas compactas: quadradinho 8×8 da cor do nível (vazio se sem nível) · sigla (display 16px) · próximo evento (mono) · badge de status · badge de situação · botão pin (lucide `Pin`, stroke 1.5; vermelho se fixado).
-- Ordenação: próximo evento mais cedo primeiro; sem data vai para o fim.
+- Linhas compactas: quadradinho 8×8 da cor do nível (vazio se sem nível) · sigla (display 16px) · próximo evento (mono) · tag "NOVO" (se `is_new`) · tag de fase · botão pin (lucide `Pin`, stroke 1.5; vermelho se fixado).
+- Ordenação (mesma regra do "próximo evento" exibido): quem tem evento futuro vem primeiro, do mais cedo ao mais tarde; depois quem só tem eventos passados (o mais recente antes); por fim quem não tem data.
 - Linha nas 24h finais: carimbo "some em Xh" (Stamp do handoff, 10px).
 - Vazio: "Nada no radar. Escolhe uma área e varre."
 
@@ -128,6 +134,7 @@ Radix `Dialog`, largura `min(1040px, 94vw)`, altura máx 88vh com scroll interno
 - Eyebrow vermelho: `órgão · banca · regime`.
 - Manchete display 40px (`title`). Lead serif italic: primeiro bullet do resumo.
 - Tags: status, regime; se `statutory`, tag vermelha `estatutário · art. 117` (lembrete de incompatibilidade com gerência de empresa, Lei 8.112) `[inferido — confirmar se quer esse alerta]`.
+- **Fontes:** lista recolhida por padrão (`fontes (N)`); os únicos links em destaque são `abrir edital` e `inscrição`.
 - **Resumo** (bullets do dossiê).
 - **Cargos de TI**: tabela mono (cargo · vagas · salário · requisito · lotação).
 - **Conteúdo cobrado**: lista curta.

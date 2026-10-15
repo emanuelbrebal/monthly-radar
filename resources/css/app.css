@@ -35,6 +35,35 @@
     --color-slot-border: var(--slot-border);
     --color-slot-hover: var(--slot-hover);
     --color-slot-selected: var(--slot-selected);
+    --color-line-strong: var(--line-strong);
+    --color-red-text: var(--red-text);
+    --color-focus: var(--focus);
+    --color-focus-on-night: var(--focus-on-night);
+    --color-muted-fg: var(--muted-fg);
+    --color-line: var(--line);
+
+    --text-label: 12px;
+    --text-body: 14px;
+    --text-title: 18px;
+    --text-display: 32px;
+
+    --color-tier-elite-fg: var(--tier-elite-fg);
+    --color-tier-elite-bg: var(--tier-elite-bg);
+    --color-tier-elite-line: var(--tier-elite-line);
+    --color-tier-elite-on-night: var(--tier-elite-on-night);
+    --color-tier-alto-fg: var(--tier-alto-fg);
+    --color-tier-alto-bg: var(--tier-alto-bg);
+    --color-tier-alto-line: var(--tier-alto-line);
+    --color-tier-alto-on-night: var(--tier-alto-on-night);
+    --color-tier-inter-fg: var(--tier-inter-fg);
+    --color-tier-inter-bg: var(--tier-inter-bg);
+    --color-tier-inter-line: var(--tier-inter-line);
+    --color-tier-inter-on-night: var(--tier-inter-on-night);
+    --color-tier-entrada-fg: var(--tier-entrada-fg);
+    --color-tier-entrada-bg: var(--tier-entrada-bg);
+    --color-tier-entrada-line: var(--tier-entrada-line);
+    --color-tier-entrada-on-night: var(--tier-entrada-on-night);
+
 
     --radius-lg: var(--radius);
     --radius-md: calc(var(--radius) - 2px);
@@ -102,26 +131,67 @@
     --paper-soft: #ede2cb;
     --paper-deep: #e3d6b9;
     --ink: #1a1612;
-    --ink-mid: #5a544c;
-    --ink-soft: #6d645a;
+    --ink-mid: #4a443c;
+    --ink-soft: #5c554b;
+    --line-strong: #7c7264;
     --red: #9a4434;
     --red-deep: #783326;
+    --red-text: #8a3526;
     --green: #4f7844;
     --blue: #2f4a67;
     --gold: #aa8a4c;
-    --highlight: #ebd87e;
+    --highlight: #f0d96b;
 
     --night: #14110d;
     --night-2: #1f1a13;
     --night-card: #221c14;
-    --night-text: #f0e8d4;
-    --night-text-mid: #b7ad94;
+    --night-text: #f5eedb;
+    --night-text-mid: #d2c9b0;
 
     --case: var(--night);
     --case-lining: #1b1610;
-    --slot-border: rgba(243, 235, 218, 0.14);
+    --slot-border: #7d735f;
     --slot-hover: rgba(243, 235, 218, 0.06);
-    --slot-selected: var(--red);
+    --slot-selected: var(--highlight);
+
+    /* tier: fg/bg/line no claro; on-night na maleta */
+    --tier-elite-fg: #7a2a1d;
+    --tier-elite-bg: #f6d9d0;
+    --tier-elite-line: #a3392a;
+    --tier-elite-on-night: #ff9a86;
+    --tier-alto-fg: #5a4300;
+    --tier-alto-bg: #f6e6b4;
+    --tier-alto-line: #8a6a00;
+    --tier-alto-on-night: #f0c15a;
+    --tier-inter-fg: #1d3c63;
+    --tier-inter-bg: #d6e4f5;
+    --tier-inter-line: #2f5f9a;
+    --tier-inter-on-night: #8fbcf0;
+    --tier-entrada-fg: #22501c;
+    --tier-entrada-bg: #d8ecd0;
+    --tier-entrada-line: #3f7a36;
+    --tier-entrada-on-night: #8fd08a;
+
+    /* badges de status/evento */
+    --badge-pos-fg: #1f4a19;
+    --badge-pos-bg: #d8ecd0;
+    --badge-pos-line: #3f7a36;
+    --badge-neu-fg: #5a4300;
+    --badge-neu-bg: #f6e6b4;
+    --badge-neu-line: #8a6a00;
+    --badge-neg-fg: #7a2a1d;
+    --badge-neg-bg: #f6d9d0;
+    --badge-neg-line: #a3392a;
+    --badge-info-fg: #1d3c63;
+    --badge-info-bg: #d6e4f5;
+    --badge-info-line: #2f5f9a;
+
+    /* foco; --focus-ring/--muted-fg/--line são sobrescritos por .surface-* */
+    --focus: #1d3c63;
+    --focus-on-night: #f0d96b;
+    --focus-ring: var(--focus);
+    --muted-fg: var(--ink-mid);
+    --line: var(--line-strong);
 
     --background: var(--paper);
     --foreground: var(--ink);
@@ -129,7 +199,7 @@
     --card-foreground: var(--ink);
     --popover: #fbf6e8;
     --popover-foreground: var(--ink);
-    --primary: var(--red);
+    --primary: var(--red-text);
     --primary-foreground: var(--paper);
     --secondary: var(--paper-soft);
     --secondary-foreground: var(--ink);
@@ -141,7 +211,7 @@
     --destructive-foreground: var(--paper);
     --border: var(--ink);
     --input: var(--ink);
-    --ring: var(--red);
+    --ring: var(--focus);
     --chart-1: var(--red);
     --chart-2: var(--green);
     --chart-3: var(--blue);
@@ -168,81 +238,131 @@
     }
 }
 
-/* rm-* — helpers portados de design/radar mensal/design_handoff_radar_mensal/styles.css */
-.rm-display {
-    font-family: var(--font-display);
-    font-weight: 400;
-    line-height: 0.95;
-    letter-spacing: -0.01em;
+/*
+ * rm-* — helpers portados do handoff. Em @layer components para que utilitários
+ * Tailwind (text-*, bg-*) sempre vençam.
+ */
+@layer components {
+    .rm-display {
+        font-family: var(--font-display);
+        font-weight: 400;
+        line-height: 0.95;
+        letter-spacing: -0.01em;
+    }
+    .rm-mono {
+        font-family: var(--font-mono);
+    }
+    .rm-eyebrow {
+        font-family: var(--font-sans);
+        font-size: var(--text-label);
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        color: var(--muted-fg);
+    }
+    .rm-rule {
+        border-top: 1px solid var(--ink);
+    }
+    .rm-rule-soft {
+        border-top: 1px solid var(--line-strong);
+    }
+    .rm-rule-double {
+        border-top: 3px double var(--ink);
+    }
+    .rm-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-family: var(--font-sans);
+        font-size: var(--text-label);
+        font-weight: 600;
+        padding: 3px 8px;
+        border: 1px solid var(--ink);
+        border-radius: var(--radius-sm);
+        color: var(--ink);
+        background: var(--card);
+        white-space: nowrap;
+    }
+    .rm-badge.pos {
+        background: var(--badge-pos-bg);
+        border-color: var(--badge-pos-line);
+        color: var(--badge-pos-fg);
+    }
+    .rm-badge.neu {
+        background: var(--badge-neu-bg);
+        border-color: var(--badge-neu-line);
+        color: var(--badge-neu-fg);
+    }
+    .rm-badge.neg {
+        background: var(--badge-neg-bg);
+        border-color: var(--badge-neg-line);
+        color: var(--badge-neg-fg);
+    }
+    .rm-badge.info {
+        background: var(--badge-info-bg);
+        border-color: var(--badge-info-line);
+        color: var(--badge-info-fg);
+    }
+    .rm-stamp {
+        font-family: var(--font-sans);
+        font-size: var(--text-label);
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        color: var(--red-text);
+        border: 2px solid var(--red-text);
+        border-radius: var(--radius-md);
+        padding: 4px 8px;
+        display: inline-block;
+        transform: rotate(-4deg);
+        background: transparent;
+    }
+
+    /*
+     * Superfícies: cada cartão/painel declara a sua. Definem fundo, cor do texto
+     * e as variáveis de texto secundário (--muted-fg), linha (--line) e foco.
+     * Nos filhos use `text-muted-fg` / `border-line`.
+     */
+    .surface-paper {
+        background: var(--paper);
+        color: var(--ink);
+        --muted-fg: var(--ink-mid);
+        --line: var(--line-strong);
+        --focus-ring: var(--focus);
+    }
+    .surface-card {
+        background: var(--card);
+        color: var(--ink);
+        --muted-fg: var(--ink-mid);
+        --line: var(--line-strong);
+        --focus-ring: var(--focus);
+    }
+    .surface-night {
+        background: var(--night);
+        color: var(--night-text);
+        --muted-fg: var(--night-text-mid);
+        --line: var(--slot-border);
+        --focus-ring: var(--focus-on-night);
+    }
+
+    /* Escala tipográfica: label 12/600, body 14/400, title 18/600. */
+    .t-label {
+        font-size: var(--text-label);
+        font-weight: 600;
+        line-height: 1.3;
+    }
+    .t-body {
+        font-size: var(--text-body);
+        font-weight: 400;
+        line-height: 1.45;
+    }
+    .t-title {
+        font-size: var(--text-title);
+        font-weight: 600;
+        line-height: 1.25;
+    }
 }
-.rm-mono {
-    font-family: var(--font-mono);
-}
-.rm-eyebrow {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--ink-mid);
-}
-.rm-rule {
-    border-top: 1px solid var(--ink);
-}
-.rm-rule-soft {
-    border-top: 1px solid rgba(26, 22, 18, 0.18);
-}
-.rm-rule-double {
-    border-top: 3px double var(--ink);
-}
-.rm-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    padding: 4px 8px 3px;
-    border: 1px solid var(--ink);
-    border-radius: var(--radius-sm);
-    color: var(--ink);
-    background: var(--card);
-    white-space: nowrap;
-}
-.rm-badge.pos {
-    background: #d9e6ca;
-    border-color: #4e7943;
-    color: #304b26;
-}
-.rm-badge.neu {
-    background: #eee2be;
-    border-color: #ab8a4a;
-    color: #685228;
-}
-.rm-badge.neg {
-    background: #edd5cb;
-    border-color: #bb5a45;
-    color: #742b1a;
-}
-.rm-badge.info {
-    background: #d7e0ec;
-    border-color: #2e4a68;
-    color: #1f334b;
-}
-.rm-stamp {
-    font-family: var(--font-mono);
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--red);
-    border: 2px solid var(--red);
-    border-radius: var(--radius-md);
-    padding: 6px 10px 5px;
-    display: inline-block;
-    transform: rotate(-4deg);
-    background: rgba(154, 68, 52, 0.06);
-}
-.rm-dot-grid {
-    background-image: radial-gradient(circle, rgba(26, 22, 18, 0.18) 1px, transparent 1px);
-    background-size: 16px 16px;
+
+/* Anel de foco global (2px, offset 2px); a superfície escolhe a cor via --focus-ring. */
+:focus-visible {
+    outline: 2px solid var(--focus-ring, var(--focus));
+    outline-offset: 2px;
 }

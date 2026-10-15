@@ -45,4 +45,17 @@ class CalendarControllerTest extends TestCase
         $ids = array_column($response->json('contests'), 'id');
         $this->assertSame([$inMonth->id], $ids);
     }
+
+    public function test_it_returns_the_full_event_list_of_contests_in_month(): void
+    {
+        $this->actingAs(User::factory()->create());
+
+        $contest = Contest::factory()->create();
+        ContestEvent::factory()->for($contest)->create(['type' => EventType::Exam->value, 'date' => '2026-09-15']);
+        ContestEvent::factory()->for($contest)->create(['type' => EventType::Result->value, 'date' => '2026-11-10']);
+
+        $response = $this->getJson('/calendar?month=2026-09')->assertOk();
+
+        $this->assertCount(2, $response->json('contests.0.events'));
+    }
 }

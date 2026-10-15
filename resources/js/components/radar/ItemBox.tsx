@@ -1,8 +1,11 @@
 import { useMemo, useState } from 'react';
 
 import { ItemRow } from '@/components/radar/ItemRow';
+import { StatusFilterPopover } from '@/components/radar/StatusFilterPopover';
+import { Checkbox } from '@/components/ui/checkbox';
 import { csrfFetch } from '@/lib/csrf-fetch';
 import { notifyError } from '@/lib/notify';
+import { compareByNextEvent, todayIso } from '@/lib/radar';
 import type { ContestDto, EditalStatusValue } from '@/types/radar';
 
 type ItemBoxProps = {
@@ -24,21 +27,16 @@ const STATUS_OPTIONS: Array<{ value: EditalStatusValue; label: string }> = [
     { value: 'suspended', label: 'suspenso' },
 ];
 
-function nextEventLabel(contest: ContestDto): string | null {
-    const upcoming = contest.events.find((e) => e.date >= new Date().toISOString().slice(0, 10)) ?? contest.events.at(-1);
-
-    if (!upcoming) {
-        return null;
-    }
-
-    const [, month, day] = upcoming.date.split('-');
-
-    return `${upcoming.type_label} · ${day}/${month}`;
-}
-
 /** docs/03-ui-inventario.md → "Caixa de itens". */
-export function ItemBox({ contests, onSelect, onPinChange, onRestored }: ItemBoxProps) {
-    const [statusFilter, setStatusFilter] = useState<Set<EditalStatusValue>>(new Set());
+export function ItemBox({
+    contests,
+    onSelect,
+    onPinChange,
+    onRestored,
+}: ItemBoxProps) {
+    const [statusFilter, setStatusFilter] = useState<Set<EditalStatusValue>>(
+        new Set(),
+    );
     const [onlyEnrolled, setOnlyEnrolled] = useState(false);
     const [search, setSearch] = useState('');
     const [showDismissed, setShowDismissed] = useState(false);
@@ -57,7 +55,9 @@ export function ItemBox({ contests, onSelect, onPinChange, onRestored }: ItemBox
 
                 return r.json();
             })
-            .then((data: { contests: ContestDto[] }) => setDismissed(data.contests))
+            .then((data: { contests: ContestDto[] }) =>
+                setDismissed(data.contests),
+            )
             .catch(() => setDismissedError(true))
             .finally(() => setLoadingDismissed(false));
     }
@@ -72,7 +72,9 @@ export function ItemBox({ contests, onSelect, onPinChange, onRestored }: ItemBox
     }
 
     async function restore(contest: ContestDto) {
-        const response = await csrfFetch(`/contests/${contest.id}/restore`, { method: 'POST' });
+        const response = await csrfFetch(`/contests/${contest.id}/restore`, {
+            method: 'POST',
+        });
 
         if (!response.ok) {
             notifyError('Não deu pra trazer de volta. Tenta de novo.');
@@ -84,75 +86,75 @@ export function ItemBox({ contests, onSelect, onPinChange, onRestored }: ItemBox
         onRestored();
     }
 
-    function toggleStatus(value: EditalStatusValue) {
-        setStatusFilter((prev) => {
-            const next = new Set(prev);
-
-            if (next.has(value)) {
-                next.delete(value);
-            } else {
-                next.add(value);
-            }
-
-            return next;
-        });
-    }
-
+    // Fora do memo: se o app ficar aberto na virada do dia, a lista reordena.
+    const today = todayIso();
     const filtered = useMemo(() => {
         const term = search.trim().toLowerCase();
 
         return contests
-            .filter((c) => statusFilter.size === 0 || statusFilter.has(c.effective_status))
-            .filter((c) => !onlyEnrolled || c.enrollment_status !== 'not_enrolled')
-            .filter((c) => term === '' || c.organ.toLowerCase().includes(term) || (c.organ_acronym ?? '').toLowerCase().includes(term))
-            .sort((a, b) => {
-                const dateA = a.events[0]?.date ?? '9999-99-99';
-                const dateB = b.events[0]?.date ?? '9999-99-99';
-
-                return dateA.localeCompare(dateB);
-            });
-    }, [contests, statusFilter, onlyEnrolled, search]);
+            .filter(
+                (c) =>
+                    statusFilter.size === 0 ||
+                    statusFilter.has(c.effective_status),
+            )
+            .filter(
+                (c) => !onlyEnrolled || c.enrollment_status !== 'not_enrolled',
+            )
+            .filter(
+                (c) =>
+                    term === '' ||
+                    c.organ.toLowerCase().includes(term) ||
+                    (c.organ_acronym ?? '').toLowerCase().includes(term),
+            )
+            .sort((a, b) => compareByNextEvent(a, b, today));
+    }, [contests, statusFilter, onlyEnrolled, search, today]);
 
     return (
-        <div className="flex h-full min-h-0 flex-col rounded-lg border border-ink bg-card">
-            <div className="shrink-0 rounded-t-lg border-b border-ink px-3 py-1.5">
-                <span className="rm-eyebrow">¶ caixa de itens · {showDismissed ? dismissed.length : filtered.length}</span>
+        <div className="surface-card flex h-full min-h-0 flex-col rounded-lg border border-ink bg-card">
+            <div className="shrink-0 rounded-t-lg border-b border-line-strong px-3 py-2">
+                <h2 className="t-label text-ink">
+                    caixa de itens ·{' '}
+                    {showDismissed ? dismissed.length : filtered.length}
+                </h2>
             </div>
 
-            <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-ink/20 px-3 py-2">
-                {STATUS_OPTIONS.map((opt) => (
-                    <button
-                        key={opt.value}
-                        type="button"
-                        onClick={() => toggleStatus(opt.value)}
-                        disabled={showDismissed}
-                        className={`rm-mono rounded-sm border px-1.5 py-0.5 text-[10px] uppercase disabled:opacity-30 ${
-                            statusFilter.has(opt.value) ? 'border-ink bg-card' : 'border-ink/20 text-ink-mid'
-                        }`}
-                    >
-                        {opt.label}
-                    </button>
-                ))}
+            <div className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-2 border-b border-line px-3 py-2">
+                <StatusFilterPopover
+                    options={STATUS_OPTIONS}
+                    selected={statusFilter}
+                    onChange={setStatusFilter}
+                    disabled={showDismissed}
+                />
 
-                <label className="rm-mono ml-2 flex items-center gap-1 text-[10px] uppercase">
-                    <input type="checkbox" checked={onlyEnrolled} onChange={(e) => setOnlyEnrolled(e.target.checked)} disabled={showDismissed} />
+                <label className="t-body flex min-h-6 items-center gap-2 text-ink">
+                    <Checkbox
+                        checked={onlyEnrolled}
+                        onCheckedChange={(c) => setOnlyEnrolled(c === true)}
+                        disabled={showDismissed}
+                    />
                     só inscritos
                 </label>
 
-                <input
-                    type="text"
-                    placeholder="busca /"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    disabled={showDismissed}
-                    className="rm-mono w-32 rounded-sm border border-ink/30 px-1.5 py-0.5 text-[11px] disabled:opacity-30"
-                />
+                <label className="t-body flex items-center gap-2 text-ink">
+                    busca
+                    <input
+                        type="text"
+                        placeholder="órgão ou sigla"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        disabled={showDismissed}
+                        className="t-body min-h-6 w-40 rounded-sm border border-line-strong bg-card px-2 py-1 text-ink placeholder:text-muted-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:text-muted-fg"
+                    />
+                </label>
 
                 <button
                     type="button"
                     onClick={toggleDismissed}
-                    className={`rm-mono ml-auto rounded-sm border px-1.5 py-0.5 text-[10px] uppercase ${
-                        showDismissed ? 'border-ink bg-card' : 'border-ink/20 text-ink-mid'
+                    aria-pressed={showDismissed}
+                    className={`t-body ml-auto min-h-6 rounded-sm border px-2 py-1 text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus ${
+                        showDismissed
+                            ? 'border-ink bg-paper'
+                            : 'border-line-strong'
                     }`}
                 >
                     descartados ({dismissed.length})
@@ -162,31 +164,46 @@ export function ItemBox({ contests, onSelect, onPinChange, onRestored }: ItemBox
             <div className="min-h-0 flex-1 overflow-y-auto px-3">
                 {showDismissed ? (
                     loadingDismissed ? (
-                        <p className="rm-serif py-6 text-center text-ink-mid italic">Carregando…</p>
+                        <p className="t-body py-6 text-center text-muted-fg">
+                            Carregando…
+                        </p>
                     ) : dismissedError ? (
                         <div className="py-6 text-center">
-                            <p className="rm-serif text-ink-mid italic">Sinal perdido. Verifica as fontes.</p>
-                            <button type="button" onClick={loadDismissed} className="rm-mono mt-2 text-[11px] underline">
+                            <p className="t-body text-muted-fg">
+                                Sinal perdido. Verifica as fontes.
+                            </p>
+                            <button
+                                type="button"
+                                onClick={loadDismissed}
+                                className="t-body mt-2 min-h-6 text-ink underline"
+                            >
                                 tentar de novo
                             </button>
                         </div>
                     ) : dismissed.length === 0 ? (
-                        <p className="rm-serif py-6 text-center text-ink-mid italic">Nada descartado.</p>
+                        <p className="t-body py-6 text-center text-muted-fg">
+                            Nada descartado.
+                        </p>
                     ) : (
                         dismissed.map((contest) => (
-                            <div key={contest.id} className="flex items-center gap-3 border-b border-ink/10 py-1.5 text-sm opacity-50">
+                            <div
+                                key={contest.id}
+                                className="flex items-center gap-3 border-b border-line py-1.5"
+                            >
                                 <button
                                     type="button"
-                                    className="rm-display flex-1 truncate text-left text-base"
+                                    className="t-title min-h-6 flex-1 truncate text-left text-muted-fg line-through"
                                     onClick={() => onSelect?.(contest)}
                                 >
                                     {contest.organ_acronym ?? contest.organ}
                                 </button>
-                                <span className="rm-mono truncate text-[11px] italic">{contest.dismissed_reason ?? '—'}</span>
+                                <span className="t-body truncate text-muted-fg">
+                                    {contest.dismissed_reason ?? '—'}
+                                </span>
                                 <button
                                     type="button"
                                     onClick={() => restore(contest)}
-                                    className="rm-mono shrink-0 rounded-sm border border-ink/40 px-1.5 py-0.5 text-[10px] uppercase opacity-100"
+                                    className="t-body min-h-6 shrink-0 rounded-sm border border-line-strong px-2 py-1 text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
                                 >
                                     trazer de volta
                                 </button>
@@ -194,13 +211,14 @@ export function ItemBox({ contests, onSelect, onPinChange, onRestored }: ItemBox
                         ))
                     )
                 ) : filtered.length === 0 ? (
-                    <p className="rm-serif py-6 text-center text-ink-mid italic">Nada no radar. Escolhe uma área e varre.</p>
+                    <p className="t-body py-6 text-center text-muted-fg">
+                        Nada no radar. Escolhe uma área e varre.
+                    </p>
                 ) : (
                     filtered.map((contest) => (
                         <ItemRow
                             key={contest.id}
                             contest={contest}
-                            nextEventLabel={nextEventLabel(contest)}
                             onPinChange={onPinChange}
                             onSelect={onSelect}
                         />

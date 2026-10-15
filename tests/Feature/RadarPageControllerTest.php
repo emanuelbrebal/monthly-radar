@@ -35,6 +35,25 @@ class RadarPageControllerTest extends TestCase
         );
     }
 
+    public function test_it_exposes_phase_and_new_flag(): void
+    {
+        $this->actingAs(User::factory()->create());
+
+        Contest::factory()->create(['status' => 'in_preparation', 'registration_end' => now()->addDays(20)->toDateString()]);
+        $old = Contest::factory()->create(['status' => 'published', 'registration_end' => now()->addDays(40)->toDateString()]);
+        $old->forceFill(['created_at' => now()->subDays(30)])->save();
+
+        $this->get('/')->assertInertia(fn (Assert $page) => $page
+            ->has('visibleContests', 2)
+            ->where('visibleContests.0.phase', 'edital_in_preparation')
+            ->where('visibleContests.0.phase_label', 'edital em formulação')
+            ->where('visibleContests.0.phase_tone', 'neu')
+            ->where('visibleContests.0.is_new', true)
+            ->where('visibleContests.1.phase', 'edital_published')
+            ->where('visibleContests.1.is_new', false)
+        );
+    }
+
     public function test_it_respects_the_saved_state_filter(): void
     {
         $user = User::factory()->create(['preferences' => ['states' => ['RN']]]);
