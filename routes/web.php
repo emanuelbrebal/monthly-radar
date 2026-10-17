@@ -5,6 +5,7 @@ use App\Http\Controllers\Radar\CalendarController;
 use App\Http\Controllers\Radar\DismissController;
 use App\Http\Controllers\Radar\DismissedContestsController;
 use App\Http\Controllers\Radar\EnrollmentController;
+use App\Http\Controllers\Radar\ExamResultController;
 use App\Http\Controllers\Radar\PinController;
 use App\Http\Controllers\Radar\PreferencesController;
 use App\Http\Controllers\Radar\RadarPageController;
@@ -34,6 +35,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('contests/{contest}/dismiss', [DismissController::class, 'store'])->name('contests.dismiss.store');
     Route::post('contests/{contest}/restore', [DismissController::class, 'restore'])->name('contests.dismiss.restore');
     Route::get('contests/dismissed', [DismissedContestsController::class, 'index'])->name('contests.dismissed');
+
+    // Meu resultado na prova (T7, docs/03 → "Resultado").
+    Route::put('contests/{contest}/result', [ExamResultController::class, 'update'])->name('contests.result.update');
+    Route::delete('contests/{contest}/result', [ExamResultController::class, 'destroy'])->name('contests.result.destroy');
 
     // Tudo que saiu da mesa: descartados + expirados pela regra das 24h.
     Route::get('archive', [ArchiveController::class, 'index'])->name('archive.index');

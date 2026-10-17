@@ -26,7 +26,7 @@ class ArchiveController
 
         $contests = Contest::query()
             ->archived()
-            ->with('events')
+            ->with(['events', 'results'])
             ->get();
 
         $counts = [

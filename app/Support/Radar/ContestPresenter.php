@@ -82,6 +82,7 @@ class ContestPresenter
                     'label' => $event->label,
                 ])
                 ->all(),
+            'result' => $contest->objectiveResult()?->present(),
         ];
     }
 }

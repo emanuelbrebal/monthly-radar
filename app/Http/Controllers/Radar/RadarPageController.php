@@ -30,7 +30,7 @@ class RadarPageController
         $contests = Contest::query()
             ->visible()
             ->matchingStates($selection)
-            ->with('events')
+            ->with(['events', 'results'])
             ->orderByRaw('registration_end IS NULL, registration_end asc')
             ->orderByRaw('exam_date IS NULL, exam_date asc')
             ->get();
