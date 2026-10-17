@@ -112,3 +112,34 @@ Branch: `feat/contest-archive`, empilhada em `feat/contest-change-log` (etapa 1 
 - [x] Perguntas bloqueadoras: nenhuma; decisões assumidas listadas na Fase 1
 
 **Gate = Livre para execução.** Dependência dura: item 1 (T-A) antes do item 3 (T-B).
+
+## Stage de Execução — Entregáveis (17/10/2026)
+
+| # | Entregável | Caminho | Status |
+|---|---|---|---|
+| 1 | Dataprev → `exam_taken` (tinker, 1 linha, banco local) | — | ✅ |
+| 2 | Teste: `GET /` desafixa expirado, mantém inscrito | `tests/Feature/RadarPageControllerTest.php` | ✅ |
+| 3 | Unpin no início do `GET /` + doc corrigida | `app/Http/Controllers/Radar/RadarPageController.php`, `docs/01-modelo-de-dados.md:144` | ✅ |
+| 4 | `scopeArchived()` + `archiveReason()` + paridade | `app/Models/Contest.php`, `tests/Feature/Models/ContestScopeVisibleParityTest.php` | ✅ |
+| 5 | `ArchiveController` + rota `archive.index` | `app/Http/Controllers/Radar/ArchiveController.php`, `routes/web.php` | ✅ |
+| 6 | Página Arquivo + link no masthead + `allowPin` no dossiê | `resources/js/pages/radar/archive.tsx`, `resources/js/pages/radar/index.tsx`, `resources/js/components/radar/DossierModal.tsx` | ✅ |
+| 7 | Feature tests (lista, filtro, guest, volta pra mesa) | `tests/Feature/ArchiveControllerTest.php` | ✅ |
+| 8 | Docs | `docs/00-spec.md`, `docs/03-ui-inventario.md`, `docs/04-plano-execucao.md` | ✅ |
+| 9 | Gates | — | ✅ (ver abaixo) |
+| 10 | Commits `1125ee7` (fix), `5f80b63` (feat), `f3706f0` (docs); sem push | — | ✅ |
+
+**Desvios**
+- `npm run build` foi necessário: os Feature tests renderizam o Blade com o manifesto de `public/build`, que não tinha a página nova ("Unable to locate file in Vite manifest"). Não versionado.
+- `index.tsx` segue fora do prettier — já estava antes (um dos 21 arquivos pendentes da auditoria de 13/10); só o arquivo novo foi formatado.
+- Verificação no browser não foi feita por mim; validação manual feita via tinker no Postgres local.
+
+## Stage de Execução — Validação
+
+| Critério | Resultado | Observação |
+|---|---|---|
+| 1. Dataprev visível, `isExpired()=false`, slot 11 | ✅ | tinker: `visible=true`, `pinned_slot=11`; unpin rodado depois não o tocou |
+| 2. `GET /` desafixa expirado; paridade visible verde | ✅ | `test_it_unpins_expired_contests_on_load` (vermelho → verde) |
+| 3. archived ∪ visible = todos, disjuntos | ✅ | teste de paridade; banco local: 24 + 10 = 34 |
+| 4. Motivo por item + filtro + sem API key | ✅ | `ArchiveControllerTest` (`radar.llm.api_key=null`) |
+| 5. Marcar inscrito+ num expirado → volta pra mesa | ✅ | teste PATCH enrollment → `visible()` |
+| 6. Docs + gates | ✅ | Pest 212 ok / 2 skipped; pint ✅; phpstan 0 erros (`--memory-limit=1G`); eslint ✅; tsc só os 3 erros conhecidos de `RedirectController.ts` |
