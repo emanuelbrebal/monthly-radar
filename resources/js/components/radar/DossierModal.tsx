@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import { EnrollmentChecklist } from '@/components/radar/EnrollmentChecklist';
 import { NewTag, PhaseTag } from '@/components/radar/PhaseTag';
+import { ResultForm } from '@/components/radar/ResultForm';
 import { SourceList } from '@/components/radar/SourceList';
 import { Stamp } from '@/components/radar/Stamp';
 import { Tag } from '@/components/radar/Tag';
@@ -310,6 +311,16 @@ export function DossierModal({
                             />
                         )}
                     </div>
+
+                    {contest.enrollment_status === 'exam_taken' && (
+                        <div className="border-t border-line pt-3">
+                            <ResultForm
+                                key={`${contest.id}:${contest.result?.id ?? 'new'}`}
+                                contest={contest}
+                                onChange={onContestChange}
+                            />
+                        </div>
+                    )}
 
                     {allowPin && (
                         <button

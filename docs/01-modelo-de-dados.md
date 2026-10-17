@@ -15,6 +15,8 @@ Postgres. Datas de edital em `date` (local `America/Maceio`), marcos de sistema 
 - `BrazilianState` (27 siglas, com `region()`) e `Region` — ver `docs/06-filtro-estados.md`
 - `Sphere`: `federal`, `estadual`, `distrital`, `municipal` — esfera do órgão, curadoria manual
 - `BoardAffinity`: `alta`, `media`, `media_baixa`, `baixa` — quanto o estudo em andamento aproveita para a banca, julgamento pessoal
+- `ExamOutcome` (T7): `pending`, `passed` (aprovado nas vagas), `reserve` (cadastro reserva), `failed` (eliminado)
+- `ResultSource` (T7): `self_graded` (conferi pelo gabarito), `preliminary`, `official`
 
 ## Tabelas
 
@@ -46,7 +48,7 @@ Postgres. Datas de edital em `date` (local `America/Maceio`), marcos de sistema 
 | edital_url | text null | preferir PDF oficial |
 | registration_url | text null | |
 | dossier | jsonb null | saída validada do agente (schema em `docs/agents/dossie.md`) |
-| field_sources | jsonb | `{campo: {url, fetched_at, origin: scrape\|llm\|seed, confidence}}` |
+| field_sources | jsonb | `{campo: {url, fetched_at, origin: scrape\|llm\|seed, confidence, source_date?}}` — `source_date` (AAAA-MM-DD, data de publicação da fonte) vem da revisão dos acompanhados (T8): em empate de prioridade, fonte mais antiga não sobrescreve. Oficial = `.gov.br` + `config/radar.php → official_domains` |
 | enrichment_status | string | |
 | enrollment_status | string | default `not_enrolled` |
 | dismissed_at | timestamptz null | preenchido ao descartar, limpo ao trazer de volta |
@@ -103,6 +105,11 @@ Uma linha por mudança de status efetivo. Alimenta o "histórico" do modal.
 `id, contest_id fk, search_run_id fk null (nullOnDelete), kind (created|updated|failed), field (string null), old_value (jsonb null), new_value (jsonb null), origin (scrape|llm|seed), note (text null), created_at`.
 Histórico de alterações (T7). Escrito por `ContestMerger::apply`: uma linha `created` por concurso novo e uma `updated` por campo que mudou de fato (ignora `field_sources`, `dossier`, carimbos e `enrichment_status`). Linhas `failed` vêm do enriquecimento (`note` = último erro). Base do selo "novo/mudou/falhou" e da tela de atividade.
 
+### `exam_results`
+
+`id, contest_id fk (cascadeOnDelete), stage (string, default 'objective'), score numeric(7,2), max_score numeric(7,2), cutoff_score numeric(7,2) null, outcome (ExamOutcome, default pending), source (ResultSource), position (int null), candidates (int null), breakdown (jsonb null), taken_on (date null), timestamps`. Único: `(contest_id, stage)`.
+Meu resultado na prova (T7, `tasks/exam-results-dashboard.md`). Dado meu: o merger, o seed e a varredura nunca escrevem aqui. `breakdown` = `[{subject, score, max}]`, opcional; a soma não precisa bater com `score` (prova com peso). Comparação entre concursos sempre em `score / max_score`. `stage` deixa espaço pra discursiva/títulos; a UI só edita `objective`. Só cadastrável com `enrollment_status = exam_taken`.
+
 ### `raw_listings`
 
 `id, source (string), external_url (text), title (string), payload (jsonb), content_hash (char(64) unique), contest_id (fk null), fetched_at`.
@@ -110,7 +117,8 @@ Cache e trilha do scraping. Mesmo hash = não reprocessa.
 
 ### `search_runs`
 
-`id, area (TiArea), status (RunStatus), started_at, finished_at, counts (jsonb: {scraped, matched, created, updated, enriched, failed}), meta (jsonb: {input_tokens, output_tokens, web_searches, errors: []}), timestamps`.
+`id, area (TiArea), status (RunStatus), started_at, finished_at, counts (jsonb: {scraped, matched, created, updated, enriched, failed}), meta (jsonb: {kind?, input_tokens, output_tokens, web_searches, errors: []}), timestamps`.
+`meta.kind = refresh` marca a revisão dos acompanhados (T8, `area = all`); ausente = varredura. Na revisão, `counts.enriched` = conferidos e `counts.updated` = concursos com algum campo mudado.
 Só uma run `queued|scraping|enriching` por vez → o botão fica desabilitado.
 
 ## Regras no model `Contest`

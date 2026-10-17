@@ -78,7 +78,11 @@ Adapter `pci_concursos` (por estado) e `official_pages`. Estados de loading/vazi
 
 ## T7 — Atividade e painel (pós-MVP, aprovado em 15/10/2026)
 
-Escopo: só dentro da tela, sem e-mail nem push. Etapas: (1) `contest_changes` + log no `ContestMerger` ✅; (1a) desafixar expirados no `GET /` (slot fantasma, 17/10) ✅; (1b) página Arquivo (`/archive`, tudo que saiu da mesa — `docs/03`) ✅; (2) varredura ao abrir o app quando a última tem >24h (`--no-llm`); (3) selos "novo / mudou / falhou" nos cartões, via `users.preferences` (última visita); (4) tela "Atividade" (linha do tempo); (5) página `/dashboard` com KPIs.
+Escopo: só dentro da tela, sem e-mail nem push. Etapas: (1) `contest_changes` + log no `ContestMerger` ✅; (1a) desafixar expirados no `GET /` (slot fantasma, 17/10) ✅; (1b) página Arquivo (`/archive`, tudo que saiu da mesa — `docs/03`) ✅; (2) varredura ao abrir o app quando a última tem >24h (`--no-llm`); (3) selos "novo / mudou / falhou" nos cartões, via `users.preferences` (última visita); (4) tela "Atividade" (linha do tempo); (5) resultado de prova no dossiê (nota total + corte + origem; detalhe por matéria opcional) e página `/dashboard` com meu progresso em gráficos — plano em `tasks/exam-results-dashboard.md` (17/10/2026).
+
+## T8 — Revisão dos acompanhados (pós-MVP, aprovado em 17/10/2026)
+
+Escopo: (1) botão manual "atualizar acompanhados" no masthead — re-checa pelo `LlmProvider` (com busca web) os concursos que estão na maleta ou com situação ≥ "quero fazer", fora descartados e encerrados; merge campo a campo respeitando a prioridade de fonte (regra 7), com fonte e data por campo; o que perde a prioridade vira divergência no dossiê. Sem chave → botão desabilitado. Nada agendado. Agente em `docs/agents/revisao.md`. (2) Próximo prazo visível em cada cartão da maleta (rótulo + data + contagem de dias, destaque em ≤ 7 dias). Plano em `tasks/refresh-tracked.md`.
 
 ## Critérios de aceite do MVP
 

@@ -11,7 +11,6 @@ use App\Services\Radar\ContestMerger;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Str;
 
 /**
  * Semeia os concursos mapeados em pesquisa manual — ver docs/05-seed-inicial.md.
@@ -244,12 +243,11 @@ class ContestSeeder extends Seeder
     }
 
     /**
-     * `.gov.br` conta como oficial; bancas conhecidas (config/radar.php →
-     * boards) entrarão na T2. Por ora só a regra do domínio .gov.br.
+     * Mesma régua do merge: .gov.br + config/radar.php → official_domains.
      */
     private function sourceKind(string $url): string
     {
-        return Str::contains($url, '.gov.br') ? 'official' : 'aggregator';
+        return ContestMerger::isOfficialUrl($url) ? 'official' : 'aggregator';
     }
 
     /**

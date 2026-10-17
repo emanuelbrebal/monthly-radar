@@ -71,6 +71,7 @@ Grid: `grid-template-columns: minmax(420px, 5fr) 7fr`. Abaixo de 1024px: empilha
 - **Slot ocupado (item):** mini ficha papel (`--card`, borda ink, sombra `3px 3px 0 #000`) com:
   - sigla do órgão em Inter Tight 15px/700 (trunca; `title` com o título completo);
   - **tag de fase** (`phase_label`, forma + texto + cor, até 2 linhas) — ex. "aguardando resultado", "inscrito", "edital em formulação"; regras em `ContestPhaseResolver` (a situação pessoal vence o estado do edital; ver `tasks/calendar-case-phase-polish.md`);
+  - **próximo prazo** (T8), mono 12px: rótulo curto em cima ("insc. até", "taxa até", "prova", ou o rótulo do evento — trunca) e embaixo `dd/mm` + contagem (`hoje`, `amanhã`, `Nd`), sempre inteiros. ≤ 7 dias: vermelho e negrito. Já inscrito, pula os prazos de inscrição; taxa paga, pula o da taxa. Sem evento futuro: "sem prazo" apagado. Regra em `upcomingDeadline` (`resources/js/lib/radar.ts`);
   - marca do nível (ícone) e, se `is_new`, a tag "NOVO" (concurso criado nos últimos `radar.new_window_days` dias, sem inscrição/interesse, fixação ou descarte);
   - pin vermelho 8×8 no topo centro (igual ao PinCard do handoff);
   - faixa vertical 4px na borda esquerda da ficha, na cor do nível (`tier`), quando há nível;
@@ -90,7 +91,8 @@ Interação:
 ### Controle de varredura (masthead)
 - `Select` de área (shadcn reestilizado: borda ink, radius 0, mono uppercase 11px).
 - Botão primário vermelho **VARRER** (estilo "Primary (aposta)" do handoff). Durante a run: desabilitado, vira `RadarAnim` 18px + "varrendo…".
-- Linha de status mono: última run, contagens, erros ("2 fontes falharam" com tooltip listando).
+- Botão secundário **atualizar acompanhados (N)** (T8, `docs/agents/revisao.md`): re-checa pelo LLM os concursos na maleta ou com situação ≥ "quero fazer". Mesma run/polling da varredura (um ou outro por vez); durante: "revisando…". Sem `ANTHROPIC_API_KEY`: desabilitado, rótulo "atualizar acompanhados (sem LLM)" + explicação no `title`/leitor de tela.
+- Linha de status mono: última run, contagens, erros ("2 fontes falharam" com tooltip listando). Run de revisão: "Revisão feita. X conferidos, Y mudaram."
 
 ### Filtro de estados
 
@@ -146,6 +148,7 @@ Radix `Dialog`, largura `min(1040px, 94vw)`, altura máx 88vh com scroll interno
 - **Linha do tempo:** eventos em ordem com data mono; passados riscados.
 - **Links:** botão primário "abrir edital ↗" (desabilitado com tooltip "edital ainda não saiu" se nulo) e secundário "inscrição ↗".
 - **Minha situação:** checklist vertical dos 6 passos de `EnrollmentStatus`; clicar num passo define o enum (marca os anteriores, desmarca os seguintes). Otimista.
+- **Resultado (T7):** só com "prova feita". Campos: nota, máximo, corte (opcional), resultado (`aguardando / aprovado / cadastro reserva / eliminado`), origem (`gabarito / preliminar / oficial`), classificação e candidatos (opcionais). Prévia ao vivo: `88,6%` e `+4,5 acima do corte`. "Por matéria" é um repetidor opcional (matéria · nota · máximo) com sugestão dos nomes já usados; soma diferente do total gera só aviso. `salvar` / `apagar resultado`.
 - **Descartar:** abaixo do checklist, separado por régua fina, um link mono vermelho `descartar este concurso`. Ele expande um input de uma linha ("motivo, se quiser") com os botões `descartar` (secundário, borda vermelha) e `cancelar`. Ao confirmar, o modal fecha, o item sai da mesa e da maleta e aparece um toast com `desfazer` (8s).
 - **Concurso descartado aberto** (pelo toggle da caixa de itens): o carimbo do topo vira `DESCARTADO` em `--ink-soft`, o motivo aparece em serif italic abaixo da manchete, o checklist fica desabilitado e o único botão ativo é `trazer de volta`.
 - **Pin:** toggle "na maleta / fora da maleta".
@@ -161,6 +164,18 @@ Tudo que saiu da mesa: complemento exato de `Contest::visible()` (`scopeArchived
 - Linha: órgão · ano, tier, status efetivo (expirado) ou motivo do descarte, data em que saiu da mesa (`dismissed_at` ou encerramento efetivo), carimbo `EXPIRADO` / `DESCARTADO`. Mais recente primeiro.
 - Clique abre o modal do dossiê **sem** o botão de maleta (`allowPin=false`). Checklist de situação e "trazer de volta" funcionam; marcar "inscrito" ou além num expirado devolve o concurso pra mesa.
 - Vazio: "Nada no arquivo."
+
+## Painel (`GET /dashboard`, T7)
+
+Meu progresso nas provas. Link "painel" no masthead, ao lado de "arquivo". O login continua caindo na mesa (`/`).
+
+- **KPIs:** provas feitas · com resultado · aprovações + CR · média % · melhor % (com o concurso).
+- **Progresso no tempo:** linha de % por prova (x = data da prova), com o corte de cada prova marcado.
+- **Margem sobre o corte:** barras divergentes por concurso (só provas com corte).
+- **Por matéria:** barras horizontais com % médio por matéria (só com detalhe preenchido).
+- **Funil:** quero fazer → inscrito → prova feita → com resultado → aprovado/CR, contando todos os concursos.
+- Todo gráfico tem tabela equivalente (`ver como tabela`). Clique numa prova abre o dossiê.
+- Vazio: "Nenhum resultado ainda. Marca 'prova feita' num concurso e lança a nota no dossiê."
 
 ## Microcopy (voz do handoff: seca, brasileira)
 
