@@ -27,6 +27,8 @@ type DossierModalProps = {
     onOpenChange: (open: boolean) => void;
     onContestChange: (contest: ContestDto) => void;
     onDismissed: (contest: ContestDto) => void;
+    /** Falso no Arquivo: lá o item não está na mesa, então não vai pra maleta. */
+    allowPin?: boolean;
 };
 
 /**
@@ -40,6 +42,7 @@ export function DossierModal({
     onOpenChange,
     onContestChange,
     onDismissed,
+    allowPin = true,
 }: DossierModalProps) {
     const [pinning, setPinning] = useState(false);
     const [dismissing, setDismissing] = useState(false);
@@ -308,14 +311,16 @@ export function DossierModal({
                         )}
                     </div>
 
-                    <button
-                        type="button"
-                        onClick={togglePin}
-                        disabled={pinning || dismissed}
-                        className="t-body min-h-7 w-full border border-line-strong px-3 py-1.5 font-semibold disabled:cursor-not-allowed disabled:text-muted-fg"
-                    >
-                        {pinned ? 'tirar da maleta' : 'guardar na maleta'}
-                    </button>
+                    {allowPin && (
+                        <button
+                            type="button"
+                            onClick={togglePin}
+                            disabled={pinning || dismissed}
+                            className="t-body min-h-7 w-full border border-line-strong px-3 py-1.5 font-semibold disabled:cursor-not-allowed disabled:text-muted-fg"
+                        >
+                            {pinned ? 'tirar da maleta' : 'guardar na maleta'}
+                        </button>
+                    )}
 
                     {!dismissed && (
                         <div className="border-t border-line pt-3">

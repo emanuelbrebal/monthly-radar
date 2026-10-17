@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Radar\ArchiveController;
 use App\Http\Controllers\Radar\CalendarController;
 use App\Http\Controllers\Radar\DismissController;
 use App\Http\Controllers\Radar\DismissedContestsController;
@@ -33,6 +34,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('contests/{contest}/dismiss', [DismissController::class, 'store'])->name('contests.dismiss.store');
     Route::post('contests/{contest}/restore', [DismissController::class, 'restore'])->name('contests.dismiss.restore');
     Route::get('contests/dismissed', [DismissedContestsController::class, 'index'])->name('contests.dismissed');
+
+    // Tudo que saiu da mesa: descartados + expirados pela regra das 24h.
+    Route::get('archive', [ArchiveController::class, 'index'])->name('archive.index');
 });
 
 require __DIR__.'/settings.php';

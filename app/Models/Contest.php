@@ -337,6 +337,31 @@ class Contest extends Model
     }
 
     /**
+     * Arquivo: complemento exato de scopeVisible() — descartados e expirados
+     * pela regra das 24h. Subquery em vez de NOT(...) pra não perder linha na
+     * lógica de três valores do SQL com colunas nulas (teste de paridade).
+     *
+     * @param  Builder<Contest>  $query
+     * @return Builder<Contest>
+     */
+    public function scopeArchived(Builder $query): Builder
+    {
+        return $query->whereNotIn('id', static::query()->visible()->select('id'));
+    }
+
+    /**
+     * Por que está no arquivo: descartado manda sobre expirado. Null se visível.
+     */
+    public function archiveReason(?CarbonInterface $now = null): ?string
+    {
+        if ($this->isDismissed()) {
+            return 'dismissed';
+        }
+
+        return $this->isExpired($now) ? 'expired' : null;
+    }
+
+    /**
      * Só os descartados (para o toggle da caixa de itens); ignora a regra das 24h.
      *
      * @param  Builder<Contest>  $query
