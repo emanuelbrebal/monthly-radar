@@ -153,6 +153,15 @@ Radix `Dialog`, largura `min(1040px, 94vw)`, altura máx 88vh com scroll interno
 - **Fontes:** lista com domínio, data da coleta, origem (raspado/IA) e badge de confiança. Rodapé: "atualizado em 14/09 23:10".
 - `enrichment_status = failed|skipped`: faixa amarela "Dossiê incompleto — só dados raspados." no topo.
 
+## Arquivo (`GET /archive`, T7)
+
+Tudo que saiu da mesa: complemento exato de `Contest::visible()` (`scopeArchived`), ou seja, expirados pela regra das 24h e descartados. Link "arquivo" no masthead da mesa.
+
+- Filtro por motivo (`todos` / `expirados` / `descartados`, com contagem) via `?reason=`.
+- Linha: órgão · ano, tier, status efetivo (expirado) ou motivo do descarte, data em que saiu da mesa (`dismissed_at` ou encerramento efetivo), carimbo `EXPIRADO` / `DESCARTADO`. Mais recente primeiro.
+- Clique abre o modal do dossiê **sem** o botão de maleta (`allowPin=false`). Checklist de situação e "trazer de volta" funcionam; marcar "inscrito" ou além num expirado devolve o concurso pra mesa.
+- Vazio: "Nada no arquivo."
+
 ## Microcopy (voz do handoff: seca, brasileira)
 
 | situação | texto |
