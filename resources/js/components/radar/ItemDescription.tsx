@@ -109,7 +109,7 @@ export function ItemDescription({
                     }
                 />
                 <Fact
-                    label="prova"
+                    label="data da prova"
                     value={
                         contest.exam_date ? dateLabel(contest.exam_date) : null
                     }

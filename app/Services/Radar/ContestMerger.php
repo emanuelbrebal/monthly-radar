@@ -2,8 +2,10 @@
 
 namespace App\Services\Radar;
 
+use App\Enums\ChangeKind;
 use App\Enums\EventType;
 use App\Models\Contest;
+use App\Models\ContestChange;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
@@ -16,6 +18,12 @@ use Illuminate\Support\Str;
  */
 class ContestMerger
 {
+    /** Colunas que mudam a cada passada sem ser informação nova sobre o concurso. */
+    private const UNTRACKED_CHANGES = [
+        'updated_at', 'last_seen_at', 'last_enriched_at', 'status_changed_at', 'closed_at',
+        'field_sources', 'dossier', 'enrichment_status',
+    ];
+
     /**
      * Prioridade, da mais alta pra mais baixa: oficial > agregador (scrape
      * ou seed sem URL oficial, mesma prioridade — docs/05-seed-inicial.md)
@@ -25,7 +33,7 @@ class ContestMerger
      * @param  array<string, mixed>  $fields  coluna => valor (novos dados)
      * @param  array<int, array{type: string, date: string, label?: string|null}>  $extraEvents
      */
-    public function merge(Contest $contest, array $fields, string $origin, ?string $sourceUrl, string $confidence, array $extraEvents = []): Contest
+    public function merge(Contest $contest, array $fields, string $origin, ?string $sourceUrl, string $confidence, array $extraEvents = [], ?int $searchRunId = null): Contest
     {
         foreach ($fields as $field => $value) {
             if ($value === null) {
@@ -41,7 +49,7 @@ class ContestMerger
             $this->mergeField($contest, $field, $value, $origin, $sourceUrl, $confidence);
         }
 
-        return $this->apply($contest, $extraEvents, $origin);
+        return $this->apply($contest, $extraEvents, $origin, $searchRunId);
     }
 
     private function mergeField(Contest $contest, string $field, mixed $value, string $origin, ?string $sourceUrl, string $confidence): void
@@ -117,13 +125,17 @@ class ContestMerger
      *
      * @param  array<int, array{type: string, date: string, label?: string|null}>  $extraEvents
      */
-    public function apply(Contest $contest, array $extraEvents = [], string $origin = 'scrape'): Contest
+    public function apply(Contest $contest, array $extraEvents = [], string $origin = 'scrape', ?int $searchRunId = null, bool $created = false): Contest
     {
+        $isNew = $created || ! $contest->exists;
+        $changes = $isNew ? [] : $this->collectChanges($contest);
         $statusChanged = $contest->isDirty('status');
         $from = $statusChanged ? $contest->getOriginal('status') : null;
         $to = $contest->status->value;
 
         $contest->save();
+
+        $this->recordChanges($contest, $isNew, $changes, $origin, $searchRunId);
 
         if ($statusChanged) {
             $contest->statusLogs()->create([
@@ -138,6 +150,65 @@ class ContestMerger
         $this->regenerateEvents($contest, $extraEvents, $origin);
 
         return $contest->refresh();
+    }
+
+    /**
+     * Campos alterados desde o último save, já com cast aplicado. Ignora o que
+     * é bookkeeping (carimbos, field_sources, dossiê, status do enriquecimento).
+     *
+     * @return array<string, array{old: mixed, new: mixed}>
+     */
+    private function collectChanges(Contest $contest): array
+    {
+        $changes = [];
+
+        foreach (array_keys($contest->getDirty()) as $field) {
+            if (in_array($field, self::UNTRACKED_CHANGES, true)) {
+                continue;
+            }
+
+            $changes[$field] = [
+                'old' => $this->plain($contest->getOriginal($field)),
+                'new' => $this->plain($contest->{$field}),
+            ];
+        }
+
+        return $changes;
+    }
+
+    /**
+     * @param  array<string, array{old: mixed, new: mixed}>  $changes
+     */
+    private function recordChanges(Contest $contest, bool $isNew, array $changes, string $origin, ?int $searchRunId): void
+    {
+        $base = ['contest_id' => $contest->id, 'search_run_id' => $searchRunId, 'origin' => $origin, 'created_at' => now()];
+
+        if ($isNew) {
+            if (! $contest->changes()->where('kind', ChangeKind::Created->value)->exists()) {
+                ContestChange::query()->create([...$base, 'kind' => ChangeKind::Created]);
+            }
+
+            return;
+        }
+
+        foreach ($changes as $field => $change) {
+            ContestChange::query()->create([
+                ...$base,
+                'kind' => ChangeKind::Updated,
+                'field' => $field,
+                'old_value' => $change['old'],
+                'new_value' => $change['new'],
+            ]);
+        }
+    }
+
+    private function plain(mixed $value): mixed
+    {
+        return match (true) {
+            $value instanceof \BackedEnum => $value->value,
+            $value instanceof \DateTimeInterface => $value->format('Y-m-d'),
+            default => $value,
+        };
     }
 
     /**

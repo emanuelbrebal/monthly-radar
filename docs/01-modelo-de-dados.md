@@ -98,6 +98,11 @@ Recriados a cada merge a partir das colunas de data + `dossier.datas` extras. É
 `id, contest_id fk, from (string null), to (string), origin (scrape|llm|resolver|seed), note (string null), created_at`.
 Uma linha por mudança de status efetivo. Alimenta o "histórico" do modal.
 
+### `contest_changes`
+
+`id, contest_id fk, search_run_id fk null (nullOnDelete), kind (created|updated|failed), field (string null), old_value (jsonb null), new_value (jsonb null), origin (scrape|llm|seed), note (text null), created_at`.
+Histórico de alterações (T7). Escrito por `ContestMerger::apply`: uma linha `created` por concurso novo e uma `updated` por campo que mudou de fato (ignora `field_sources`, `dossier`, carimbos e `enrichment_status`). Linhas `failed` vêm do enriquecimento (`note` = último erro). Base do selo "novo/mudou/falhou" e da tela de atividade.
+
 ### `raw_listings`
 
 `id, source (string), external_url (text), title (string), payload (jsonb), content_hash (char(64) unique), contest_id (fk null), fetched_at`.
@@ -136,7 +141,7 @@ public function scopeDismissed(Builder $q): Builder
 
 Observações:
 - `scopeVisible` usa `coalesce(closed_at, (registration_end + interval '1 day') at time zone 'America/Maceio')` para o encerramento efetivo. Status "fechado ou posterior" no SQL = `status in (...) OR registration_end < current_date local`.
-- Desafixar expirados: `UnpinExpiredContests` action roda no início de cada request da tela principal (barato, 1 update) e no fim de cada varredura. Sem scheduler. `[inferido]`
+- Desafixar expirados: `UnpinExpiredContests` action roda no início de cada request da tela principal (`RadarPageController`) e no fim de cada varredura (`FinalizeRunJob`). Sem scheduler. Até 17/10/2026 só rodava na varredura; sem varrer, expirado segurava o slot ("slot fantasma").
 - Setar `closed_at`: o `ContestMerger` preenche na primeira vez que o status efetivo passa a fechado; nunca sobrescreve depois, a não ser que reabra (aí volta para null).
 
 ## Testes obrigatórios desta camada

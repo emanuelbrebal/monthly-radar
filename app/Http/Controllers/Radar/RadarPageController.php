@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Radar;
 
+use App\Actions\Radar\UnpinExpiredContests;
 use App\Enums\Region;
 use App\Enums\TiArea;
 use App\Models\Contest;
@@ -13,13 +14,16 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * `GET /` — tela principal (docs/02-pipeline.md → "Endpoints"). Só leitura;
- * a varredura em si é `SweepController`.
+ * `GET /` — tela principal (docs/02-pipeline.md → "Endpoints"). A varredura
+ * em si é `SweepController`. A única escrita é desafixar expirados antes de
+ * listar (docs/01-modelo-de-dados.md → "Desafixar expirados").
  */
 class RadarPageController
 {
-    public function index(Request $request): Response
+    public function index(Request $request, UnpinExpiredContests $unpinExpiredContests): Response
     {
+        $unpinExpiredContests->handle();
+
         $user = $request->user();
         $selection = $user->preferences->states;
 

@@ -2,11 +2,13 @@
 
 namespace App\Jobs\Radar;
 
+use App\Enums\ChangeKind;
 use App\Enums\EnrichmentStatus;
 use App\Enums\EnrollmentStatus;
 use App\Enums\Regime;
 use App\Enums\RunStatus;
 use App\Models\Contest;
+use App\Models\ContestChange;
 use App\Models\SearchRun;
 use App\Models\User;
 use App\Services\Radar\LlmProvider;
@@ -18,6 +20,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Throwable;
 
 /**
@@ -63,9 +66,17 @@ class EnrichContestsJob implements ShouldQueue
 
         foreach ($contests as $contest) {
             try {
-                $result = app()->call([new EnrichContestJob($contest->id), 'handle'], ['provider' => $provider]);
-            } catch (Throwable) {
+                $result = app()->call([new EnrichContestJob($contest->id, $run->id), 'handle'], ['provider' => $provider]);
+            } catch (Throwable $e) {
                 $contest->update(['enrichment_status' => EnrichmentStatus::Failed->value]);
+                ContestChange::query()->create([
+                    'contest_id' => $contest->id,
+                    'search_run_id' => $run->id,
+                    'kind' => ChangeKind::Failed,
+                    'origin' => 'llm',
+                    'note' => Str::limit($e->getMessage(), 500),
+                    'created_at' => now(),
+                ]);
                 $failed++;
 
                 continue;

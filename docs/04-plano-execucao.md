@@ -76,6 +76,10 @@ Tokens no `app.css`, fontes, masthead com `SweepControl` + polling, `MonthCalend
 
 Adapter `pci_concursos` (por estado) e `official_pages`. Estados de loading/vazio/erro. README em inglês (o que é, arquitetura com diagrama, como rodar, fontes e custo). Deploy no VPS com worker de fila (supervisor).
 
+## T7 — Atividade e painel (pós-MVP, aprovado em 15/10/2026)
+
+Escopo: só dentro da tela, sem e-mail nem push. Etapas: (1) `contest_changes` + log no `ContestMerger` ✅; (1a) desafixar expirados no `GET /` (slot fantasma, 17/10) ✅; (1b) página Arquivo (`/archive`, tudo que saiu da mesa — `docs/03`) ✅; (2) varredura ao abrir o app quando a última tem >24h (`--no-llm`); (3) selos "novo / mudou / falhou" nos cartões, via `users.preferences` (última visita); (4) tela "Atividade" (linha do tempo); (5) página `/dashboard` com KPIs.
+
 ## Critérios de aceite do MVP
 
 - [ ] Escolher uma área e apertar varrer popula calendário e caixa de itens sem nenhum passo manual.
@@ -95,4 +99,4 @@ Adapter `pci_concursos` (por estado) e `official_pages`. Estados de loading/vazi
 
 ## Backlog v2 (não tocar)
 
-Varredura agendada · notificações · export .ics · itens de tamanhos diferentes na maleta · anotações livres · headless browser · leitura do PDF do edital · mobile.
+Varredura agendada (cron) · notificações por e-mail/push · export .ics · itens de tamanhos diferentes na maleta · anotações livres · headless browser · leitura do PDF do edital · mobile.

@@ -1,4 +1,4 @@
-import { Head, router, usePage } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useMemo, useRef, useState } from 'react';
 
 import { AttacheCase } from '@/components/radar/AttacheCase';
@@ -97,7 +97,13 @@ export default function RadarIndex() {
                     <div className="flex flex-wrap items-center gap-4">
                         <RadarMark size={28} />
                         <h1 className="text-display">radar mensal · concursos</h1>
-                        <div className="ml-auto">
+                        <Link
+                            href="/archive"
+                            className="t-body ml-auto inline-flex min-h-6 items-center underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                        >
+                            arquivo
+                        </Link>
+                        <div>
                             <SweepControl areas={areas} regions={regions} states={preferences.states} lastRun={lastRun} />
                         </div>
                     </div>

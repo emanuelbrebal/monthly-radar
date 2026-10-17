@@ -47,7 +47,7 @@ Checklist sequencial, guardado como enum (marcar um passo marca os anteriores):
 "Inscrito" para as regras do sistema = `enrolled` ou qualquer passo depois dele.
 
 **Descartado (`dismissed`)** é um valor do mesmo enum, mas fica fora da sequência do checklist. Serve para concurso que eu decidi não fazer (choque de data, cargo errado, lotação ruim).
-- Some **na hora** do calendário e da caixa de itens. Não espera as 24h.
+- Some **na hora** do calendário e da caixa de itens. Não espera as 24h. Continua consultável no Arquivo.
 - Sai da maleta ao ser descartado, e não pode ser fixado enquanto estiver descartado.
 - Não é enriquecido nas varreduras. A varredura continua atualizando os dados raspados, em silêncio, para o dedup.
 - Guarda um motivo opcional (`dismissed_reason`, até 120 caracteres).
@@ -57,7 +57,7 @@ Checklist sequencial, guardado como enum (marcar um passo marca os anteriores):
 
 Quando um concurso fica efetivamente `registration_closed` (ou qualquer status posterior) e o enrollment está **antes** de `enrolled`, ele **sai de todas as listagens 24h depois** do momento de encerramento.
 
-- É um escopo de query (`Contest::visible()`), não uma deleção. O registro fica no banco para dedup.
+- É um escopo de query (`Contest::visible()`), não uma deleção. O registro fica no banco para dedup e vai pro **Arquivo** (`/archive`, T7), junto com os descartados.
 - Se estiver fixado, é desafixado no mesmo momento em que some (o slot é liberado). Fixar **não** protege da regra. `[inferido]`
 - Se uma retificação reabrir as inscrições, ele volta a aparecer.
 - Enquanto está nas 24h finais, a UI mostra o carimbo "some em Xh".
@@ -80,7 +80,7 @@ Detalhes visuais em `docs/03-ui-inventario.md`.
 
 ## Fora do MVP (Backlog v2)
 
-Varredura agendada · notificações · sincronizar calendário (.ics) · itens de tamanhos diferentes na maleta · anotações livres por concurso · fontes que exigem navegador headless · leitura completa do PDF do edital · versão mobile caprichada.
+Varredura agendada (cron) · notificações por e-mail/push (avisos dentro da tela entram na T7) · sincronizar calendário (.ics) · itens de tamanhos diferentes na maleta · anotações livres por concurso · fontes que exigem navegador headless · leitura completa do PDF do edital · versão mobile caprichada.
 
 ## Decisões fechadas
 
