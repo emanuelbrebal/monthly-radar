@@ -71,6 +71,7 @@ Grid: `grid-template-columns: minmax(420px, 5fr) 7fr`. Abaixo de 1024px: empilha
 - **Slot ocupado (item):** mini ficha papel (`--card`, borda ink, sombra `3px 3px 0 #000`) com:
   - sigla do órgão em Inter Tight 15px/700 (trunca; `title` com o título completo);
   - **tag de fase** (`phase_label`, forma + texto + cor, até 2 linhas) — ex. "aguardando resultado", "inscrito", "edital em formulação"; regras em `ContestPhaseResolver` (a situação pessoal vence o estado do edital; ver `tasks/calendar-case-phase-polish.md`);
+  - **próximo prazo** (T8), mono 12px: rótulo curto em cima ("insc. até", "taxa até", "prova", ou o rótulo do evento — trunca) e embaixo `dd/mm` + contagem (`hoje`, `amanhã`, `Nd`), sempre inteiros. ≤ 7 dias: vermelho e negrito. Já inscrito, pula os prazos de inscrição; taxa paga, pula o da taxa. Sem evento futuro: "sem prazo" apagado. Regra em `upcomingDeadline` (`resources/js/lib/radar.ts`);
   - marca do nível (ícone) e, se `is_new`, a tag "NOVO" (concurso criado nos últimos `radar.new_window_days` dias, sem inscrição/interesse, fixação ou descarte);
   - pin vermelho 8×8 no topo centro (igual ao PinCard do handoff);
   - faixa vertical 4px na borda esquerda da ficha, na cor do nível (`tier`), quando há nível;
@@ -90,7 +91,8 @@ Interação:
 ### Controle de varredura (masthead)
 - `Select` de área (shadcn reestilizado: borda ink, radius 0, mono uppercase 11px).
 - Botão primário vermelho **VARRER** (estilo "Primary (aposta)" do handoff). Durante a run: desabilitado, vira `RadarAnim` 18px + "varrendo…".
-- Linha de status mono: última run, contagens, erros ("2 fontes falharam" com tooltip listando).
+- Botão secundário **atualizar acompanhados (N)** (T8, `docs/agents/revisao.md`): re-checa pelo LLM os concursos na maleta ou com situação ≥ "quero fazer". Mesma run/polling da varredura (um ou outro por vez); durante: "revisando…". Sem `ANTHROPIC_API_KEY`: desabilitado, rótulo "atualizar acompanhados (sem LLM)" + explicação no `title`/leitor de tela.
+- Linha de status mono: última run, contagens, erros ("2 fontes falharam" com tooltip listando). Run de revisão: "Revisão feita. X conferidos, Y mudaram."
 
 ### Filtro de estados
 
