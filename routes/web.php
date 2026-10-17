@@ -39,6 +39,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Meu resultado na prova (T7, docs/03 → "Resultado").
     Route::put('contests/{contest}/result', [ExamResultController::class, 'update'])->name('contests.result.update');
     Route::delete('contests/{contest}/result', [ExamResultController::class, 'destroy'])->name('contests.result.destroy');
+    Route::get('results/subjects', [ExamResultController::class, 'subjects'])->name('results.subjects');
 
     // Tudo que saiu da mesa: descartados + expirados pela regra das 24h.
     Route::get('archive', [ArchiveController::class, 'index'])->name('archive.index');

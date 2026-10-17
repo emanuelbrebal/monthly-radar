@@ -112,6 +112,26 @@ class ExamResultController
         return $this->respond($contest);
     }
 
+    /**
+     * `GET /results/subjects` — nomes de matéria já usados, pra sugestão no
+     * formulário (mesmo nome = mesma barra no painel).
+     */
+    public function subjects(): JsonResponse
+    {
+        $subjects = ExamResult::query()
+            ->whereNotNull('breakdown')
+            ->pluck('breakdown')
+            ->flatten(1)
+            ->pluck('subject')
+            ->filter()
+            ->unique()
+            ->sort(SORT_LOCALE_STRING)
+            ->values()
+            ->all();
+
+        return response()->json(['subjects' => $subjects]);
+    }
+
     private function respond(Contest $contest): JsonResponse
     {
         return response()->json([

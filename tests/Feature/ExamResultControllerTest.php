@@ -83,3 +83,13 @@ it('deletes the result', function () {
 
     expect(ExamResult::query()->count())->toBe(0);
 });
+
+it('lists subjects already used, unique and sorted', function () {
+    ExamResult::factory()->create(['breakdown' => [['subject' => 'Português', 'score' => 8, 'max' => 10], ['subject' => 'Banco de dados', 'score' => 5, 'max' => 10]]]);
+    ExamResult::factory()->create(['breakdown' => [['subject' => 'Português', 'score' => 7, 'max' => 10]]]);
+    ExamResult::factory()->create(['breakdown' => null]);
+
+    $this->getJson('/results/subjects')
+        ->assertOk()
+        ->assertExactJson(['subjects' => ['Banco de dados', 'Português']]);
+});

@@ -248,6 +248,33 @@ export type ContestDto = {
     pinned_slot: number | null;
     hides_in_hours: number | null;
     events: ContestEventDto[];
+    result: ExamResultDto | null;
+};
+
+export type ExamOutcomeValue = 'pending' | 'passed' | 'reserve' | 'failed';
+
+export type ResultSourceValue = 'self_graded' | 'preliminary' | 'official';
+
+export type BreakdownRow = { subject: string; score: number; max: number };
+
+/** Meu resultado na prova objetiva — docs/01-modelo-de-dados.md → `exam_results`. */
+export type ExamResultDto = {
+    id: number;
+    stage: string;
+    score: number;
+    max_score: number;
+    cutoff_score: number | null;
+    percent: number;
+    cutoff_percent: number | null;
+    margin: number | null;
+    outcome: ExamOutcomeValue;
+    outcome_label: string;
+    source: ResultSourceValue;
+    source_label: string;
+    position: number | null;
+    candidates: number | null;
+    breakdown: BreakdownRow[];
+    taken_on: string | null;
 };
 
 export type SourceErrorDto = { source: string; message: string };
