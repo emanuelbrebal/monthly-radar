@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Radar\ArchiveController;
 use App\Http\Controllers\Radar\CalendarController;
+use App\Http\Controllers\Radar\DashboardController;
 use App\Http\Controllers\Radar\DismissController;
 use App\Http\Controllers\Radar\DismissedContestsController;
 use App\Http\Controllers\Radar\EnrollmentController;
@@ -12,12 +13,12 @@ use App\Http\Controllers\Radar\RadarPageController;
 use App\Http\Controllers\Radar\SweepController;
 use Illuminate\Support\Facades\Route;
 
-// Sem cadastro público: '/' é a tela principal, autenticada. 'dashboard'
-// fica como alias (Fortify usa esse path como redirect pós-login via
-// config/fortify.php 'home') apontando para a mesma página.
+// Sem cadastro público: '/' é a tela principal, autenticada, e o destino
+// pós-login (config/fortify.php 'home'). 'dashboard' é o painel de
+// resultados (T7).
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/', [RadarPageController::class, 'index'])->name('home');
-    Route::get('dashboard', [RadarPageController::class, 'index'])->name('dashboard');
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // docs/02-pipeline.md → "Endpoints". GET/{run} é o polling do front (T4).
     Route::post('sweeps', [SweepController::class, 'store'])->name('sweeps.store');

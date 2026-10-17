@@ -98,8 +98,14 @@ export default function RadarIndex() {
                         <RadarMark size={28} />
                         <h1 className="text-display">radar mensal · concursos</h1>
                         <Link
-                            href="/archive"
+                            href="/dashboard"
                             className="t-body ml-auto inline-flex min-h-6 items-center underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                        >
+                            painel
+                        </Link>
+                        <Link
+                            href="/archive"
+                            className="t-body inline-flex min-h-6 items-center underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
                         >
                             arquivo
                         </Link>
