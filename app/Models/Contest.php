@@ -215,6 +215,14 @@ class Contest extends Model
     }
 
     /**
+     * @return HasMany<ContestChange, $this>
+     */
+    public function changes(): HasMany
+    {
+        return $this->hasMany(ContestChange::class);
+    }
+
+    /**
      * @return HasMany<RawListing, $this>
      */
     public function rawListings(): HasMany

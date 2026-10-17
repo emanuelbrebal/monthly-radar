@@ -217,7 +217,7 @@ class ContestSeeder extends Seeder
             ],
         );
 
-        app(ContestMerger::class)->apply($contest, $row['extra_events'] ?? [], origin: 'seed');
+        app(ContestMerger::class)->apply($contest, $row['extra_events'] ?? [], origin: 'seed', created: true);
     }
 
     /**

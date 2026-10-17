@@ -377,8 +377,8 @@ export function DossierModal({
 function MiniStat({ label, value }: { label: string; value: string | null }) {
     return (
         <div>
-            <p className="rm-display text-lg">{value ?? '—'}</p>
             <p className="t-label text-muted-fg">{label}</p>
+            <p className="t-title tabular-nums">{value ?? '—'}</p>
         </div>
     );
 }

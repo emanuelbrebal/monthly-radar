@@ -2,9 +2,11 @@
 
 namespace App\Jobs\Radar;
 
+use App\Enums\ChangeKind;
 use App\Enums\EnrichmentStatus;
 use App\Enums\Regime;
 use App\Models\Contest;
+use App\Models\ContestChange;
 use App\Models\RawListing;
 use App\Services\Radar\ContestMerger;
 use App\Services\Radar\DossierValidationException;
@@ -38,7 +40,7 @@ class EnrichContestJob implements ShouldQueue
         'salary_min_cents', 'it_vacancies', 'edital_url', 'regime',
     ];
 
-    public function __construct(public int $contestId) {}
+    public function __construct(public int $contestId, public ?int $searchRunId = null) {}
 
     public function handle(LlmProvider $provider, ContestMerger $merger, DossierValidator $validator): EnrichResult
     {
@@ -80,6 +82,15 @@ class EnrichContestJob implements ShouldQueue
 
         $contest->enrichment_status = EnrichmentStatus::Failed;
         $contest->save();
+
+        ContestChange::query()->create([
+            'contest_id' => $contest->id,
+            'search_run_id' => $this->searchRunId,
+            'kind' => ChangeKind::Failed,
+            'origin' => 'llm',
+            'note' => Str::limit((string) $retryNote, 500),
+            'created_at' => now(),
+        ]);
 
         return new EnrichResult(false, $totalInput, $totalOutput, $totalSearches);
     }
@@ -178,7 +189,7 @@ class EnrichContestJob implements ShouldQueue
         ], $dossier['eventos_extra'] ?? []);
 
         if ($groups === []) {
-            $merger->merge($contest, [], origin: 'llm', sourceUrl: null, confidence: 'low', extraEvents: $extraEvents);
+            $merger->merge($contest, [], origin: 'llm', sourceUrl: null, confidence: 'low', extraEvents: $extraEvents, searchRunId: $this->searchRunId);
 
             return;
         }
@@ -193,6 +204,7 @@ class EnrichContestJob implements ShouldQueue
                 sourceUrl: $group['url'],
                 confidence: $group['confidence'],
                 extraEvents: $key === $lastKey ? $extraEvents : [],
+                searchRunId: $this->searchRunId,
             );
         }
     }

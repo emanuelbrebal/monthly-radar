@@ -80,7 +80,7 @@ Detalhes visuais em `docs/03-ui-inventario.md`.
 
 ## Fora do MVP (Backlog v2)
 
-Varredura agendada · notificações · sincronizar calendário (.ics) · itens de tamanhos diferentes na maleta · anotações livres por concurso · fontes que exigem navegador headless · leitura completa do PDF do edital · versão mobile caprichada.
+Varredura agendada (cron) · notificações por e-mail/push (avisos dentro da tela entram na T7) · sincronizar calendário (.ics) · itens de tamanhos diferentes na maleta · anotações livres por concurso · fontes que exigem navegador headless · leitura completa do PDF do edital · versão mobile caprichada.
 
 ## Decisões fechadas
 

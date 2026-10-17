@@ -59,7 +59,7 @@ class NormalizeListingsJob implements ShouldQueue
             $wasNew = false;
             $contest = $this->matchOrNewContest($normalizer, $raw, $haystack, $areas, $wasNew);
 
-            $this->applyExtractedFields($normalizer, $merger, $contest, $raw, $haystack, $wasNew ? [] : $contest->areas, $areas);
+            $this->applyExtractedFields($normalizer, $merger, $run, $contest, $raw, $haystack, $wasNew ? [] : $contest->areas, $areas);
 
             $raw->contest_id = $contest->id;
             $raw->save();
@@ -152,6 +152,7 @@ class NormalizeListingsJob implements ShouldQueue
     private function applyExtractedFields(
         ContestNormalizer $normalizer,
         ContestMerger $merger,
+        SearchRun $run,
         Contest $contest,
         RawListing $raw,
         string $haystack,
@@ -185,6 +186,6 @@ class NormalizeListingsJob implements ShouldQueue
             array_filter($dates, fn (array $d) => in_array($d['type'], ['fee_deadline', 'result', 'other'], true)),
         ));
 
-        $merger->merge($contest, $fields, origin: 'scrape', sourceUrl: $raw->external_url, confidence: 'medium', extraEvents: $extraEvents);
+        $merger->merge($contest, $fields, origin: 'scrape', sourceUrl: $raw->external_url, confidence: 'medium', extraEvents: $extraEvents, searchRunId: $run->id);
     }
 }
