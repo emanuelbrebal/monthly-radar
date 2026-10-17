@@ -58,3 +58,32 @@ it('replaces states instead of unioning them when the source is official', funct
 
     expect($contest->states)->toBe(['SP']);
 });
+
+it('treats tribunals and known boards as official, not only .gov.br', function () {
+    expect(ContestMerger::isOfficialUrl('https://www.tjce.jus.br/noticias/x'))->toBeTrue()
+        ->and(ContestMerger::isOfficialUrl('https://www.cebraspe.org.br/concursos/cgu_26'))->toBeTrue()
+        ->and(ContestMerger::isOfficialUrl('https://conhecimento.fgv.br/concursos/dataprev26'))->toBeTrue()
+        ->and(ContestMerger::isOfficialUrl('https://blog.grancursosonline.com.br/x'))->toBeFalse()
+        ->and(ContestMerger::isOfficialUrl('https://fakejus.br.example.com/x'))->toBeFalse()
+        ->and(ContestMerger::isOfficialUrl(null))->toBeFalse();
+
+    $contest = Contest::factory()->create(['board' => null]);
+    $this->merger->merge($contest, ['board' => 'Blog'], origin: 'scrape', sourceUrl: 'https://blog.example.com/x', confidence: 'medium');
+    $this->merger->merge($contest, ['board' => 'FCC'], origin: 'llm', sourceUrl: 'https://www.tjce.jus.br/edital', confidence: 'high');
+
+    expect($contest->board)->toBe('FCC');
+});
+
+it('does not let an older source of the same priority overwrite a newer one', function () {
+    $contest = Contest::factory()->create(['board' => null]);
+
+    $this->merger->merge($contest, ['board' => 'Vunesp'], origin: 'llm', sourceUrl: 'https://orgao.gov.br/a', confidence: 'high', sourceDate: '2026-10-10');
+    $this->merger->merge($contest, ['board' => 'FCC'], origin: 'llm', sourceUrl: 'https://orgao.gov.br/b', confidence: 'high', sourceDate: '2026-09-01');
+
+    expect($contest->board)->toBe('Vunesp')
+        ->and($contest->field_sources['board']['source_date'])->toBe('2026-10-10');
+
+    $this->merger->merge($contest, ['board' => 'Cebraspe'], origin: 'llm', sourceUrl: 'https://orgao.gov.br/c', confidence: 'high', sourceDate: '2026-10-15');
+
+    expect($contest->board)->toBe('Cebraspe');
+});

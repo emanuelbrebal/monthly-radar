@@ -5,9 +5,12 @@ namespace App\Http\Controllers\Radar;
 use App\Actions\Radar\UnpinExpiredContests;
 use App\Enums\Region;
 use App\Enums\TiArea;
+use App\Jobs\Radar\RefreshTrackedContestsJob;
 use App\Models\Contest;
 use App\Models\SearchRun;
+use App\Services\Radar\LlmProvider;
 use App\Support\Radar\ContestPresenter;
+use App\Support\Radar\SearchRunPresenter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Inertia\Inertia;
@@ -20,7 +23,7 @@ use Inertia\Response;
  */
 class RadarPageController
 {
-    public function index(Request $request, UnpinExpiredContests $unpinExpiredContests): Response
+    public function index(Request $request, UnpinExpiredContests $unpinExpiredContests, LlmProvider $provider): Response
     {
         $unpinExpiredContests->handle();
 
@@ -44,6 +47,14 @@ class RadarPageController
             'areas' => array_map(fn (TiArea $a) => ['value' => $a->value, 'label' => $a->label()], TiArea::cases()),
             'preferences' => ['states' => $selection],
             'regions' => $this->regions(),
+            // T8: botão "atualizar acompanhados" — desabilitado sem chave de LLM.
+            'refresh' => [
+                'available' => $provider->available(),
+                'tracked' => min(
+                    RefreshTrackedContestsJob::candidates()->count(),
+                    (int) config('radar.refresh.max_per_run', 20),
+                ),
+            ],
         ]);
     }
 
@@ -54,19 +65,7 @@ class RadarPageController
     {
         $run = SearchRun::query()->latest('started_at')->first();
 
-        if ($run === null) {
-            return null;
-        }
-
-        return [
-            'id' => $run->id,
-            'area' => $run->area->value,
-            'status' => $run->status->value,
-            'started_at' => $run->started_at->toIso8601String(),
-            'finished_at' => $run->finished_at?->toIso8601String(),
-            'counts' => $run->counts,
-            'meta' => $run->meta,
-        ];
+        return $run === null ? null : SearchRunPresenter::present($run);
     }
 
     /**

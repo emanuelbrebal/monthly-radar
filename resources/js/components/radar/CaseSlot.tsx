@@ -1,6 +1,7 @@
 import { NewTag, PhaseTag } from '@/components/radar/PhaseTag';
 import { Stamp } from '@/components/radar/Stamp';
 import { TierMark, tierMeta } from '@/components/radar/TierMark';
+import { todayIso, upcomingDeadline } from '@/lib/radar';
 import type { ContestDto } from '@/types/radar';
 
 type CaseSlotProps = {
@@ -25,6 +26,10 @@ export function CaseSlot({
     reorderable = true,
 }: CaseSlotProps) {
     const tier = contest ? tierMeta(contest.tier) : null;
+    const deadline = contest ? upcomingDeadline(contest, todayIso()) : null;
+    const deadlineText = deadline
+        ? `${deadline.label} ${deadline.date}, ${deadline.countdown === 'hoje' || deadline.countdown === 'amanhã' ? deadline.countdown : `em ${deadline.days} dias`}`
+        : 'sem prazo';
 
     return (
         <div
@@ -32,7 +37,7 @@ export function CaseSlot({
             tabIndex={0}
             aria-label={
                 contest
-                    ? `${contest.organ_acronym ?? contest.organ}, ${contest.phase_label}${contest.is_new ? ', novo' : ''}, slot ${slot + 1}${tier ? `, nível ${tier.label}` : ''}`
+                    ? `${contest.organ_acronym ?? contest.organ}, ${contest.phase_label}, ${deadlineText}${contest.is_new ? ', novo' : ''}, slot ${slot + 1}${tier ? `, nível ${tier.label}` : ''}`
                     : `slot ${slot + 1} vazio`
             }
             onClick={() => onSelect(slot)}
@@ -85,6 +90,29 @@ export function CaseSlot({
                         wrap
                         className="line-clamp-2 px-1 py-0.5"
                     />
+                    {/* Próximo prazo — sempre visível no cartão (T8). */}
+                    <div
+                        className={`min-w-0 font-mono text-xs leading-tight ${
+                            deadline === null
+                                ? 'text-muted-fg'
+                                : deadline.urgent
+                                  ? 'font-bold text-red-text'
+                                  : 'text-ink'
+                        }`}
+                        title={deadlineText}
+                    >
+                        {deadline === null ? (
+                            <p>sem prazo</p>
+                        ) : (
+                            <>
+                                <p className="truncate">{deadline.label}</p>
+                                <p className="flex justify-between gap-1">
+                                    <span>{deadline.date}</span>
+                                    <span>{deadline.countdown}</span>
+                                </p>
+                            </>
+                        )}
+                    </div>
                     <div className="flex min-w-0 items-center justify-between gap-1">
                         <TierMark tier={contest.tier} variant="dot" />
                         {contest.is_new && (
