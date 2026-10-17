@@ -78,7 +78,7 @@ Adapter `pci_concursos` (por estado) e `official_pages`. Estados de loading/vazi
 
 ## T7 — Atividade e painel (pós-MVP, aprovado em 15/10/2026)
 
-Escopo: só dentro da tela, sem e-mail nem push. Etapas: (1) `contest_changes` + log no `ContestMerger` ✅; (1a) desafixar expirados no `GET /` (slot fantasma, 17/10) ✅; (1b) página Arquivo (`/archive`, tudo que saiu da mesa — `docs/03`) ✅; (2) varredura ao abrir o app quando a última tem >24h (`--no-llm`); (3) selos "novo / mudou / falhou" nos cartões, via `users.preferences` (última visita); (4) tela "Atividade" (linha do tempo); (5) página `/dashboard` com KPIs.
+Escopo: só dentro da tela, sem e-mail nem push. Etapas: (1) `contest_changes` + log no `ContestMerger` ✅; (1a) desafixar expirados no `GET /` (slot fantasma, 17/10) ✅; (1b) página Arquivo (`/archive`, tudo que saiu da mesa — `docs/03`) ✅; (2) varredura ao abrir o app quando a última tem >24h (`--no-llm`); (3) selos "novo / mudou / falhou" nos cartões, via `users.preferences` (última visita); (4) tela "Atividade" (linha do tempo); (5) resultado de prova no dossiê (nota total + corte + origem; detalhe por matéria opcional) e página `/dashboard` com meu progresso em gráficos — plano em `tasks/exam-results-dashboard.md` (17/10/2026).
 
 ## Critérios de aceite do MVP
 
