@@ -80,4 +80,17 @@ class RadarPageControllerTest extends TestCase
             ->where('visibleContests.0.tier_note', 'auditor federal')
         );
     }
+
+    public function test_it_unpins_expired_contests_on_load(): void
+    {
+        $this->actingAs(User::factory()->create());
+
+        $expired = Contest::factory()->closedAt(now()->subDays(2))->pinned(11)->create();
+        $enrolled = Contest::factory()->closedAt(now()->subDays(2))->enrolled()->pinned(3)->create();
+
+        $this->get('/')->assertOk();
+
+        $this->assertNull($expired->refresh()->pinned_slot);
+        $this->assertSame(3, $enrolled->refresh()->pinned_slot);
+    }
 }

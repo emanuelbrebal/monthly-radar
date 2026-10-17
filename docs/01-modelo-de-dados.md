@@ -141,7 +141,7 @@ public function scopeDismissed(Builder $q): Builder
 
 Observações:
 - `scopeVisible` usa `coalesce(closed_at, (registration_end + interval '1 day') at time zone 'America/Maceio')` para o encerramento efetivo. Status "fechado ou posterior" no SQL = `status in (...) OR registration_end < current_date local`.
-- Desafixar expirados: `UnpinExpiredContests` action roda no início de cada request da tela principal (barato, 1 update) e no fim de cada varredura. Sem scheduler. `[inferido]`
+- Desafixar expirados: `UnpinExpiredContests` action roda no início de cada request da tela principal (`RadarPageController`) e no fim de cada varredura (`FinalizeRunJob`). Sem scheduler. Até 17/10/2026 só rodava na varredura; sem varrer, expirado segurava o slot ("slot fantasma").
 - Setar `closed_at`: o `ContestMerger` preenche na primeira vez que o status efetivo passa a fechado; nunca sobrescreve depois, a não ser que reabra (aí volta para null).
 
 ## Testes obrigatórios desta camada
