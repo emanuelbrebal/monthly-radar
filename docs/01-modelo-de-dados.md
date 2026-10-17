@@ -48,7 +48,7 @@ Postgres. Datas de edital em `date` (local `America/Maceio`), marcos de sistema 
 | edital_url | text null | preferir PDF oficial |
 | registration_url | text null | |
 | dossier | jsonb null | saída validada do agente (schema em `docs/agents/dossie.md`) |
-| field_sources | jsonb | `{campo: {url, fetched_at, origin: scrape\|llm\|seed, confidence}}` |
+| field_sources | jsonb | `{campo: {url, fetched_at, origin: scrape\|llm\|seed, confidence, source_date?}}` — `source_date` (AAAA-MM-DD, data de publicação da fonte) vem da revisão dos acompanhados (T8): em empate de prioridade, fonte mais antiga não sobrescreve. Oficial = `.gov.br` + `config/radar.php → official_domains` |
 | enrichment_status | string | |
 | enrollment_status | string | default `not_enrolled` |
 | dismissed_at | timestamptz null | preenchido ao descartar, limpo ao trazer de volta |
@@ -117,7 +117,8 @@ Cache e trilha do scraping. Mesmo hash = não reprocessa.
 
 ### `search_runs`
 
-`id, area (TiArea), status (RunStatus), started_at, finished_at, counts (jsonb: {scraped, matched, created, updated, enriched, failed}), meta (jsonb: {input_tokens, output_tokens, web_searches, errors: []}), timestamps`.
+`id, area (TiArea), status (RunStatus), started_at, finished_at, counts (jsonb: {scraped, matched, created, updated, enriched, failed}), meta (jsonb: {kind?, input_tokens, output_tokens, web_searches, errors: []}), timestamps`.
+`meta.kind = refresh` marca a revisão dos acompanhados (T8, `area = all`); ausente = varredura. Na revisão, `counts.enriched` = conferidos e `counts.updated` = concursos com algum campo mudado.
 Só uma run `queued|scraping|enriching` por vez → o botão fica desabilitado.
 
 ## Regras no model `Contest`

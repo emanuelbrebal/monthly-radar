@@ -21,7 +21,7 @@ class ContestMerger
     /** Colunas que mudam a cada passada sem ser informação nova sobre o concurso. */
     private const UNTRACKED_CHANGES = [
         'updated_at', 'last_seen_at', 'last_enriched_at', 'status_changed_at', 'closed_at',
-        'field_sources', 'dossier', 'enrichment_status',
+        'field_sources', 'dossier', 'enrichment_status', 'source_checked_at',
     ];
 
     /**
@@ -30,10 +30,14 @@ class ContestMerger
      * > llm sem fonte oficial. Campo vazio sempre aceita a escrita, não
      * importa a prioridade.
      *
+     * `$sourceDate` (AAAA-MM-DD, data de publicação da fonte — revisão T8):
+     * em empate de prioridade, fonte mais antiga que a registrada não
+     * sobrescreve. Sem data de um dos lados, empate sobrescreve (como antes).
+     *
      * @param  array<string, mixed>  $fields  coluna => valor (novos dados)
      * @param  array<int, array{type: string, date: string, label?: string|null}>  $extraEvents
      */
-    public function merge(Contest $contest, array $fields, string $origin, ?string $sourceUrl, string $confidence, array $extraEvents = [], ?int $searchRunId = null): Contest
+    public function merge(Contest $contest, array $fields, string $origin, ?string $sourceUrl, string $confidence, array $extraEvents = [], ?int $searchRunId = null, ?string $sourceDate = null): Contest
     {
         foreach ($fields as $field => $value) {
             if ($value === null) {
@@ -41,28 +45,68 @@ class ContestMerger
             }
 
             if ($field === 'states') {
-                $this->mergeStates($contest, $value, $origin, $sourceUrl, $confidence);
+                $this->mergeStates($contest, $value, $origin, $sourceUrl, $confidence, $sourceDate);
 
                 continue;
             }
 
-            $this->mergeField($contest, $field, $value, $origin, $sourceUrl, $confidence);
+            $this->mergeField($contest, $field, $value, $origin, $sourceUrl, $confidence, $sourceDate);
         }
 
         return $this->apply($contest, $extraEvents, $origin, $searchRunId);
     }
 
-    private function mergeField(Contest $contest, string $field, mixed $value, string $origin, ?string $sourceUrl, string $confidence): void
+    /**
+     * A escrita de `$field` vinda desta fonte seria aceita? Mesma regra de
+     * `merge()` — exposta pra quem precisa registrar a recusa (RefreshContestJob
+     * transforma recusa em divergência no dossiê).
+     */
+    public function accepts(Contest $contest, string $field, string $origin, ?string $sourceUrl, ?string $sourceDate = null): bool
     {
         $current = $contest->{$field};
-        $isEmpty = $current === null || $current === [] || $current === '';
 
-        if (! $isEmpty && $this->priority($origin, $sourceUrl) < $this->currentPriority($contest, $field)) {
+        if ($current === null || $current === [] || $current === '') {
+            return true;
+        }
+
+        $incoming = $this->priority($origin, $sourceUrl);
+        $existing = $this->currentPriority($contest, $field);
+
+        if ($incoming !== $existing) {
+            return $incoming > $existing;
+        }
+
+        $currentDate = $contest->field_sources[$field]['source_date'] ?? null;
+
+        return $sourceDate === null || $currentDate === null || $sourceDate >= $currentDate;
+    }
+
+    /** Oficial = .gov.br ou um dos `radar.official_domains`, por sufixo do host. */
+    public static function isOfficialUrl(?string $url): bool
+    {
+        $host = $url !== null ? strtolower((string) parse_url($url, PHP_URL_HOST)) : '';
+
+        if ($host === '') {
+            return false;
+        }
+
+        foreach ((array) config('radar.official_domains', ['gov.br']) as $domain) {
+            if ($host === $domain || Str::endsWith($host, '.'.$domain)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function mergeField(Contest $contest, string $field, mixed $value, string $origin, ?string $sourceUrl, string $confidence, ?string $sourceDate): void
+    {
+        if (! $this->accepts($contest, $field, $origin, $sourceUrl, $sourceDate)) {
             return;
         }
 
         $contest->{$field} = $value;
-        $this->recordFieldSource($contest, $field, $origin, $sourceUrl, $confidence);
+        $this->recordFieldSource($contest, $field, $origin, $sourceUrl, $confidence, $sourceDate);
     }
 
     /**
@@ -71,7 +115,7 @@ class ContestMerger
      *
      * @param  array<int, string>  $incoming
      */
-    private function mergeStates(Contest $contest, array $incoming, string $origin, ?string $sourceUrl, string $confidence): void
+    private function mergeStates(Contest $contest, array $incoming, string $origin, ?string $sourceUrl, string $confidence, ?string $sourceDate): void
     {
         $isOfficial = $this->priority($origin, $sourceUrl) === 3;
 
@@ -79,18 +123,19 @@ class ContestMerger
             ? array_values(array_unique($incoming))
             : array_values(array_unique([...($contest->states ?? []), ...$incoming]));
 
-        $this->recordFieldSource($contest, 'states', $origin, $sourceUrl, $confidence);
+        $this->recordFieldSource($contest, 'states', $origin, $sourceUrl, $confidence, $sourceDate);
     }
 
-    private function recordFieldSource(Contest $contest, string $field, string $origin, ?string $sourceUrl, string $confidence): void
+    private function recordFieldSource(Contest $contest, string $field, string $origin, ?string $sourceUrl, string $confidence, ?string $sourceDate): void
     {
         $sources = $contest->field_sources;
-        $sources[$field] = [
+        $sources[$field] = array_filter([
             'url' => $sourceUrl,
             'fetched_at' => Carbon::now()->toIso8601String(),
             'origin' => $origin,
             'confidence' => $confidence,
-        ];
+            'source_date' => $sourceDate,
+        ], fn ($v, $k) => $k !== 'source_date' || $v !== null, ARRAY_FILTER_USE_BOTH);
         $contest->field_sources = $sources;
     }
 
@@ -106,12 +151,12 @@ class ContestMerger
     }
 
     /**
-     * 3 = oficial (URL .gov.br), 2 = agregador ou seed sem URL oficial,
+     * 3 = oficial (ver isOfficialUrl), 2 = agregador ou seed sem URL oficial,
      * 1 = llm sem fonte oficial.
      */
     private function priority(string $origin, ?string $sourceUrl): int
     {
-        if ($sourceUrl !== null && Str::contains($sourceUrl, '.gov.br')) {
+        if (self::isOfficialUrl($sourceUrl)) {
             return 3;
         }
 

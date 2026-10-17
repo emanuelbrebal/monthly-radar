@@ -10,6 +10,7 @@ use App\Http\Controllers\Radar\ExamResultController;
 use App\Http\Controllers\Radar\PinController;
 use App\Http\Controllers\Radar\PreferencesController;
 use App\Http\Controllers\Radar\RadarPageController;
+use App\Http\Controllers\Radar\RefreshTrackedController;
 use App\Http\Controllers\Radar\SweepController;
 use Illuminate\Support\Facades\Route;
 
@@ -23,6 +24,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // docs/02-pipeline.md → "Endpoints". GET/{run} é o polling do front (T4).
     Route::post('sweeps', [SweepController::class, 'store'])->name('sweeps.store');
     Route::get('sweeps/{run}', [SweepController::class, 'show'])->name('sweeps.show');
+    // T8: revisão dos acompanhados pelo LLM — polling também em sweeps/{run}.
+    Route::post('contests/refresh-tracked', [RefreshTrackedController::class, 'store'])->name('contests.refresh-tracked');
 
     Route::get('calendar', [CalendarController::class, 'index'])->name('calendar.index');
     Route::patch('preferences/states', [PreferencesController::class, 'updateStates'])->name('preferences.states');

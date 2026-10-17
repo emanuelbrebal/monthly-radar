@@ -10,7 +10,7 @@ import { RadarMark } from '@/components/radar/RadarMark';
 import { SweepControl } from '@/components/radar/SweepControl';
 import { csrfFetch } from '@/lib/csrf-fetch';
 import { notifyError } from '@/lib/notify';
-import type { AreaOption, ContestDto, RegionOption, SearchRunDto } from '@/types/radar';
+import type { AreaOption, ContestDto, RefreshInfo, RegionOption, SearchRunDto } from '@/types/radar';
 
 type RadarPageProps = {
     visibleContests: ContestDto[];
@@ -19,6 +19,7 @@ type RadarPageProps = {
     areas: AreaOption[];
     preferences: { states: string[] };
     regions: RegionOption[];
+    refresh: RefreshInfo;
 };
 
 /**
@@ -28,7 +29,7 @@ type RadarPageProps = {
  * (bug de sincronização encontrado na T4, ver memória do projeto).
  */
 export default function RadarIndex() {
-    const { visibleContests, month, lastRun, areas, preferences, regions } = usePage<RadarPageProps>().props;
+    const { visibleContests, month, lastRun, areas, preferences, regions, refresh } = usePage<RadarPageProps>().props;
     const [overrides, setOverrides] = useState<Record<number, ContestDto>>({});
     const [selected, setSelected] = useState<ContestDto | null>(null);
     const [undoToast, setUndoToast] = useState<ContestDto | null>(null);
@@ -110,7 +111,7 @@ export default function RadarIndex() {
                             arquivo
                         </Link>
                         <div>
-                            <SweepControl areas={areas} regions={regions} states={preferences.states} lastRun={lastRun} />
+                            <SweepControl areas={areas} regions={regions} states={preferences.states} lastRun={lastRun} refresh={refresh} />
                         </div>
                     </div>
                 </header>

@@ -282,6 +282,8 @@ export type SourceErrorDto = { source: string; message: string };
 export type SearchRunDto = {
     id: number;
     area: TiAreaValue;
+    /** `refresh` = botão "atualizar acompanhados" (T8); `sweep` = varredura. */
+    kind: 'sweep' | 'refresh';
     status: RunStatusValue;
     started_at: string;
     finished_at: string | null;
@@ -297,4 +299,10 @@ export type RegionOption = {
     value: RegionValue;
     label: string;
     states: StateOption[];
+};
+
+/** Botão "atualizar acompanhados" (T8): chave de LLM presente + quantos entram. */
+export type RefreshInfo = {
+    available: boolean;
+    tracked: number;
 };

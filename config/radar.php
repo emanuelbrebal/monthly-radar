@@ -125,6 +125,36 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Revisão dos acompanhados (T8)
+    |--------------------------------------------------------------------------
+    |
+    | Botão "atualizar acompanhados" — ver docs/agents/revisao.md. Só por
+    | clique, nunca agendado.
+    |
+    */
+    'refresh' => [
+        'max_per_run' => 20,
+        'max_web_searches' => 3,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Domínios oficiais (T8)
+    |--------------------------------------------------------------------------
+    |
+    | Além de .gov.br, contam como fonte oficial na prioridade de merge
+    | (CLAUDE.md regra 7: "edital/banca/DOU/.gov.br"). Comparação por sufixo
+    | do host.
+    |
+    */
+    'official_domains' => [
+        'gov.br', 'jus.br', 'mp.br', 'leg.br', 'def.br',
+        'cebraspe.org.br', 'fgv.br', 'cesgranrio.org.br', 'concursosfcc.com.br',
+        'vunesp.com.br', 'ibfc.org.br', 'institutoaocp.org.br', 'funcern.br',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Provider LLM (T3)
     |--------------------------------------------------------------------------
     |
