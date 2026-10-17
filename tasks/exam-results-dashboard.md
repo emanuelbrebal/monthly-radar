@@ -116,3 +116,36 @@ KPIs: provas feitas · com resultado · aprovações + CR · média % · melhor 
 - [x] Perguntas bloqueadoras: nenhuma; 1 pergunta aberta registrada (arquivar com resultado final)
 
 **Gate = Livre para execução.** Depende do PR #11 só por empilhamento de docs; código independente.
+
+## Stage de Execução — Entregáveis (17/10/2026)
+
+| # | Entregável | Caminho | Status |
+|---|---|---|---|
+| 1 | Docs primeiro: `exam_results` + enums; blocos "Resultado" e "Painel" | `docs/01-modelo-de-dados.md`, `docs/03-ui-inventario.md` | ✅ |
+| 2 | Domínio: migration, `ExamResult` (`percent`/`margin`/`cutoffPercent`/`present`), `ExamOutcome`, `ResultSource`, `Contest::results()`/`objectiveResult()`, factory | `app/Models/ExamResult.php`, `app/Enums/*`, `database/migrations/2026_10_17_120000_create_exam_results_table.php`, `database/factories/ExamResultFactory.php` | ✅ |
+| 3 | API: `PUT`/`DELETE contests/{c}/result` (422 sem "prova feita"), `result` no `ContestPresenter`, eager load de `results` nas listagens | `app/Http/Controllers/Radar/ExamResultController.php`, `app/Support/Radar/ContestPresenter.php` | ✅ |
+| 4 | UI: bloco "resultado" no dossiê, prévia % e margem, repetidor por matéria + `GET results/subjects` (datalist) | `resources/js/components/radar/ResultForm.tsx`, `DossierModal.tsx`, `resources/js/types/radar.ts` | ✅ |
+| 5 | Agregação `ResultsSummary` (KPIs, série, margens, matérias, funil, rótulos sem colisão) | `app/Services/Radar/ResultsSummary.php` | ✅ |
+| 6 | `fortify.home => '/'`; `GET /dashboard` → `DashboardController`; testes de auth apontando pra `home` | `config/fortify.php`, `routes/web.php`, `tests/Feature/Auth/*` | ✅ |
+| 7 | Gráficos SVG (moldura + tabela, linha, barras/divergentes) e tokens `--viz-*` | `resources/js/components/radar/charts/*`, `resources/css/app.css` | ✅ |
+| 8 | Página do painel + links "painel" na mesa e no arquivo | `resources/js/pages/radar/dashboard.tsx`, `index.tsx`, `archive.tsx` | ✅ |
+| 9 | Gates | — | ✅ |
+| 10 | Commits `c7bcd9e`, `2fb7c1f`, `47bb7d7`; migration aplicada no Postgres local (`migrate`, só adiciona tabela); sem push | — | ✅ |
+
+**Desvios**
+- Endpoint extra `GET results/subjects` para alimentar o datalist (o plano previa a sugestão, não dizia de onde vinha).
+- Cores do handoff (`--blue`, `--green`) reprovaram no validador da skill dataviz (croma baixo). Criados `--viz-series #2f5f94` e `--viz-neg #a8402c`, mesmos matizes do azul/vermelho, par aprovado em todos os checks sobre `--paper`.
+- Prévia visual feita em SQLite isolado no scratchpad com usuário e notas fictícias (nada no Postgres real). Ela pegou 3 problemas, todos corrigidos: rótulo do eixo cortado, texto encolhido nos gráficos de meia largura (SVG agora mede a largura real) e dois concursos com o mesmo rótulo (TRANSPETRO 2026 → sufixo do título, em duas linhas).
+- Eixo x do progresso mostra datas em vez de nomes (é eixo de tempo; nome no tooltip e na tabela).
+
+## Stage de Execução — Validação
+
+| Critério | Resultado | Observação |
+|---|---|---|
+| 1. 62/70, corte 57,5 → 88,6% e +4,5 | ✅ | `ExamResultTest` + `ExamResultControllerTest`; conferido no dossiê da prévia |
+| 2. Sem "prova feita" não aparece / 422 | ✅ | bloco condicionado a `exam_taken`; teste 422 |
+| 3. Validação de limites e matérias; soma só avisa | ✅ | dataset de 6 casos inválidos; aviso visual no form |
+| 4. KPIs + 4 gráficos; vazio sem quebrar | ✅ | `ResultsSummaryTest` (dataset fixo e vazio), `DashboardTest`; prévia no browser |
+| 5. Tabela equivalente, tokens, foco/teclado | ✅ | `ver como tabela` em todo gráfico; pontos/barras focáveis com tooltip; app só tem tema claro |
+| 6. Login cai em `/` | ✅ | testes de auth atualizados pra `route('home')` |
+| 7. Pest + gates | ✅ | 231 ok / 2 skipped; pint, phpstan (`--memory-limit=1G`), eslint, prettier (arquivos novos) ✅; tsc só os 3 erros conhecidos de `RedirectController.ts` |
