@@ -1,8 +1,8 @@
 {
   "_meta": {
-    "collected_between": "2026-07-20/2026-10-15",
+    "collected_between": "2026-07-20/2026-10-17",
     "origin": "seed",
-    "note": "Dados levantados em conversas de pesquisa no Claude. Verificar com a primeira varredura da área 'all'. Valores em centavos, datas em AAAA-MM-DD (America/Maceio). states/nationwide: só UFs citadas nas pesquisas; vazio = local a definir. Rodada de 17/09/2026 trouxe campos de curadoria manual novos (ver docs/01-modelo-de-dados.md → \"Campos de curadoria manual\") e mais concursos mapeados — enrollment_status/pinned_slot/dismissed_reason dos concursos já semeados antes NÃO foram tocados por essa rodada (são seus, não meus); só os fatos (dinheiro, datas, vagas, notas) foram atualizados quando a pesquisa nova tinha algo mais preciso. Rodada de 13/10/2026: foco reduzido a CGU, ANPD, BACEN e TJPB (o resto saiu da maleta, sem descarte); CGU atualizada com o edital publicado em 09/10; TJPB incluído; Dataprev com prova feita. Rodada de 14/10/2026: todo concurso ganhou tier (elite/alto/intermediario/entrada) + tier_note — régua: salário e tipo de órgão indicam o nível de quem disputa; número de vagas diz se é disputa ou loteria. Rodada de 15/10/2026: IBRAM-DF (autorizado no mesmo dia) + varredura manual — TCE-GO (inscrições abertas), Sefaz-BA, STJ, CNU 3 e Caixa TI. Fora: TJ-AL (sem cargo de TI previsto), Alagoas Previdência (prova já feita em 27/09), ATI-PE (concurso já concluído), TJES (seleção simplificada, encerrada)."
+    "note": "Dados levantados em conversas de pesquisa no Claude. Verificar com a primeira varredura da área 'all'. Valores em centavos, datas em AAAA-MM-DD (America/Maceio). states/nationwide: só UFs citadas nas pesquisas; vazio = local a definir. Rodada de 17/09/2026 trouxe campos de curadoria manual novos (ver docs/01-modelo-de-dados.md → \"Campos de curadoria manual\") e mais concursos mapeados — enrollment_status/pinned_slot/dismissed_reason dos concursos já semeados antes NÃO foram tocados por essa rodada (são seus, não meus); só os fatos (dinheiro, datas, vagas, notas) foram atualizados quando a pesquisa nova tinha algo mais preciso. Rodada de 13/10/2026: foco reduzido a CGU, ANPD, BACEN e TJPB (o resto saiu da maleta, sem descarte); CGU atualizada com o edital publicado em 09/10; TJPB incluído; Dataprev com prova feita. Rodada de 14/10/2026: todo concurso ganhou tier (elite/alto/intermediario/entrada) + tier_note — régua: salário e tipo de órgão indicam o nível de quem disputa; número de vagas diz se é disputa ou loteria. Rodada de 15/10/2026: IBRAM-DF (autorizado no mesmo dia) + varredura manual — TCE-GO (inscrições abertas), Sefaz-BA, STJ, CNU 3 e Caixa TI. Fora: TJ-AL (sem cargo de TI previsto), Alagoas Previdência (prova já feita em 27/09), ATI-PE (concurso já concluído), TJES (seleção simplificada, encerrada). Rodada de 17/10/2026: TJPB (minuta do edital, publicação esperada na semana seguinte), BACEN (cargo Auditor, R$ 18.033,52, banca ainda não anunciada), ANPD (meta de banca até 01/12) e Sefaz-BA (edital em novembro). Nenhum concurso novo de TI que valesse entrar; TJ-ES (TIC) só anunciado."
   },
   "contests": [
     {
@@ -370,16 +370,16 @@
       "nationwide": false,
       "edital_url": null,
       "registration_url": null,
-      "source_checked_at": "2026-10-13",
+      "source_checked_at": "2026-10-17",
       "confidence": "medium",
       "enrollment_status": "interested",
       "dismissed_reason": null,
       "pinned_slot": 2,
-      "source_url": null,
+      "source_url": "https://blog.grancursosonline.com.br/concurso-anpd-banca-deve-ser-contratada-ate-dezembro/",
       "personal_notes": "Lei 15.352/2026 criou 200 cargos; os outros 150 podem ser autorizados na validade.",
       "summary": [
         "Primeiro concurso da agência: 50 vagas de Especialista em Regulação de Proteção de Dados, autorizadas pela Portaria MGI nº 5.092.",
-        "Banca em contratação; edital esperado até dezembro de 2026.",
+        "Planejamento prevê concluir a contratação da banca até 01/12/2026 (custo estimado de R$ 2,5 milhões); edital até 22/12/2026, seis meses após a portaria.",
         "TI está entre as áreas previstas, junto com Direito, Economia e Ciência de Dados.",
         "Lei 15.352/2026 criou 200 cargos; os outros 150 podem ser autorizados na validade."
       ],
@@ -389,7 +389,9 @@
         "Quantas das 50 vagas serão de TI.",
         "URL da portaria não registrada."
       ],
-      "extra_events": []
+      "extra_events": [
+        { "type": "other", "date": "2026-12-01", "label": "meta para contratar a banca" }
+      ]
     },
     {
       "slug": "cgu-2026",
@@ -506,30 +508,33 @@
       "registration_end": null,
       "exam_date": null,
       "fee_cents": null,
-      "salary_min_cents": 2092480,
+      "salary_min_cents": 1803352,
       "salary_max_cents": null,
+      "salary_note": "Inicial de Auditor (antigo Analista, renomeado em 01/01/2025): R$ 18.033,52 + auxílio-alimentação de R$ 1.192.",
       "it_vacancies": null,
+      "immediate_vacancies": 100,
       "regime": "statutory",
       "sphere": "federal",
       "education_level": "superior",
       "is_it_role": null,
       "tier": "elite",
-      "tier_note": "R$ 20,9 mil. Em 2024 a TI teve 279,58 inscritos por vaga (com 62% de abstenção geral) — topo da escada.",
-      "locations": [],
-      "states": [],
+      "tier_note": "Auditor de R$ 18 mil, disputa nacional, lotação em Brasília. Em 2024 a TI teve 279,58 inscritos por vaga (com 62% de abstenção geral) — topo da escada.",
+      "locations": ["Brasília/DF"],
+      "states": ["DF"],
       "nationwide": false,
       "edital_url": null,
       "registration_url": null,
-      "source_checked_at": "2026-10-13",
+      "source_checked_at": "2026-10-17",
       "confidence": "medium",
       "enrollment_status": "interested",
       "dismissed_reason": null,
       "pinned_slot": 3,
-      "source_url": "https://movimentoeconomico.com.br/concursos/2026/07/06/receita-federal-e-banco-central-tem-concursos-autorizados-com-316-vagas/",
+      "source_url": "https://folha.qconcursos.com/n/concurso-bacen-banco-central-do-brasil",
       "summary": [
-        "Autorizado em julho/2026: 170 vagas (100 auditor, 50 técnico, 20 procurador).",
-        "Contratação da banca prevista até 16/10/2026; edital até 03/01/2027.",
-        "Alvo de médio prazo; base de governança e dados compartilhada com CGU e ANPD."
+        "Autorizado em 03/07/2026: 170 vagas (100 auditor, 50 técnico, 20 procurador).",
+        "O cargo de Analista virou Auditor em 01/01/2025; não está confirmado se haverá área de TI como em 2024.",
+        "A meta era contratar a banca até 16/10/2026; até 17/10 nenhuma banca foi anunciada.",
+        "Edital até 03/01/2027, com no mínimo 2 meses até a prova."
       ],
       "divergences": [],
       "gaps": [
@@ -537,7 +542,8 @@
         "Se haverá vagas específicas de TI entre as 100 de auditor."
       ],
       "extra_events": [
-        { "type": "other", "date": "2026-10-16", "label": "prazo previsto para contratar a banca" }
+        { "type": "other", "date": "2026-10-16", "label": "meta para contratar a banca (não anunciada)" },
+        { "type": "other", "date": "2027-01-03", "label": "prazo final para publicar o edital" }
       ]
     },
     {
@@ -1263,21 +1269,24 @@
       "workplace_state": "PB",
       "edital_url": null,
       "registration_url": null,
-      "source_checked_at": "2026-10-13",
+      "source_checked_at": "2026-10-17",
       "confidence": "medium",
       "enrollment_status": "interested",
       "dismissed_reason": null,
       "pinned_slot": 4,
-      "source_url": "https://blog.decorandoaleiseca.com.br/concurso-tj-pb-banca-definida-e-50/",
+      "source_url": "https://blog.grancursosonline.com.br/concurso-tj-pb-minuta-edital-avanca-2026/",
       "personal_notes": "Capital litorânea perto de Maceió, custo de vida menor. Último concurso de servidores em 2012.",
       "summary": [
         "Contrato com a FGV assinado em 03/10/2026 (nº 078/2026).",
-        "50 vagas previstas: 25 Analista Judiciário, 20 Analista de TI e 5 Contadoria.",
+        "Minuta do edital em análise no tribunal; reunião em 16/10/2026 e publicação esperada na semana seguinte (apuração do Gran, sem confirmação oficial).",
+        "20 vagas de TI: 10 Desenvolvimento de Sistemas, 3 Inteligência Artificial, 2 Governança de TI, 2 Segurança da Informação, 1 Banco de Dados, 1 Infraestrutura, 1 Ciência e Análise de Dados.",
         "Último concurso para servidores foi em 2012 — demanda reprimida."
       ],
-      "divergences": [],
+      "divergences": [
+        "Salário: Folha Dirigida/Qconcursos (06/10) cita vencimento inicial de R$ 7.244,79; Gran (14/10) cita faixa de R$ 5.391,90 a R$ 9.071,89 (Portal da Transparência de out/2025). Mantido o valor mais recente até o edital."
+      ],
       "gaps": [
-        "Data do edital.",
+        "Data exata do edital e cronograma.",
         "Remuneração total com auxílios e gratificações.",
         "Legislação específica cobrada (regimento interno, LOJE-PB)."
       ],
@@ -1429,15 +1438,15 @@
       "distance_from_home_km": 580,
       "edital_url": null,
       "registration_url": null,
-      "source_checked_at": "2026-10-15",
+      "source_checked_at": "2026-10-17",
       "confidence": "medium",
       "enrollment_status": "not_enrolled",
       "dismissed_reason": null,
       "pinned_slot": null,
-      "source_url": "https://folha.qconcursos.com/n/concurso-sefaz-ba-2026-banca-definida",
+      "source_url": "https://www.estrategiaconcursos.com.br/blog/concurso-sefaz-ba/",
       "personal_notes": "Nordeste, perto de Maceió. Só vale acompanhar se o edital repetir a especialidade de TI de 2019.",
       "summary": [
-        "Cesgranrio contratada (notícia de 22/09/2026); edital esperado 'nas próximas semanas'.",
+        "Cesgranrio contratada; edital agora esperado para novembro de 2026.",
         "200 vagas imediatas: 100 auditor fiscal + 100 agente de tributos estaduais.",
         "Provas previstas entre dezembro/2026 e janeiro/2027, em datas separadas por cargo."
       ],
