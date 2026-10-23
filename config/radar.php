@@ -40,6 +40,11 @@ return [
         'pci_concursos' => [
             'enabled' => true,
             'url' => 'https://www.pciconcursos.com.br/concursos/',
+            // Card "Vários Cargos" esconde o cargo: busca a notícia do próprio
+            // card e lê a lista de cargos. Teto por varredura + pausa entre
+            // requisições; notícia já lida numa run anterior não é rebuscada.
+            'max_detail_fetches' => 300,
+            'detail_delay_ms' => 500,
         ],
         'official_pages' => [
             'enabled' => true,

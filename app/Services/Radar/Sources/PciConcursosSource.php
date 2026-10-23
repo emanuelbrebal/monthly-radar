@@ -4,9 +4,12 @@ namespace App\Services\Radar\Sources;
 
 use App\Enums\BrazilianState;
 use App\Models\RawListing;
+use DOMXPath;
+use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Symfony\Component\DomCrawler\Crawler;
+use Throwable;
 
 /**
  * `pci_concursos` (T6, docs/02-pipeline.md → "1. Fontes"). Verificado em
@@ -21,6 +24,12 @@ use Symfony\Component\DomCrawler\Crawler;
  * O cartão da listagem não traz o link do edital, só a notícia do PCI sobre
  * a abertura — extrair o edital de verdade fica pro enriquecimento por LLM
  * (docs/02-pipeline.md → "3. Enriquecimento"), que já existe pra isso.
+ *
+ * Verificado em 23/10/2026: 57% dos cards dizem só "Vários Cargos". Pra esses,
+ * a notícia do próprio card (`/noticias/...`, permitido no robots.txt) lista
+ * os cargos em `#noticia ul li` — vai pra `payload.roles`, fora do
+ * content_hash. Só a lista: o corpo da notícia cita "noções de informática"
+ * em quase todo edital e casaria o filtro de TI.
  */
 class PciConcursosSource implements ContestSource
 {
@@ -38,14 +47,14 @@ class PciConcursosSource implements ContestSource
     {
         $url = config('radar.sources.pci_concursos.url', 'https://www.pciconcursos.com.br/concursos/');
 
-        $response = Http::withHeaders([
-            'User-Agent' => 'radar-mensal/1.0 (uso pessoal; contato: '.config('radar.contact_email', 'contato@example.com').')',
-        ])->timeout(15)->retry(2, 1000)->get($url);
+        $response = $this->request()->retry(2, 1000)->get($url);
 
         $response->throw();
 
         $crawler = new Crawler($response->body());
         $currentState = null;
+        $knownRoles = $this->knownRoles();
+        $detailBudget = (int) config('radar.sources.pci_concursos.max_detail_fetches', 300);
 
         foreach ($crawler->filter('#concursos > .ua, #concursos > .na, #concursos > .ea, #concursos > .da') as $node) {
             $element = new Crawler($node);
@@ -58,10 +67,89 @@ class PciConcursosSource implements ContestSource
 
             $listing = $this->parseCard($element, $currentState);
 
-            if ($listing !== null) {
-                yield $listing;
+            if ($listing === null) {
+                continue;
             }
+
+            if ($this->hidesRoles($element)) {
+                $roles = $knownRoles[$listing->external_url] ?? null;
+
+                if ($roles === null && $detailBudget > 0) {
+                    $detailBudget--;
+                    $roles = $this->fetchRoles($listing->external_url);
+                }
+
+                if ($roles !== null) {
+                    $listing->payload = [...$listing->payload, 'roles' => $roles];
+                }
+            }
+
+            yield $listing;
         }
+    }
+
+    private function request(): PendingRequest
+    {
+        return Http::withHeaders([
+            'User-Agent' => 'radar-mensal/1.0 (uso pessoal; contato: '.config('radar.contact_email', 'contato@example.com').')',
+        ])->timeout(15);
+    }
+
+    /**
+     * Só o campo de cargos do card (`.cd`) conta — a manchete diz "diversos
+     * cargos" mesmo quando o card lista o cargo.
+     */
+    private function hidesRoles(Crawler $card): bool
+    {
+        $detail = $card->filter('.cd');
+
+        return $detail->count() > 0
+            && preg_match('/v[aá]rios cargos|diversos cargos/iu', $detail->text()) === 1;
+    }
+
+    /**
+     * Cargos já lidos em runs anteriores, por URL da notícia — evita
+     * rebuscar ~275 notícias a cada varredura.
+     *
+     * @return array<string, array<int, string>>
+     */
+    private function knownRoles(): array
+    {
+        return RawListing::query()
+            ->where('source', $this->key())
+            ->whereNotNull('payload->roles')
+            ->get(['external_url', 'payload'])
+            ->mapWithKeys(fn (RawListing $raw) => [$raw->external_url => $raw->payload['roles']])
+            ->all();
+    }
+
+    /**
+     * Lista de cargos da notícia. Falha (rede, HTML sem lista) vira null:
+     * o card segue só com o próprio texto e a run não cai por uma notícia.
+     *
+     * @return array<int, string>|null
+     */
+    private function fetchRoles(string $url): ?array
+    {
+        usleep((int) config('radar.sources.pci_concursos.detail_delay_ms', 500) * 1000);
+
+        try {
+            $response = $this->request()->get($url);
+        } catch (Throwable) {
+            return null;
+        }
+
+        if ($response->failed()) {
+            return null;
+        }
+
+        $roles = (new Crawler($response->body()))
+            ->filter('#noticia ul li')
+            ->each(fn (Crawler $li) => trim($li->text(normalizeWhitespace: true)));
+
+        $roles = array_values(array_filter($roles, fn (string $role) => $role !== ''));
+
+        return $roles === [] ? null : $roles;
     }
 
     /**
@@ -82,6 +170,26 @@ class PciConcursosSource implements ContestSource
         return $isValidState ? $id : null;
     }
 
+    /**
+     * `.cd` é "R$ X<br><span>Cargos<br><span>Nível</span></span>": `text()`
+     * cola tudo ("R$ 6.000,00Analista de TISuperior") e o cargo some no
+     * filtro de termo inteiro. Junta os nós de texto com " | ".
+     */
+    private function joinTextNodes(Crawler $element): string
+    {
+        $parts = [];
+
+        foreach ((new DOMXPath($element->getNode(0)->ownerDocument))->query('.//text()', $element->getNode(0)) as $text) {
+            $part = Str::squish($text->nodeValue ?? '');
+
+            if ($part !== '') {
+                $parts[] = $part;
+            }
+        }
+
+        return implode(' | ', $parts);
+    }
+
     private function parseCard(Crawler $card, ?string $state): ?RawListing
     {
         $link = $card->filter('.ca > a')->first();
@@ -98,7 +206,7 @@ class PciConcursosSource implements ContestSource
             return null;
         }
 
-        $detail = $card->filter('.cd')->count() > 0 ? trim($card->filter('.cd')->text(normalizeWhitespace: true)) : '';
+        $detail = $card->filter('.cd')->count() > 0 ? $this->joinTextNodes($card->filter('.cd')) : '';
         $deadline = $card->filter('.ce')->count() > 0 ? trim($card->filter('.ce')->text(normalizeWhitespace: true)) : '';
 
         $textParts = [$headline, $detail, $deadline];
