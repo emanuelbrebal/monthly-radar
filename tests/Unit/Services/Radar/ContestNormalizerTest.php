@@ -32,6 +32,7 @@ it('does not match text without an IT role', function (string $text) {
     'syllabus mention' => ['Agente Administrativo (noções de informática)'],
     'unrelated database' => ['Banco de Dados Ambientais da secretaria'],
     'legal role' => ['Concurso para Procurador do estado'],
+    'administrative support' => ['Técnico de Suporte Administrativo Educacional'],
 ]);
 
 it('extracts acronym and year from the title', function () {

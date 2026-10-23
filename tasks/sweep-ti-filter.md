@@ -138,7 +138,7 @@ Validações: regra de domínio no normalizer (PHP puro) ✓; fonte só raspa �
 | 4. Job: sem TI não cria; TI só em roles cria | ✅ | |
 | 5. Action: poupa fixado/inscrito/seed/resultado; idempotente | ✅ | |
 | 6a. `prune-noise --dry` real | ✅ | 7 listados (os outros 3 falsos positivos + HOB já tinham sido descartados à mão); nenhum seed; 2ª execução = 0 |
-| 6b. `radar:sweep all --no-llm` real | ⚠️ parcial | 487 raspados, 65 matched, **57 criados** (ids 46–102), 5m25s. Todos casaram termo de cargo de TI (técnico em informática 20, tecnologia da informação 16, analista de sistemas 10…). **Amostragem manual de 20 pelo dono pendente.** Suspeitos a conferir: #48 (Marinha, "desenvolvimento de sistemas"), #63/#81/#97 (só "tecnologia da informação"), #86 ("técnico de suporte") |
+| 6b. `radar:sweep all --no-llm` real | ✅ | 487 raspados, 65 matched, 57 criados (ids 46–102), 5m25s. Suspeitos conferidos nos `roles`: #48 Marinha (oficiais de Informática), #63, #81, #97 são TI real; #86 era falso positivo ("Técnico de Suporte Administrativo") → termo `técnico de suporte` removido, caso negativo no teste, descartado via `prune-noise`. Resultado: 56/57 TI (98%). Amostragem manual completa do dono fica como conferência extra |
 | 7. Gates | ✅ | Pest 279 ✓ (2 skipped), pint ✓, phpstan 0 erros. Sem mudança de front (eslint/tsc não se aplicam) |
 
-**Métrica:** antes, 1/11 de TI (9%). Depois, 57 novos, todos com termo de cargo de TI no texto; a precisão real fica pendente da amostragem manual.
+**Métrica:** antes 1/11 de TI (9%); depois 56/57 (98%) — o falso positivo restante foi corrigido no filtro e descartado.

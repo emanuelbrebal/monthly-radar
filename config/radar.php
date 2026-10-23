@@ -120,7 +120,7 @@ return [
         'support' => [
             'técnico em informática', 'técnico de informática', 'técnico em ti', 'técnico de ti',
             'técnico em tecnologia da informação', 'técnico de tecnologia da informação', 'técnico judiciário informática',
-            'analista de suporte', 'técnico de suporte', 'suporte técnico em informática', 'help desk',
+            'analista de suporte', 'suporte técnico em informática', 'help desk',
             'assistente de informática', 'auxiliar de informática',
         ],
         'it_governance' => [
