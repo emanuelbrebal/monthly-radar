@@ -22,12 +22,12 @@ class ContestNormalizer
      */
     public function matchedAreas(string $haystack): array
     {
-        $normalized = $this->foldForMatching($haystack);
+        $normalized = $this->foldForTerms($haystack);
         $areas = [];
 
         foreach (config('radar.area_keywords', []) as $area => $keywords) {
             foreach ($keywords as $keyword) {
-                if (Str::contains($normalized, $this->foldForMatching($keyword))) {
+                if (preg_match($this->termPattern($keyword), $normalized) === 1) {
                     $areas[] = $area;
 
                     break;
@@ -229,5 +229,27 @@ class ContestNormalizer
     private function foldForMatching(string $text): string
     {
         return Str::lower(Str::ascii($text));
+    }
+
+    /**
+     * Fold + pontuação vira espaço, pra "Técnico Judiciário - Informática"
+     * casar "tecnico judiciario informatica".
+     */
+    private function foldForTerms(string $text): string
+    {
+        return trim((string) preg_replace('/[^a-z0-9]+/', ' ', $this->foldForMatching($text)));
+    }
+
+    /**
+     * Termo inteiro com limite de LETRA (não \b): o card do PCI cola número
+     * e texto ("R$ 6.000,00Analista"), e dígito→letra não é limite de \b.
+     * A primeira palavra aceita plural ("analistas", "desenvolvedores").
+     */
+    private function termPattern(string $keyword): string
+    {
+        $words = array_map(fn (string $w) => preg_quote($w, '/'), explode(' ', $this->foldForTerms($keyword)));
+        $words[0] .= '(?:e?s)?';
+
+        return '/(?<![a-z])'.implode(' ', $words).'(?![a-z])/';
     }
 }
