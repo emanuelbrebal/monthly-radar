@@ -107,3 +107,38 @@ Validações: regra de domínio no normalizer (PHP puro) ✓; fonte só raspa �
 - [x] Sem pergunta bloqueadora em aberto
 
 **Gate = Livre para execução.**
+
+## Execução (23/10/2026)
+
+**Entregáveis**
+
+| # | Entregável | Caminho | Status |
+|---|---|---|---|
+| 1 | Matcher por termo inteiro (limite de letra, plural na 1ª palavra, pontuação → espaço) | `app/Services/Radar/ContestNormalizer.php` | ✅ |
+| 2 | Keywords de cargo de TI | `config/radar.php` (`area_keywords`, `pci_concursos.max_detail_fetches`/`detail_delay_ms`) | ✅ |
+| 3 | `.cd` do card com separador ` \| ` | `app/Services/Radar/Sources/PciConcursosSource.php` | ✅ |
+| 4 | Cargos da notícia em `payload.roles` (só quando o `.cd` diz "Vários/Diversos Cargos"; reuso entre runs; teto; falha → card segue sem roles) | idem | ✅ |
+| 5 | Haystack de área com `roles` + `counts.rejected_no_it` | `app/Jobs/Radar/NormalizeListingsJob.php` | ✅ |
+| 6 | `DismissNonItScrapedContests` + `radar:prune-noise {--dry}` | `app/Actions/Radar/`, `app/Console/Commands/PruneNoiseCommand.php` | ✅ |
+| 7 | Testes | `ContestNormalizerTest`, `PciConcursosSourceTest` (+ fixture `pci_noticia_sample.html`), `NormalizeListingsJobTest`, `DismissNonItScrapedContestsTest` | ✅ |
+
+**Desvios**
+- O separador no `.cd` muda `payload.text` e, com ele, o `content_hash`: na 1ª varredura depois do fix, cada card virou raw nova (uma vez só). É o mesmo comportamento de "texto mudou → reprocessa" que já existia. As raws antigas sem `contest_id` continuam sendo rejeitadas a cada run (`rejected_no_it` = 886 conta antigas + novas).
+- `roles_fetched` não entrou em `counts`: a fonte não tem canal pra run (interface `ContestSource` genérica). Fica pra depois, se fizer falta.
+- Keywords `desenvolvimento de software`/`desenvolvimento de sistemas` mantidas (especialidade real de TI, usadas nos testes do TRF).
+- `dismissed_reason` é texto livre (≤ 120), não enum.
+
+**Validação**
+
+| Critério | Resultado | Observação |
+|---|---|---|
+| 1. Diagnóstico com evidência | ✅ | Fase 2 |
+| 2. Tabela Pest do matcher | ✅ | 9 positivos, 8 negativos |
+| 3. Fonte: roles via notícia, sem fetch em card com cargo, hash só sobre `text` | ✅ | manchete "diversos cargos" não dispara fetch |
+| 4. Job: sem TI não cria; TI só em roles cria | ✅ | |
+| 5. Action: poupa fixado/inscrito/seed/resultado; idempotente | ✅ | |
+| 6a. `prune-noise --dry` real | ✅ | 7 listados (os outros 3 falsos positivos + HOB já tinham sido descartados à mão); nenhum seed; 2ª execução = 0 |
+| 6b. `radar:sweep all --no-llm` real | ⚠️ parcial | 487 raspados, 65 matched, **57 criados** (ids 46–102), 5m25s. Todos casaram termo de cargo de TI (técnico em informática 20, tecnologia da informação 16, analista de sistemas 10…). **Amostragem manual de 20 pelo dono pendente.** Suspeitos a conferir: #48 (Marinha, "desenvolvimento de sistemas"), #63/#81/#97 (só "tecnologia da informação"), #86 ("técnico de suporte") |
+| 7. Gates | ✅ | Pest 279 ✓ (2 skipped), pint ✓, phpstan 0 erros. Sem mudança de front (eslint/tsc não se aplicam) |
+
+**Métrica:** antes, 1/11 de TI (9%). Depois, 57 novos, todos com termo de cargo de TI no texto; a precisão real fica pendente da amostragem manual.
