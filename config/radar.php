@@ -86,14 +86,41 @@ return [
     | Mapa TiArea::value => array de termos usados pelo ContestNormalizer para
     | filtrar listagens raspadas. 'all' é a união de todas as áreas.
     |
+    | Cada termo é um CARGO de TI, casado como termo inteiro (sem acento,
+    | pontuação vira espaço, primeira palavra aceita plural). Nada de radical
+    | solto ("desenvolv" casava "Fundação de Desenvolvimento") nem palavra
+    | genérica ("dados", "redes", "informática" — "noções de informática"
+    | está em quase todo edital).
+    |
     */
     'area_keywords' => [
-        'development' => ['desenvolv', 'programador', 'software', 'sistemas', 'analista de ti', 'analista de sistemas', 'desenvolvedor'],
-        'data' => ['dados', 'data science', 'cientista de dados', 'engenheiro de dados', 'business intelligence', 'banco de dados', 'dba'],
-        'infrastructure' => ['infraestrutura', 'redes', 'suporte de rede', 'devops', 'cloud', 'sysadmin', 'administrador de sistemas'],
-        'security' => ['segurança da informação', 'cibersegurança', 'segurança de ti', 'pentest'],
-        'support' => ['suporte técnico', 'help desk', 'atendimento ao usuário', 'técnico em informática'],
-        'it_governance' => ['governança de ti', 'gestão de ti', 'arquitetura de ti', 'gestão de projetos de ti'],
+        'development' => [
+            'analista de sistemas', 'analista de desenvolvimento de sistemas', 'desenvolvedor', 'programador',
+            'engenheiro de software', 'analista de ti', 'analista em ti', 'analista de tecnologia da informação',
+            'analista em tecnologia da informação', 'analista de informática', 'tecnologia da informação',
+            'agente de tecnologia', 'analista judiciário informática', 'desenvolvimento de software',
+            'desenvolvimento de sistemas',
+        ],
+        'data' => [
+            'cientista de dados', 'engenheiro de dados', 'analista de dados', 'analista de banco de dados',
+            'administrador de banco de dados', 'analista de business intelligence', 'analista de bi',
+        ],
+        'infrastructure' => [
+            'analista de infraestrutura', 'analista de redes', 'administrador de redes', 'técnico de redes',
+            'técnico em redes', 'engenheiro de redes', 'administrador de sistemas', 'devops',
+        ],
+        'security' => [
+            'segurança da informação', 'segurança de ti', 'segurança cibernética', 'cibersegurança',
+        ],
+        'support' => [
+            'técnico em informática', 'técnico de informática', 'técnico em ti', 'técnico de ti',
+            'técnico em tecnologia da informação', 'técnico de tecnologia da informação', 'técnico judiciário informática',
+            'analista de suporte', 'técnico de suporte', 'suporte técnico em informática', 'help desk',
+            'assistente de informática', 'auxiliar de informática',
+        ],
+        'it_governance' => [
+            'governança de ti', 'gestão de ti', 'gestor de ti', 'arquitetura de ti', 'gestão de projetos de ti',
+        ],
     ],
 
     /*
