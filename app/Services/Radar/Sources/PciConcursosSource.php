@@ -177,9 +177,16 @@ class PciConcursosSource implements ContestSource
      */
     private function joinTextNodes(Crawler $element): string
     {
+        $node = $element->getNode(0);
+        $textNodes = $node?->ownerDocument !== null ? (new DOMXPath($node->ownerDocument))->query('.//text()', $node) : false;
+
+        if ($textNodes === false) {
+            return trim($element->text(normalizeWhitespace: true));
+        }
+
         $parts = [];
 
-        foreach ((new DOMXPath($element->getNode(0)->ownerDocument))->query('.//text()', $element->getNode(0)) as $text) {
+        foreach ($textNodes as $text) {
             $part = Str::squish($text->nodeValue ?? '');
 
             if ($part !== '') {
