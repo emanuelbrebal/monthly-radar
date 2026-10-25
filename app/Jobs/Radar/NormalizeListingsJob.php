@@ -39,14 +39,19 @@ class NormalizeListingsJob implements ShouldQueue
         $matched = 0;
         $created = 0;
         $updated = 0;
+        $rejected = 0;
 
         RawListing::query()->whereNull('contest_id')->each(function (RawListing $raw) use (
-            $normalizer, $merger, $run, &$matched, &$created, &$updated,
+            $normalizer, $merger, $run, &$matched, &$created, &$updated, &$rejected,
         ) {
             $haystack = $raw->title.' '.($raw->payload['text'] ?? '');
-            $areas = $normalizer->matchedAreas($haystack);
+            // Cargos lidos da notícia (card "Vários Cargos") só entram no
+            // filtro de área; não servem pra data/estado/status.
+            $areas = $normalizer->matchedAreas($haystack.' | '.implode(' | ', $raw->payload['roles'] ?? []));
 
             if ($areas === []) {
+                $rejected++;
+
                 return;
             }
 
@@ -72,6 +77,7 @@ class NormalizeListingsJob implements ShouldQueue
             'matched' => ($counts['matched'] ?? 0) + $matched,
             'created' => ($counts['created'] ?? 0) + $created,
             'updated' => ($counts['updated'] ?? 0) + $updated,
+            'rejected_no_it' => ($counts['rejected_no_it'] ?? 0) + $rejected,
         ];
         $run->save();
     }
