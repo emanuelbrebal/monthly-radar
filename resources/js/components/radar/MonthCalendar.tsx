@@ -233,7 +233,7 @@ export function MonthCalendar({
                     return (
                         <div
                             key={iso}
-                            className={`relative flex min-h-[4.5rem] flex-col gap-0.5 border-r border-b border-line-strong p-1 ${cellTone}`}
+                            className={`relative flex min-h-14 flex-col gap-0.5 border-r border-b border-line-strong p-1 ${cellTone}`}
                         >
                             <span
                                 className={`t-body self-end px-1 ${isToday ? 'font-semibold' : inMonth ? '' : 'font-normal'}`}

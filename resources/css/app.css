@@ -45,6 +45,8 @@
     --color-muted-fg: var(--muted-fg);
     --color-line: var(--line);
 
+    /* micro: só eixos e rótulos secundários de gráfico (SVG); texto de UI começa em label. */
+    --text-micro: 11px;
     --text-label: 12px;
     --text-body: 14px;
     --text-title: 18px;
@@ -264,6 +266,9 @@
     }
     .rm-mono {
         font-family: var(--font-mono);
+    }
+    .rm-serif {
+        font-family: var(--font-serif);
     }
     .rm-eyebrow {
         font-family: var(--font-sans);

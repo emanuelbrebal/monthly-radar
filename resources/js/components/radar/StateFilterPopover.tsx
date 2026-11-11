@@ -2,7 +2,11 @@ import { router } from '@inertiajs/react';
 import { useState } from 'react';
 
 import { Checkbox } from '@/components/ui/checkbox';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover';
 import type { RegionOption } from '@/types/radar';
 
 type StateFilterPopoverProps = {
@@ -17,20 +21,34 @@ function allStateValues(regions: RegionOption[]): string[] {
 }
 
 /** docs/03-ui-inventario.md → "Filtro de estados". */
-export function StateFilterPopover({ regions, states }: StateFilterPopoverProps) {
+export function StateFilterPopover({
+    regions,
+    states,
+}: StateFilterPopoverProps) {
     const [open, setOpen] = useState(false);
     const [draft, setDraft] = useState<string[]>(states);
 
     const total = allStateValues(regions).length;
-    const label = draft.length >= total && draft.includes(NACIONAL) ? 'estados · todos' : `estados · ${draft.length}`;
+    const label =
+        draft.length >= total && draft.includes(NACIONAL)
+            ? 'estados · todos'
+            : `estados · ${draft.length}`;
 
     function toggle(value: string, checked: boolean) {
-        setDraft((prev) => (checked ? [...new Set([...prev, value])] : prev.filter((v) => v !== value)));
+        setDraft((prev) =>
+            checked
+                ? [...new Set([...prev, value])]
+                : prev.filter((v) => v !== value),
+        );
     }
 
     function toggleRegion(region: RegionOption, checked: boolean) {
         const values = region.states.map((s) => s.value);
-        setDraft((prev) => (checked ? [...new Set([...prev, ...values])] : prev.filter((v) => !values.includes(v))));
+        setDraft((prev) =>
+            checked
+                ? [...new Set([...prev, ...values])]
+                : prev.filter((v) => !values.includes(v)),
+        );
     }
 
     function markAll() {
@@ -68,28 +86,53 @@ export function StateFilterPopover({ regions, states }: StateFilterPopoverProps)
             open={open}
             onOpenChange={(next) => {
                 if (next) {
-setDraft(states);
-}
+                    setDraft(states);
+                }
 
                 setOpen(next);
             }}
         >
             <PopoverTrigger asChild>
-                <button type="button" className="text-body border border-line-strong bg-card px-3 py-1.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus">{label} ▾</button>
+                <button
+                    type="button"
+                    className="border border-line-strong bg-card px-3 py-1.5 text-body focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                >
+                    {label} ▾
+                </button>
             </PopoverTrigger>
-            <PopoverContent align="start" className="w-[560px] border border-line-strong bg-card p-4 shadow-md">
+            <PopoverContent
+                align="start"
+                className="w-[560px] border border-line-strong bg-card p-4 shadow-md"
+            >
                 <div className="mb-3 flex items-center gap-4 border-b border-line pb-2">
-                    <label className="flex items-center gap-2 text-sm font-semibold">
-                        <Checkbox checked={draft.includes(NACIONAL)} onCheckedChange={(c) => toggle(NACIONAL, c === true)} />
+                    <label className="t-body flex items-center gap-2 font-semibold">
+                        <Checkbox
+                            checked={draft.includes(NACIONAL)}
+                            onCheckedChange={(c) =>
+                                toggle(NACIONAL, c === true)
+                            }
+                        />
                         Nacional
                     </label>
-                    <button className="inline-flex min-h-6 items-center text-sm underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus" onClick={markAll} type="button">
+                    <button
+                        className="t-body inline-flex min-h-6 items-center underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                        onClick={markAll}
+                        type="button"
+                    >
                         marcar tudo
                     </button>
-                    <button className="inline-flex min-h-6 items-center text-sm underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus" onClick={clearAll} type="button">
+                    <button
+                        className="t-body inline-flex min-h-6 items-center underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                        onClick={clearAll}
+                        type="button"
+                    >
                         limpar
                     </button>
-                    <button className="inline-flex min-h-6 items-center text-sm underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus" onClick={onlyNortheast} type="button">
+                    <button
+                        className="t-body inline-flex min-h-6 items-center underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                        onClick={onlyNortheast}
+                        type="button"
+                    >
                         só nordeste
                     </button>
                 </div>
@@ -97,27 +140,50 @@ setDraft(states);
                 <div className="grid grid-cols-5 gap-3">
                     {regions.map((region) => {
                         const values = region.states.map((s) => s.value);
-                        const checkedCount = values.filter((v) => draft.includes(v)).length;
-                        const regionState = checkedCount === 0 ? false : checkedCount === values.length ? true : 'indeterminate';
+                        const checkedCount = values.filter((v) =>
+                            draft.includes(v),
+                        ).length;
+                        const regionState =
+                            checkedCount === 0
+                                ? false
+                                : checkedCount === values.length
+                                  ? true
+                                  : 'indeterminate';
 
                         return (
                             <div key={region.value}>
-                                <label className="mb-1 flex items-center gap-1.5 border-b border-line pb-1 text-sm font-semibold">
+                                <label className="t-body mb-1 flex items-center gap-2 border-b border-line pb-1 font-semibold">
                                     <Checkbox
                                         checked={regionState}
-                                        onCheckedChange={(c) => toggleRegion(region, c === true)}
+                                        onCheckedChange={(c) =>
+                                            toggleRegion(region, c === true)
+                                        }
                                     />
                                     {region.label}
                                 </label>
                                 <ul className="space-y-1">
                                     {region.states.map((state) => (
-                                        <li key={state.value} className="flex items-center gap-1.5 text-sm">
+                                        <li
+                                            key={state.value}
+                                            className="t-body flex items-center gap-2"
+                                        >
                                             <Checkbox
-                                                checked={draft.includes(state.value)}
-                                                onCheckedChange={(c) => toggle(state.value, c === true)}
+                                                checked={draft.includes(
+                                                    state.value,
+                                                )}
+                                                onCheckedChange={(c) =>
+                                                    toggle(
+                                                        state.value,
+                                                        c === true,
+                                                    )
+                                                }
                                             />
-                                            <span className="font-semibold">{state.value}</span>
-                                            <span className="truncate">{state.label}</span>
+                                            <span className="font-semibold">
+                                                {state.value}
+                                            </span>
+                                            <span className="truncate">
+                                                {state.label}
+                                            </span>
                                         </li>
                                     ))}
                                 </ul>
@@ -127,11 +193,15 @@ setDraft(states);
                 </div>
 
                 <div className="mt-3 flex justify-end gap-2 border-t border-line-strong pt-3">
-                    <button className="border border-line-strong bg-card px-3 py-1.5 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus" onClick={cancel} type="button">
+                    <button
+                        className="t-body border border-line-strong bg-card px-3 py-1.5 font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                        onClick={cancel}
+                        type="button"
+                    >
                         cancelar
                     </button>
                     <button
-                        className="border border-line-strong bg-red-text px-3 py-1.5 text-sm font-semibold text-card focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                        className="t-body border border-line-strong bg-red-text px-3 py-1.5 font-semibold text-card focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
                         onClick={apply}
                         type="button"
                     >

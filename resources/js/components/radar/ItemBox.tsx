@@ -161,7 +161,7 @@ export function ItemBox({
                 </button>
             </div>
 
-            <div className="min-h-0 flex-1 overflow-y-auto px-3">
+            <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-3">
                 {showDismissed ? (
                     loadingDismissed ? (
                         <p className="t-body py-6 text-center text-muted-fg">

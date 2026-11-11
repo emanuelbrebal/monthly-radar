@@ -62,7 +62,7 @@ export function ProgressChart({ points, onSelect }: ProgressChartProps) {
             subtitle="% da nota máxima, por prova"
             legend={
                 <p className="t-label flex items-center gap-4 text-muted-fg">
-                    <span className="inline-flex items-center gap-1.5">
+                    <span className="inline-flex items-center gap-2">
                         <svg width="18" height="10" aria-hidden="true">
                             <line
                                 x1="1"
@@ -81,7 +81,7 @@ export function ProgressChart({ points, onSelect }: ProgressChartProps) {
                         </svg>
                         minha nota
                     </span>
-                    <span className="inline-flex items-center gap-1.5">
+                    <span className="inline-flex items-center gap-2">
                         <svg width="18" height="10" aria-hidden="true">
                             <line
                                 x1="1"
@@ -135,7 +135,7 @@ export function ProgressChart({ points, onSelect }: ProgressChartProps) {
                                 y={y(t)}
                                 textAnchor="end"
                                 dominantBaseline="middle"
-                                className="fill-muted-fg text-[11px] tabular-nums"
+                                className="fill-muted-fg text-micro tabular-nums"
                             >
                                 {t}%
                             </text>
@@ -155,7 +155,7 @@ export function ProgressChart({ points, onSelect }: ProgressChartProps) {
                                       ? 'end'
                                       : 'middle'
                             }
-                            className="fill-muted-fg text-[11px] tabular-nums"
+                            className="fill-muted-fg text-micro tabular-nums"
                         >
                             {p.date ? dateLabel(p.date) : '—'}
                         </text>
@@ -227,7 +227,7 @@ export function ProgressChart({ points, onSelect }: ProgressChartProps) {
                             x={x(last) + 10}
                             y={y(points[last].percent)}
                             dominantBaseline="middle"
-                            className="fill-ink text-[12px] font-semibold tabular-nums"
+                            className="fill-ink text-label font-semibold tabular-nums"
                         >
                             {pctLabel(points[last].percent)}
                         </text>

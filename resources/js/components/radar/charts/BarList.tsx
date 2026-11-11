@@ -50,7 +50,7 @@ function RowLabel({ label, x, y }: { label: string; x: number; y: number }) {
                 y={y}
                 textAnchor="end"
                 dominantBaseline="middle"
-                className="fill-ink text-[12px]"
+                className="fill-ink text-label"
             >
                 {clip(label, 26)}
             </text>
@@ -58,11 +58,11 @@ function RowLabel({ label, x, y }: { label: string; x: number; y: number }) {
     }
 
     return (
-        <text x={x} y={y} textAnchor="end" className="fill-ink text-[12px]">
+        <text x={x} y={y} textAnchor="end" className="fill-ink text-label">
             <tspan x={x} dy="-0.2em">
                 {clip(head, 26)}
             </tspan>
-            <tspan x={x} dy="1.15em" className="fill-muted-fg text-[11px]">
+            <tspan x={x} dy="1.15em" className="fill-muted-fg text-micro">
                 {clip(tail, 28)}
             </tspan>
         </text>
@@ -189,7 +189,7 @@ export function BarList({
                                     y={y + BAR / 2}
                                     textAnchor={negative ? 'end' : 'start'}
                                     dominantBaseline="middle"
-                                    className="fill-ink text-[12px] font-semibold tabular-nums"
+                                    className="fill-ink text-label font-semibold tabular-nums"
                                 >
                                     {row.valueLabel}
                                 </text>

@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 import { DossierModal } from '@/components/radar/DossierModal';
 import { ErrorToast } from '@/components/radar/ErrorToast';
-import { RadarMark } from '@/components/radar/RadarMark';
+import { RadarHeader } from '@/components/radar/RadarHeader';
 import { Tag } from '@/components/radar/Tag';
 import { TierMark } from '@/components/radar/TierMark';
 import { dateLabel } from '@/lib/radar';
@@ -52,24 +52,7 @@ export default function RadarArchive() {
         <>
             <Head title="Arquivo · Radar Mensal" />
             <div className="flex min-h-screen flex-col bg-paper text-ink">
-                <header className="shrink-0 border-b border-line-strong bg-paper px-6 py-3">
-                    <div className="flex flex-wrap items-center gap-4">
-                        <RadarMark size={28} />
-                        <h1 className="text-display">arquivo</h1>
-                        <Link
-                            href="/dashboard"
-                            className="t-body ml-auto inline-flex min-h-6 items-center underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
-                        >
-                            painel
-                        </Link>
-                        <Link
-                            href="/"
-                            className="t-body inline-flex min-h-6 items-center underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
-                        >
-                            ← voltar pra mesa
-                        </Link>
-                    </div>
-                </header>
+                <RadarHeader title="arquivo" current="arquivo" />
 
                 <main
                     aria-label="Concursos fora da mesa"

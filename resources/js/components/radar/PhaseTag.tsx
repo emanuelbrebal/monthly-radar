@@ -5,23 +5,17 @@ import type { ContestDto } from '@/types/radar';
 
 type PhaseTagProps = {
     contest: ContestDto;
-    /** `wrap` deixa o rótulo quebrar em 2 linhas (slot estreito da maleta). */
-    wrap?: boolean;
     className?: string;
 };
 
 /** Fase atual do concurso (derivada no backend por ContestPhaseResolver), com forma + texto + cor. */
-export function PhaseTag({
-    contest,
-    wrap = false,
-    className = '',
-}: PhaseTagProps) {
+export function PhaseTag({ contest, className = '' }: PhaseTagProps) {
     return (
         <Tag
             label={contest.phase_label}
             kind={contest.phase_tone}
             icon={TONE_ICON[contest.phase_tone]}
-            className={cn(wrap && 'leading-tight whitespace-normal', className)}
+            className={className}
         />
     );
 }

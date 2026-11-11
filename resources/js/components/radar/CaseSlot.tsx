@@ -78,47 +78,45 @@ export function CaseSlot({
                     {slot + 1}
                 </span>
             ) : (
-                <div className="surface-card relative flex h-full min-w-0 flex-col justify-between gap-0.5 overflow-hidden rounded-sm border border-ink p-1">
-                    <p
-                        className="min-w-0 truncate text-[15px] leading-tight font-bold text-ink"
-                        title={contest.title}
-                    >
-                        {contest.organ_acronym ?? contest.organ}
-                    </p>
+                <div className="surface-card relative flex h-full min-w-0 flex-col justify-between gap-1 overflow-hidden rounded-sm border border-ink p-1.5">
+                    {/* Uma informação por linha, sem quebra: sigla, fase,
+                        prazo, nível. O rótulo do prazo fica no painel de
+                        descrição — no cartão só data e contagem (T8). */}
+                    <div className="flex min-w-0 items-center gap-1">
+                        <TierMark tier={contest.tier} variant="dot" />
+                        <p
+                            className="t-body min-w-0 truncate leading-tight font-bold text-ink"
+                            title={contest.title}
+                        >
+                            {contest.organ_acronym ?? contest.organ}
+                        </p>
+                    </div>
                     <PhaseTag
                         contest={contest}
-                        wrap
-                        className="line-clamp-2 px-1 py-0.5"
+                        className="max-w-full self-start px-1 py-0"
                     />
-                    {/* Próximo prazo — sempre visível no cartão (T8). */}
-                    <div
-                        className={`min-w-0 font-mono text-xs leading-tight ${
+                    <p
+                        className={`t-label flex min-w-0 justify-between gap-1 font-mono leading-tight ${
                             deadline === null
-                                ? 'text-muted-fg'
+                                ? 'font-normal text-muted-fg'
                                 : deadline.urgent
-                                  ? 'font-bold text-red-text'
-                                  : 'text-ink'
+                                  ? 'text-red-text'
+                                  : 'font-normal text-ink'
                         }`}
                         title={deadlineText}
                     >
                         {deadline === null ? (
-                            <p>sem prazo</p>
+                            <span>sem prazo</span>
                         ) : (
                             <>
-                                <p className="truncate">{deadline.label}</p>
-                                <p className="flex justify-between gap-1">
-                                    <span>{deadline.date}</span>
-                                    <span>{deadline.countdown}</span>
-                                </p>
+                                <span>{deadline.date}</span>
+                                <span>{deadline.countdown}</span>
                             </>
                         )}
-                    </div>
-                    <div className="flex min-w-0 items-center justify-between gap-1">
-                        <TierMark tier={contest.tier} variant="dot" />
-                        {contest.is_new && (
-                            <NewTag className="px-1 py-0 text-[10px]" />
-                        )}
-                    </div>
+                    </p>
+                    {contest.is_new && (
+                        <NewTag className="self-start px-1 py-0" />
+                    )}
                     {contest.hides_in_hours !== null &&
                         contest.hides_in_hours <= 24 && (
                             <Stamp

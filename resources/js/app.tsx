@@ -9,13 +9,20 @@ import SettingsLayout from '@/layouts/settings/layout';
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 createInertiaApp({
-    title: (title) => (title ? `${title} - ${appName}` : appName),
+    // As páginas do radar já trazem "· Radar Mensal" no título — não repetir.
+    title: (title) =>
+        !title
+            ? appName
+            : title.includes(appName)
+              ? title
+              : `${title} · ${appName}`,
     layout: (name) => {
         switch (true) {
             case name.startsWith('auth/'):
                 return AuthLayout;
+            // Conta usa o chrome do radar (RadarHeader), sem a sidebar.
             case name.startsWith('settings/'):
-                return [AppLayout, SettingsLayout];
+                return SettingsLayout;
             // A Mesa é full-bleed (masthead própria) — sem sidebar do starter kit.
             case name.startsWith('radar/'):
                 return undefined;
@@ -33,7 +40,7 @@ createInertiaApp({
         );
     },
     progress: {
-        color: '#4B5563',
+        color: '#9a4434', // --red do app.css
     },
 });
 

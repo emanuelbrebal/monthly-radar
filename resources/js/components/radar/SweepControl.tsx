@@ -4,7 +4,13 @@ import { useEffect, useRef, useState } from 'react';
 import { RadarAnim } from '@/components/radar/RadarAnim';
 import { StateFilterPopover } from '@/components/radar/StateFilterPopover';
 import { csrfFetch } from '@/lib/csrf-fetch';
-import type { AreaOption, RefreshInfo, RegionOption, SearchRunDto, TiAreaValue } from '@/types/radar';
+import type {
+    AreaOption,
+    RefreshInfo,
+    RegionOption,
+    SearchRunDto,
+    TiAreaValue,
+} from '@/types/radar';
 
 type SweepControlProps = {
     areas: AreaOption[];
@@ -28,7 +34,9 @@ function statusLine(run: SearchRunDto | null): string {
     }
 
     if (run.status === 'failed') {
-        return isRefresh ? 'Revisão falhou. Tenta de novo.' : 'Sinal perdido. Verifica as fontes.';
+        return isRefresh
+            ? 'Revisão falhou. Tenta de novo.'
+            : 'Sinal perdido. Verifica as fontes.';
     }
 
     if (isRefresh) {
@@ -46,8 +54,16 @@ function statusLine(run: SearchRunDto | null): string {
 }
 
 /** docs/03-ui-inventario.md → "Controle de varredura (masthead)". */
-export function SweepControl({ areas, regions, states, lastRun, refresh }: SweepControlProps) {
-    const [area, setArea] = useState<TiAreaValue>(areas[0]?.value ?? 'development');
+export function SweepControl({
+    areas,
+    regions,
+    states,
+    lastRun,
+    refresh,
+}: SweepControlProps) {
+    const [area, setArea] = useState<TiAreaValue>(
+        areas[0]?.value ?? 'development',
+    );
     const [run, setRun] = useState<SearchRunDto | null>(lastRun);
     const [error, setError] = useState<string | null>(null);
     const [starting, setStarting] = useState(false);
@@ -70,7 +86,9 @@ export function SweepControl({ areas, regions, states, lastRun, refresh }: Sweep
             setRun(data.run);
 
             if (!ACTIVE_STATUSES.includes(data.run.status)) {
-                router.reload({ only: ['visibleContests', 'lastRun', 'refresh'] });
+                router.reload({
+                    only: ['visibleContests', 'lastRun', 'refresh'],
+                });
             }
         }, 2500);
 
@@ -101,7 +119,9 @@ export function SweepControl({ areas, regions, states, lastRun, refresh }: Sweep
         }
 
         if (!response.ok) {
-            const data: { message?: string } = await response.json().catch(() => ({}));
+            const data: { message?: string } = await response
+                .json()
+                .catch(() => ({}));
             setError(data.message ?? 'Não deu pra varrer agora.');
 
             return;
@@ -116,7 +136,9 @@ export function SweepControl({ areas, regions, states, lastRun, refresh }: Sweep
         setError(null);
         setStarting(true);
 
-        const response = await csrfFetch('/contests/refresh-tracked', { method: 'POST' });
+        const response = await csrfFetch('/contests/refresh-tracked', {
+            method: 'POST',
+        });
 
         setStarting(false);
 
@@ -128,7 +150,9 @@ export function SweepControl({ areas, regions, states, lastRun, refresh }: Sweep
         }
 
         if (!response.ok) {
-            const data: { message?: string } = await response.json().catch(() => ({}));
+            const data: { message?: string } = await response
+                .json()
+                .catch(() => ({}));
             setError(data.message ?? 'Não deu pra revisar agora.');
 
             return;
@@ -138,7 +162,8 @@ export function SweepControl({ areas, regions, states, lastRun, refresh }: Sweep
         setRun(data.run);
     }
 
-    const sweeping = starting || (run !== null && ACTIVE_STATUSES.includes(run.status));
+    const sweeping =
+        starting || (run !== null && ACTIVE_STATUSES.includes(run.status));
     const refreshing = sweeping && run?.kind === 'refresh';
     const refreshHint = !refresh.available
         ? 'Sem ANTHROPIC_API_KEY: a revisão automática precisa de LLM.'
@@ -151,7 +176,7 @@ export function SweepControl({ areas, regions, states, lastRun, refresh }: Sweep
         <div className="flex flex-wrap items-center gap-3">
             <select
                 aria-label="Área de TI"
-                className="text-body border border-line-strong bg-card px-2 py-1.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                className="border border-line-strong bg-card px-2 py-1.5 text-body focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
                 value={area}
                 disabled={sweeping}
                 onChange={(e) => setArea(e.target.value as TiAreaValue)}
@@ -166,7 +191,7 @@ export function SweepControl({ areas, regions, states, lastRun, refresh }: Sweep
             <StateFilterPopover regions={regions} states={states} />
 
             <button
-                className="flex items-center gap-2 border border-line-strong bg-red-text px-4 py-1.5 text-sm font-semibold text-card focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed"
+                className="t-body flex items-center gap-2 border border-line-strong bg-red-text px-4 py-1.5 font-semibold text-card focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed"
                 disabled={sweeping}
                 onClick={startSweep}
                 type="button"
@@ -176,34 +201,48 @@ export function SweepControl({ areas, regions, states, lastRun, refresh }: Sweep
             </button>
 
             <button
-                className="flex items-center gap-2 border border-line-strong bg-card px-3 py-1.5 text-sm font-semibold text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-muted-fg"
-                disabled={sweeping || !refresh.available || refresh.tracked === 0}
+                className="t-body flex items-center gap-2 border border-line-strong bg-card px-3 py-1.5 font-semibold text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:text-muted-fg"
+                disabled={
+                    sweeping || !refresh.available || refresh.tracked === 0
+                }
                 onClick={startRefresh}
                 title={refreshHint}
                 aria-describedby="refresh-tracked-hint"
                 type="button"
             >
                 {refreshing && <RadarAnim size={16} />}
-                {refreshing ? 'revisando…' : refresh.available ? `atualizar acompanhados (${refresh.tracked})` : 'atualizar acompanhados (sem LLM)'}
+                {refreshing
+                    ? 'revisando…'
+                    : refresh.available
+                      ? `atualizar acompanhados (${refresh.tracked})`
+                      : 'atualizar acompanhados (sem LLM)'}
             </button>
             <span id="refresh-tracked-hint" className="sr-only">
                 {refreshHint}
             </span>
 
-            <span role="status" className="text-body text-muted-fg">{error ?? (starting ? 'Começando…' : statusLine(run))}</span>
+            <span role="status" className="text-body text-muted-fg">
+                {error ?? (starting ? 'Começando…' : statusLine(run))}
+            </span>
 
             {sourceErrors.length > 0 && (
                 <>
                     <span
                         tabIndex={0}
                         aria-describedby="sweep-source-errors"
-                        className="text-body cursor-help font-semibold text-red-text underline decoration-dotted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
-                        title={sourceErrors.map((e) => `${e.source}: ${e.message}`).join('\n')}
+                        className="cursor-help text-body font-semibold text-red-text underline decoration-dotted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                        title={sourceErrors
+                            .map((e) => `${e.source}: ${e.message}`)
+                            .join('\n')}
                     >
-                        {sourceErrors.length} fonte{sourceErrors.length > 1 ? 's' : ''} {sourceErrors.length > 1 ? 'falharam' : 'falhou'}
+                        {sourceErrors.length} fonte
+                        {sourceErrors.length > 1 ? 's' : ''}{' '}
+                        {sourceErrors.length > 1 ? 'falharam' : 'falhou'}
                     </span>
                     <span id="sweep-source-errors" className="sr-only">
-                        {sourceErrors.map((e) => `${e.source}: ${e.message}`).join('. ')}
+                        {sourceErrors
+                            .map((e) => `${e.source}: ${e.message}`)
+                            .join('. ')}
                     </span>
                 </>
             )}

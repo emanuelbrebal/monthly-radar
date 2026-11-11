@@ -1,4 +1,4 @@
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
 import { BarList } from '@/components/radar/charts/BarList';
@@ -7,7 +7,7 @@ import { ProgressChart } from '@/components/radar/charts/ProgressChart';
 import type { ProgressPoint } from '@/components/radar/charts/ProgressChart';
 import { DossierModal } from '@/components/radar/DossierModal';
 import { ErrorToast } from '@/components/radar/ErrorToast';
-import { RadarMark } from '@/components/radar/RadarMark';
+import { RadarHeader } from '@/components/radar/RadarHeader';
 import type { ContestDto } from '@/types/radar';
 
 type Identity = { contest_id: number; label: string };
@@ -80,24 +80,7 @@ export default function RadarDashboard() {
         <>
             <Head title="Painel · Radar Mensal" />
             <div className="flex min-h-screen flex-col bg-paper text-ink">
-                <header className="shrink-0 border-b border-line-strong bg-paper px-6 py-3">
-                    <div className="flex flex-wrap items-center gap-4">
-                        <RadarMark size={28} />
-                        <h1 className="text-display">painel</h1>
-                        <Link
-                            href="/archive"
-                            className="t-body ml-auto inline-flex min-h-6 items-center underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
-                        >
-                            arquivo
-                        </Link>
-                        <Link
-                            href="/"
-                            className="t-body inline-flex min-h-6 items-center underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
-                        >
-                            ← voltar pra mesa
-                        </Link>
-                    </div>
-                </header>
+                <RadarHeader title="painel" current="painel" />
 
                 <main
                     aria-label="Meu progresso nas provas"

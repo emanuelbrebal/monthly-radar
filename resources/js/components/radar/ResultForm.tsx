@@ -318,7 +318,7 @@ export function ResultForm({ contest, onChange }: ResultFormProps) {
                     + detalhar por matéria
                 </button>
             ) : (
-                <fieldset className="space-y-1.5 border-t border-line pt-2">
+                <fieldset className="space-y-2 border-t border-line pt-2">
                     <legend className="t-label text-muted-fg">
                         por matéria (opcional)
                     </legend>
@@ -330,7 +330,7 @@ export function ResultForm({ contest, onChange }: ResultFormProps) {
                     {rows.map((row, i) => (
                         <div
                             key={i}
-                            className="grid grid-cols-[1fr_4.5rem_4.5rem_auto] gap-1.5"
+                            className="grid grid-cols-[1fr_4.5rem_4.5rem_auto] gap-2"
                         >
                             <input
                                 list={listId}
