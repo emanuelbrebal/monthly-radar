@@ -2,9 +2,15 @@
 
 A personal survival-kit for tracking Brazilian public-sector IT hiring exams (*concursos públicos de TI*). Pick an IT area, hit **sweep**, and the app scrapes a handful of sources, turns each contest into a dossier, and shows everything on a calendar and in a 12-slot "attaché case" (Resident Evil-style inventory) for the ones that matter.
 
+![The desk: the attaché case with pinned contests on the left, the calendar and the item box on the right](docs/screenshots/desk.png)
+
 Single-user by design — there's no sign-up, no SaaS, no other accounts. It's built for one person to track their own exam applications.
 
 > This repo previously hosted "Radar Hub", an unrelated SaaS-idea-curation pipeline. That product was discontinued on 2026-09-15 and nothing of it remains in the current codebase or docs.
+
+## Why
+
+IT contests are scattered across aggregator sites and official pages, each with its own dates: registration, fee payment, exam venues, exam day, answer key, results. Miss the fee deadline and the exam is gone. The radar pulls everything into one place, puts every deadline on a calendar, shows which data is still missing from each dossier, and records where each field came from.
 
 ## What it does
 
@@ -12,10 +18,31 @@ Single-user by design — there's no sign-up, no SaaS, no other accounts. It's b
 2. Hit **sweep**. The app scrapes its sources, filters by area keywords, deduplicates, and creates/updates contests.
 3. For contests with gaps in their data, an LLM with web search fills in the missing fields and writes a short dossier — this step is entirely optional (see [Cost model](#cost-model)).
 4. The screen tracks progress via polling and updates the calendar, the item list, and the attaché case.
+5. Pin up to 12 contests to the attaché case and track your own status in each dossier (interested, registered, fee paid, exam venue out, exam taken) — and, after the exam, your score against the cut-off. Contests you stop following can be dismissed, and an archive page keeps the ones off the desk.
 
 There's no scheduled scraping and no email. Refreshing a contest's data just means sweeping its area again.
 
 The app works fully without an `ANTHROPIC_API_KEY` — sweeping still scrapes and populates the screen, it just skips the LLM enrichment step (`enrichment_status = skipped`). No screen breaks because of a missing key.
+
+## Screenshots
+
+**Dossier after the exam.** Timeline with past events struck through; salary, vacancies, fee and exam date; a link to the edital; your status checklist; and score tracking against the cut-off. The banner shows this dossier came from scraping only, with no LLM enrichment.
+
+![Dataprev dossier: timeline, key facts, status checklist and score tracking](docs/screenshots/dossier-dataprev.png)
+
+**Dossier before the exam.** Upcoming dates (exam venues, exam day, preliminary answer key, final result) and the list of sources behind the dossier.
+
+![CGU dossier: upcoming timeline, key facts and status checklist](docs/screenshots/dossier-cgu.png)
+
+## Highlights
+
+- **Queued pipeline with failure isolation.** A sweep is a `Bus::chain` of four jobs. If one scraping adapter fails, the error goes to `search_runs.meta.errors` and the sweep carries on with the other sources.
+- **LLM behind a provider interface.** Jobs and controllers never call an SDK directly — only `LlmProvider`. `AnthropicProvider` uses the Messages API with the server-side `web_search` tool; `NullProvider` covers the no-key case, so every screen works with zero LLM.
+- **Structured output as a contract.** The enrichment agent must answer with JSON that `DossierValidator` checks against the schema in [`docs/agents/dossie.md`](docs/agents/dossie.md): unknown fields are rejected, and every field needs a source URL and a confidence level (`high`/`medium`/`low`). Validation errors are sent back to the model for one retry; a second failure marks the contest `enrichment_status = failed` and nothing is merged.
+- **Source-priority merge with provenance.** `ContestMerger` writes field by field. Official sources (edital, exam board, DOU, `.gov.br`) beat aggregators and the seed, which beat LLM answers without an official source, and each field's origin is recorded in `field_sources`.
+- **No LLM for mechanical logic.** Deduplication, effective status, pinning and merging are plain PHP, covered by Pest tests.
+- **Cost visibility.** Every LLM call logs input/output tokens and the number of web searches into `search_runs.meta`.
+- **AI-assisted, spec-driven development.** Built with Claude Code working from [`CLAUDE.md`](CLAUDE.md) (non-negotiable rules: scope per session, LLM only through the provider, the JSON contract, source priority) and the specs in [`docs/`](docs/) — product spec, data model, pipeline and a per-session execution plan — across 11 merged pull requests.
 
 ## Architecture
 
@@ -26,13 +53,13 @@ The app works fully without an `ANTHROPIC_API_KEY` — sweeping still scrapes an
               │
  1. HarvestSourcesJob     scrape each enabled source → raw_listings
  2. NormalizeListingsJob  filter by area → normalize → dedup → upsert contests
- 3. EnrichContestsJob     pick contests with gaps → Bus::batch(EnrichContestJob…)
+ 3. EnrichContestsJob     pick contests with gaps → EnrichContestJob for each, in sequence
  4. FinalizeRunJob        recompute status/events, unpin expired, close the run
               │
      GET /sweeps/{run}  (polling, 3s)  →  front-end updates
 ```
 
-A source adapter failing doesn't fail the whole run — the error is recorded in `search_runs.meta.errors` and the sweep continues with the other sources.
+A source adapter failing doesn't fail the whole run — the error is recorded in `search_runs.meta.errors` and the sweep continues with the other sources. Enrichment runs sequentially on purpose, so `radar:sweep` and the `SweepController` share the same code path.
 
 ```
 ┌──────────────── Laravel 13 monolith ────────────────┐
@@ -63,9 +90,11 @@ See [`docs/`](docs/) for the full spec, data model, pipeline details, and the se
 | Backend | Laravel 13 (PHP 8.3+) |
 | Frontend | Inertia.js + React 19 + TypeScript + Tailwind 4 |
 | Database | PostgreSQL |
+| Queue | Laravel queues (`database` driver by default), sweeps as a `Bus::chain` |
 | Scraping | Laravel HTTP client + `symfony/dom-crawler` + `symfony/css-selector` |
 | LLM (optional) | Anthropic Messages API with server-side `web_search`, default model `claude-haiku-4-5-20251001` |
-| Tests | Pest |
+| Quality | Pest (109 tests), PHPStan, Pint, ESLint, Prettier, `tsc --noEmit` |
+| CI | GitHub Actions on every push to `main` and `develop` |
 | Deploy | Single VPS, queue worker under Supervisor |
 
 ## Getting started
@@ -117,6 +146,17 @@ Notes for running on Windows 11 (PowerShell) with a local PostgreSQL:
 php artisan radar:sweep {area} {--no-llm}      # runs the sweep pipeline synchronously
 php artisan radar:source {key} {--dry}         # runs one scraping adapter and prints what it extracted, without saving
 ```
+
+## Tests and CI
+
+```bash
+composer test          # Pint (check mode) + PHPStan + Pest
+npm run lint:check     # ESLint
+npm run format:check   # Prettier (resources/)
+npm run types:check    # TypeScript (tsc --noEmit)
+```
+
+GitHub Actions runs two workflows on every push to `main` and `develop`: **linter** (Pint, Prettier, ESLint) and **tests** (asset build, PHPStan, Pest).
 
 ## Sources
 
