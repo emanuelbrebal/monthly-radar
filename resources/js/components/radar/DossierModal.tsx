@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import { EnrollmentChecklist } from '@/components/radar/EnrollmentChecklist';
 import { NewTag, PhaseTag } from '@/components/radar/PhaseTag';
+import { ResultForm } from '@/components/radar/ResultForm';
 import { SourceList } from '@/components/radar/SourceList';
 import { Stamp } from '@/components/radar/Stamp';
 import { Tag } from '@/components/radar/Tag';
@@ -213,7 +214,7 @@ export function DossierModal({
                     </div>
 
                     <Collapsible>
-                        <CollapsibleTrigger className="rm-eyebrow group inline-flex min-h-6 items-center gap-1.5 underline-offset-2 hover:underline">
+                        <CollapsibleTrigger className="rm-eyebrow group inline-flex min-h-6 items-center gap-2 underline-offset-2 hover:underline">
                             <span
                                 aria-hidden="true"
                                 className="inline-block transition-transform group-data-[state=open]:rotate-90"
@@ -260,7 +261,7 @@ export function DossierModal({
                         />
                     </div>
 
-                    <div className="space-y-1.5">
+                    <div className="space-y-2">
                         <a
                             href={contest.edital_url ?? undefined}
                             target="_blank"
@@ -310,6 +311,16 @@ export function DossierModal({
                             />
                         )}
                     </div>
+
+                    {contest.enrollment_status === 'exam_taken' && (
+                        <div className="border-t border-line pt-3">
+                            <ResultForm
+                                key={`${contest.id}:${contest.result?.id ?? 'new'}`}
+                                contest={contest}
+                                onChange={onContestChange}
+                            />
+                        </div>
+                    )}
 
                     {allowPin && (
                         <button

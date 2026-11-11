@@ -1,97 +1,89 @@
 # Deploy — passo a passo
 
-Este doc tem duas partes: **Parte 1** é o roteiro genérico pra colocar qualquer app Laravel + Postgres num VPS Ubuntu (serve de referência mesmo se você trocar de provedor depois). **Parte 2** é o passo a passo específico pro Radar Mensal, com os comandos exatos pra copiar e colar.
+Este doc tem duas partes. A **Parte 1** é o roteiro genérico para colocar qualquer app Laravel + Postgres num VPS Ubuntu. A **Parte 2** é o passo a passo do Radar Mensal, com comandos para copiar e colar, usando os arquivos versionados em `deploy/`:
 
-Cotação de referência: USD/BRL ≈ R$5,13 em 18/09/2026, só pra quem for comparar com provedor internacional — mas como o pedido aqui foi **provedor nacional**, todos os preços abaixo já são cobrados direto em reais, sem câmbio, sem IOF e sem surpresa na fatura do cartão.
+| Arquivo | Onde roda | Para quê |
+|---|---|---|
+| `.env.production.example` | servidor | template do `.env` de produção (debug desligado, cookie seguro, log diário) |
+| `deploy/deploy.sh` | servidor | deploy idempotente: `down` → pull → composer → migrate → caches → reinício do worker → `up` |
+| `deploy/push-assets.sh` | sua máquina | `npm run build` + envio de `public/build/` via `tar`+`ssh` (o Git Bash do Windows não tem `rsync`) |
+| `deploy/backup.sh` | servidor (cron) | `pg_dump` diário, guarda os 7 mais recentes |
+| `deploy/nginx/monthly-radar.conf` | servidor | site do Nginx |
+| `deploy/supervisor/radar-queue-worker.conf` | servidor | worker da fila (sem ele a varredura fica presa em `queued`) |
 
 ## Qual VPS usar
 
-Pesquisei hospedagens brasileiras conhecidas em 18/09/2026 (preços reais tirados do site de cada uma, não estimativa):
+Preços conferidos no site oficial em **11/11/2026** ([locaweb.com.br/servidor-vps](https://www.locaweb.com.br/servidor-vps/)). Provedor nacional, cobrança em reais:
 
-| Provedor | Plano | Specs | Preço promocional* | Renovação (preço real de longo prazo) |
-|---|---|---|---|---|
-| **Locaweb** | **VPS 1 GB Linux** | 2 vCPUs, **1 GB RAM**, 40 GB SSD, transferência ilimitada | **R$15,90/mês** | R$25,90/mês |
-| Locaweb | VPS 2 GB Linux | 2 vCPUs, 2 GB RAM, 60 GB SSD, transferência ilimitada | R$23,90/mês | R$36,90/mês |
-| Hostinger BR | KVM 1 | 1 vCPU, 4 GB RAM, 50 GB NVMe, 4 TB transferência | R$29,99/mês | R$59,99/mês |
-| KingHost | Servidor VPS (menor) | — | R$32,90/mês | — |
+| Plano Locaweb | Specs | Preço promocional* | Renovação |
+|---|---|---|---|
+| VPS 1 GB Linux | 2 vCPUs, 1 GB RAM, 40 GB SSD | R$15,90/mês | R$23,92/mês |
+| **VPS 2 GB Linux** | 2 vCPUs, **2 GB RAM**, 60 GB SSD | **R$21,90/mês** | R$31,92/mês |
 
-\* **O preço promocional exige contratar e pagar o ciclo de 24 meses de uma vez** (é assim que praticamente toda hospedagem brasileira anuncia preço "por mês" — vale ler a letra miúda no carrinho antes de fechar). A coluna "renovação" é o valor que passa a valer depois desse ciclo promocional acabar, e dá uma ideia mais realista do custo recorrente se você não quiser prender dinheiro num contrato longo — vale checar no carrinho de cada uma se existe opção de ciclo mensal de verdade (cobrança mês a mês, sem compromisso) e quanto ela custa, porque normalmente é mais cara que a "por mês" da vitrine.
+\* O preço promocional exige o ciclo de **24 meses**. Confira no carrinho se há ciclo mensal e quanto custa.
 
-**Minha recomendação: Locaweb, VPS 1 GB Linux.** É a mais barata das opções nacionais que encontrei com RAM suficiente pra rodar Postgres + PHP-FPM + o worker da fila juntos, tem infraestrutura no Brasil (menor latência pra você, que é quem vai usar o app), cobrança 100% em reais com impostos inclusos ("sem pegadinha" é literalmente como eles anunciam), e suporte 24/7 em português caso emperre alguma coisa. A Hostinger BR e a KingHost são alternativas conhecidas, mas saem mais caras pra specs equivalentes ou piores — e no caso da Hostinger, a localização recomendada do servidor no cadastro é Estados Unidos, não Brasil, então vale conferir se existe opção de datacenter brasileiro antes de contratar achando que é local.
+**Recomendação: VPS 2 GB.** O de 1 GB roda Postgres + PHP-FPM + worker com o swap do passo 3, mas o `composer install` e a varredura (parse de HTML) disputam memória ali. Por R$6/mês a mais, o de 2 GB tira esse risco. Outras opções nacionais com 1 GB (Hostinger KVM 1, KingHost) aparecem entre R$22 e R$28/mês em agregadores, sem conferência no site oficial.
 
-A Parte 2 deste doc assume Locaweb + Ubuntu. Se escolher outro provedor, troque só os passos de "criar o servidor" (Parte 2, passo 1) — o resto (pacotes, Nginx, Supervisor, etc.) é igual em qualquer VPS Ubuntu, brasileiro ou não.
+A Parte 2 assume Locaweb + Ubuntu 24.04. Em outro provedor, só o passo 1 muda.
 
 ## Parte 1 — Roteiro genérico (Laravel + Postgres em qualquer VPS Ubuntu)
 
-1. **Provisionar o servidor**: Ubuntu 24.04 LTS, o menor plano com RAM suficiente (≥ 1 GB recomendado). Anote o IP público.
-2. **Acesso**: configurar chave SSH (nunca senha), criar um usuário não-root com sudo, desabilitar login de root por senha.
-3. **Firewall**: liberar só SSH (22), HTTP (80) e HTTPS (443).
-4. **Pacotes**: PHP (versão exigida pelo `composer.json` do projeto) + extensões que o Laravel precisa, PostgreSQL, Nginx, Composer, Supervisor. Node só se for buildar os assets *no* servidor — evite isso num VPS pequeno (ver passo 8).
-5. **Banco de dados**: criar um usuário e um banco Postgres dedicados ao app, senha forte, sem acesso de fora do próprio servidor (`listen_addresses = 'localhost'`).
-6. **Clonar e configurar**: `git clone`, `.env` de produção (`APP_ENV=production`, `APP_DEBUG=false`, credenciais reais), `composer install --no-dev --optimize-autoloader`.
-7. **Banco**: `php artisan migrate --force` (nunca `migrate:fresh` em produção — apaga tudo).
-8. **Assets do front**: builde localmente (`npm run build` na sua máquina) e copie só `public/build/` pro servidor via `scp`/`rsync` — mais rápido, mais seguro, e não exige Node instalado no VPS pequeno. Alternativa: instalar Node no servidor e buildar lá, mais simples de automatizar mas mais pesado pra RAM de 1 GB.
-9. **Web server**: Nginx apontando pra `public/`, PHP-FPM como upstream.
-10. **Processo de fila**: Supervisor rodando `php artisan queue:work` — sem isso, nenhuma varredura nunca termina, porque os jobs (`HarvestSourcesJob` etc.) ficam presos na fila.
-11. **HTTPS**: Certbot (Let's Encrypt), gratuito, renovação automática.
-12. **Cache de produção**: `php artisan config:cache`, `route:cache`, `view:cache` — acelera a resposta e evita reler `.env`/rotas a cada request.
-13. **Verificação**: acessar pelo domínio/IP, logar, rodar uma varredura de teste, confirmar que o worker processou (`php artisan queue:work` tem que estar de fato rodando, não só configurado).
+1. **Provisionar**: Ubuntu 24.04 LTS, ≥ 1 GB RAM. Anote o IP público.
+2. **Acesso**: chave SSH (nunca senha), usuário não-root com sudo, login de root por senha desabilitado.
+3. **Firewall**: só SSH (22), HTTP (80) e HTTPS (443).
+4. **Pacotes**: PHP (versão do `composer.json`) + extensões, PostgreSQL, Nginx, Composer, Supervisor. Sem Node no servidor.
+5. **Banco**: usuário e banco dedicados, senha forte, só `localhost`.
+6. **App**: `git clone`, `.env` de produção, `composer install --no-dev`.
+7. **Dados**: `migrate --force` (nunca `migrate:fresh` em produção) ou restore de um dump.
+8. **Assets**: build local, envio só de `public/build/`.
+9. **Web**: Nginx → `public/`, PHP-FPM como upstream.
+10. **Fila**: Supervisor rodando `queue:work`.
+11. **HTTPS**: domínio apontado + Certbot.
+12. **Backup**: dump diário do banco.
+13. **Verificação**: logar, varrer, confirmar que o worker processou.
 
-## Parte 2 — Passo a passo específico (Locaweb + Ubuntu)
+## Parte 2 — Passo a passo (Locaweb + Ubuntu 24.04)
 
-### 1. Criar o servidor na Locaweb
+### 1. Criar o servidor
 
-1. Acesse [locaweb.com.br/servidor-vps/](https://www.locaweb.com.br/servidor-vps/) e contrate o plano **VPS 1 GB Linux** (ou o de 2 GB, se preferir folga extra de RAM).
-2. No carrinho, confira o ciclo de contratação — o preço da vitrine (R$15,90/mês) é pelo ciclo bienal pago à vista; se preferir não prender o dinheiro por 2 anos, veja se há ciclo mensal ou anual disponível e quanto sai.
-3. No provisionamento, escolha **Ubuntu** como sistema operacional (a Locaweb lista AlmaLinux, Debian, Rocky Linux, Ubuntu e Windows Server) — pegue a versão LTS mais recente disponível no painel (idealmente 24.04; se só tiver 22.04, ela também funciona, já que o app só exige PHP ≥ 8.3, disponível em ambas via os pacotes padrão do Ubuntu).
-4. Finalize a compra. A ativação costuma vir por e-mail com o IP do servidor e as credenciais de acesso — normalmente root com senha inicial, que você troca por autenticação por chave SSH no próximo passo.
-5. Gere um par de chaves SSH na sua máquina se ainda não tiver uma: `ssh-keygen -t ed25519`.
-
-Os passos daqui pra frente (acesso, pacotes, banco, deploy) são os mesmos independente de qual VPS Linux você escolheu — o resto do doc assume só que você já tem um IP e acesso root/sudo funcionando.
+1. Contrate o **VPS 2 GB Linux** (ou 1 GB) em [locaweb.com.br/servidor-vps](https://www.locaweb.com.br/servidor-vps/). Sistema: **Ubuntu 24.04**.
+2. A ativação chega por e-mail com o IP e a senha de root.
+3. Na sua máquina, gere uma chave SSH se não tiver: `ssh-keygen -t ed25519`.
 
 ### 2. Acesso inicial e segurança básica
 
-Primeiro acesso, com a senha que veio por e-mail:
-
 ```bash
-ssh root@SEU_IP
-```
-
-Assim que entrar, troque a senha (`passwd`) e copie sua chave SSH pública pra não depender mais de senha:
-
-```bash
-# Na sua máquina, não no servidor:
+# Na sua máquina:
+ssh root@SEU_IP          # senha do e-mail; troque com `passwd` ao entrar
 ssh-copy-id root@SEU_IP
 ```
 
-De volta ao servidor, como root:
+No servidor, como root:
 
 ```bash
-# Usuário não-root pra rodar o app e fazer deploy
 adduser deploy
 usermod -aG sudo deploy
-
-# Copia sua chave SSH pro novo usuário
 rsync --archive --chown=deploy:deploy ~/.ssh /home/deploy
-
-# A partir daqui, saia e entre de novo como 'deploy'
 exit
-ssh deploy@SEU_IP
 ```
 
-Desabilite login root por senha e senha em geral (edite `/etc/ssh/sshd_config`, `PermitRootLogin no`, `PasswordAuthentication no`, depois `sudo systemctl restart ssh`) — só depois de confirmar que `ssh deploy@SEU_IP` com a chave está funcionando, senão você se tranca pra fora.
+```bash
+ssh deploy@SEU_IP   # confirme que entra com a chave ANTES do próximo passo
+```
+
+Desabilite login por senha: em `/etc/ssh/sshd_config`, `PermitRootLogin no` e `PasswordAuthentication no`, depois `sudo systemctl restart ssh`.
 
 ```bash
 sudo apt update && sudo apt upgrade -y
-
-sudo apt install -y ufw
-sudo ufw allow OpenSSH
-sudo ufw allow 80
-sudo ufw allow 443
+sudo apt install -y ufw fail2ban unattended-upgrades
+sudo ufw allow OpenSSH && sudo ufw allow 80 && sudo ufw allow 443
 sudo ufw enable
+sudo dpkg-reconfigure -plow unattended-upgrades   # responda "Yes": patches de segurança automáticos
 ```
 
-### 3. Swap (recomendado no plano de 1 GB, pra folga sob picos)
+O `fail2ban` já vem protegendo o SSH com a configuração padrão.
+
+### 3. Swap
 
 ```bash
 sudo fallocate -l 2G /swapfile
@@ -101,164 +93,115 @@ sudo swapon /swapfile
 echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
 ```
 
-### 4. PHP, extensões, Composer
+### 4. PHP, Composer, Nginx, Supervisor
 
-O app exige `"php": "^8.3"` (`composer.json`). Ubuntu 24.04 já traz PHP 8.3 nos repositórios oficiais, sem precisar de PPA de terceiros — mas se seu servidor veio com **Ubuntu 22.04** (que só tem PHP 8.1 por padrão), adicione o PPA `ondrej/php` antes de instalar.
+O app exige PHP `^8.3`, que o Ubuntu 24.04 já traz.
 
 ```bash
-php -v   # veja o que já está instalado antes de mais nada
-
-# Só se a versão acima for menor que 8.3 (Ubuntu 22.04 ou mais antigo):
-sudo apt install -y software-properties-common
-sudo add-apt-repository -y ppa:ondrej/php
-sudo apt update
-
-sudo apt install -y php8.3-fpm php8.3-pgsql php8.3-mbstring php8.3-xml php8.3-curl php8.3-zip php8.3-bcmath php8.3-gd unzip
-
-php -v   # confirma 8.3.x
-
+sudo apt install -y php8.3-fpm php8.3-pgsql php8.3-mbstring php8.3-xml php8.3-curl \
+  php8.3-zip php8.3-bcmath php8.3-gd unzip git nginx supervisor
 curl -sS https://getcomposer.org/installer | php
 sudo mv composer.phar /usr/local/bin/composer
 ```
 
-Se o `php -v` do início já mostrou 8.3 ou mais novo (caso do Ubuntu 24.04), pode instalar os pacotes sem o nome da versão (`php-fpm`, `php-pgsql`, etc.) e pular o PPA — o comando acima com `php8.3-*` funciona nos dois casos, então é o mais seguro de copiar e colar direto.
+### 5. PostgreSQL 17
 
-### 5. PostgreSQL
+O banco local (Windows) é **Postgres 17**, e o Ubuntu 24.04 instala o 16. Um dump do 17 pode não restaurar no 16. Por isso, instale o 17 pelo repositório oficial do PostgreSQL (PGDG):
 
 ```bash
-sudo apt install -y postgresql
+sudo apt install -y postgresql-common
+sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+sudo apt install -y postgresql-17
 
-sudo -u postgres psql <<'SQL'
-CREATE DATABASE monthly_radar;
-CREATE USER radar_app WITH ENCRYPTED PASSWORD 'TROQUE_ESSA_SENHA';
-GRANT ALL PRIVILEGES ON DATABASE monthly_radar TO radar_app;
-ALTER DATABASE monthly_radar OWNER TO radar_app;
+DB_PASS="$(openssl rand -base64 24)"; echo "Senha do banco: $DB_PASS"   # guarde: vai no .env
+sudo -u postgres psql <<SQL
+CREATE USER radar_app WITH ENCRYPTED PASSWORD '$DB_PASS';
+CREATE DATABASE monthly_radar OWNER radar_app;
 SQL
 ```
 
-Guarde a senha — vai pro `.env` daqui a pouco. Por padrão o Postgres só escuta em `localhost`, então não precisa mexer em `pg_hba.conf`/`postgresql.conf` pra isso.
+O Postgres só escuta em `localhost` por padrão.
 
 ### 6. Clonar e configurar o app
 
 ```bash
 sudo mkdir -p /var/www/monthly-radar
-sudo chown deploy:deploy /var/www/monthly-radar
+sudo chown deploy:www-data /var/www/monthly-radar
 git clone https://github.com/emanuelbrebal/monthly-radar /var/www/monthly-radar
 cd /var/www/monthly-radar
+git config core.fileMode false   # o chmod do passo 10 não pode "sujar" o git
 
-composer install --no-dev --optimize-autoloader
+composer install --no-dev --optimize-autoloader --no-interaction
 
-cp .env.example .env
+cp .env.production.example .env
 php artisan key:generate
+nano .env
 ```
 
-Edite `.env` (`nano .env`):
+No `.env`, preencha:
+- `APP_URL`: o subdomínio do passo 8.
+- `DB_PASSWORD`: a senha do passo 5.
+- `RADAR_USER_EMAIL` e `RADAR_USER_PASSWORD`. Gere a senha com `openssl rand -base64 18`. **Em produção o `UserSeeder` recusa senha com menos de 12 caracteres.**
 
-```env
-APP_NAME="Radar Mensal"
-APP_ENV=production
-APP_DEBUG=false
-APP_URL=https://seu-dominio.com.br
+### 7. Dados: restaurar o banco local
 
-DB_CONNECTION=pgsql
-DB_HOST=127.0.0.1
-DB_PORT=5432
-DB_DATABASE=monthly_radar
-DB_USERNAME=radar_app
-DB_PASSWORD=TROQUE_ESSA_SENHA
+Isso leva pins, inscrições, resultados de prova, descartes e o histórico de raspagem para produção. Os `raw_listings` vão junto, então a próxima varredura não traz de volta o ruído que você descartou. Faça uma vez só, com o banco de produção ainda vazio.
 
-RADAR_USER_EMAIL=seu@email.com
-RADAR_USER_PASSWORD=uma-senha-forte-de-verdade
+**Na sua máquina** (Git Bash, no repo):
 
-ANTHROPIC_API_KEY=   # opcional — deixe vazio se não quiser enriquecimento por LLM
-
-QUEUE_CONNECTION=database
-SESSION_DRIVER=database
-CACHE_STORE=database
+```bash
+"/c/Program Files/PostgreSQL/17/bin/pg_dump.exe" -h 127.0.0.1 -U postgres \
+  --format=custom --no-owner --no-acl \
+  --exclude-table-data=sessions --exclude-table-data=cache --exclude-table-data=cache_locks \
+  --exclude-table-data=jobs --exclude-table-data=job_batches --exclude-table-data=failed_jobs \
+  --exclude-table-data=password_reset_tokens \
+  --file=radar-local.dump monthly_radar
+scp radar-local.dump deploy@SEU_IP:~/
 ```
+
+**No servidor:**
+
+```bash
+cd /var/www/monthly-radar
+pg_restore -h 127.0.0.1 -U radar_app -d monthly_radar --no-owner --no-acl --exit-on-error ~/radar-local.dump
+php artisan migrate --force                            # aplica o que for mais novo que o dump
+php artisan db:seed --force --class=UserSeeder         # troca a senha local pela do .env
+shred -u ~/radar-local.dump                            # apaga o dump (tinha o hash da senha local)
+```
+
+O `UserSeeder` só atualiza a senha e não mexe no seu filtro de estados.
+
+Se preferir **começar do zero**, pule este passo e rode:
 
 ```bash
 php artisan migrate --force
 php artisan db:seed --force --class=UserSeeder
-php artisan db:seed --force --class=ContestSeeder   # concursos da pesquisa (CGU, ANPD, BACEN, TJPB...)
-# Pode rodar de novo a cada atualização do JSON: num concurso que já existe, ele só
-# atualiza os fatos e não mexe em inscrição, maleta, descartes nem nas suas notas.
-
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
+php artisan db:seed --force --class=ContestSeeder
 ```
 
-### 7. Assets do front (buildar local, subir pro servidor)
+### 8. Subdomínio grátis (DuckDNS)
 
-Na sua máquina, dentro do repo:
+1. Entre em [duckdns.org](https://www.duckdns.org) (login com GitHub ou Google).
+2. Crie um subdomínio, por exemplo `radar-manu`. Fica `radar-manu.duckdns.org`.
+3. No campo **current ip**, ponha o IP do VPS e clique **update ip**. O IP do VPS é fixo, então não precisa de cliente de atualização.
+4. Confira da sua máquina: `nslookup radar-manu.duckdns.org` tem que devolver o IP do VPS.
+5. Ajuste `APP_URL=https://radar-manu.duckdns.org` no `.env`.
+
+### 9. Nginx + HTTPS
 
 ```bash
-npm ci
-npm run build
-rsync -avz public/build/ deploy@SEU_IP:/var/www/monthly-radar/public/build/
-```
+cd /var/www/monthly-radar
+sudo cp deploy/nginx/monthly-radar.conf /etc/nginx/sites-available/monthly-radar
+sudo sed -i 's/SEU-SUBDOMINIO/radar-manu/' /etc/nginx/sites-available/monthly-radar
+sudo ln -sf /etc/nginx/sites-available/monthly-radar /etc/nginx/sites-enabled/
+sudo rm -f /etc/nginx/sites-enabled/default
+sudo nginx -t && sudo systemctl reload nginx
 
-Repita esse `rsync` sempre que atualizar o front em produção (junto com o `git pull` + `composer install` do próximo deploy).
-
-### 8. Nginx
-
-```bash
-sudo apt install -y nginx
-sudo nano /etc/nginx/sites-available/monthly-radar
-```
-
-```nginx
-server {
-    listen 80;
-    server_name seu-dominio.com.br;
-    root /var/www/monthly-radar/public;
-
-    add_header X-Frame-Options "SAMEORIGIN";
-    add_header X-Content-Type-Options "nosniff";
-
-    index index.php;
-
-    charset utf-8;
-
-    location / {
-        try_files $uri $uri/ /index.php?$query_string;
-    }
-
-    location = /favicon.ico { access_log off; log_not_found off; }
-    location = /robots.txt  { access_log off; log_not_found off; }
-
-    error_page 404 /index.php;
-
-    location ~ \.php$ {
-        fastcgi_pass unix:/run/php/php8.3-fpm.sock;
-        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
-        include fastcgi_params;
-    }
-
-    location ~ /\.(?!well-known).* {
-        deny all;
-    }
-}
-```
-
-```bash
-sudo ln -s /etc/nginx/sites-available/monthly-radar /etc/nginx/sites-enabled/
-sudo rm /etc/nginx/sites-enabled/default
-sudo nginx -t
-sudo systemctl restart nginx
-```
-
-Antes de continuar, aponte o DNS do seu domínio (registro `A`) pro IP do servidor — o Certbot do próximo passo precisa disso resolvendo já.
-
-### 9. HTTPS com Certbot
-
-```bash
 sudo apt install -y certbot python3-certbot-nginx
-sudo certbot --nginx -d seu-dominio.com.br
+sudo certbot --nginx -d radar-manu.duckdns.org --redirect
 ```
 
-Ele já reconfigura o Nginx pra HTTPS e agenda a renovação automática sozinho.
+O Certbot cria o bloco HTTPS, redireciona 80 → 443 e agenda a renovação. Com `SESSION_SECURE_COOKIE=true`, o login **só funciona por HTTPS**. Isso é intencional.
 
 ### 10. Permissões
 
@@ -266,55 +209,71 @@ Ele já reconfigura o Nginx pra HTTPS e agenda a renovação automática sozinho
 sudo chown -R deploy:www-data /var/www/monthly-radar
 sudo find /var/www/monthly-radar -type f -exec chmod 664 {} \;
 sudo find /var/www/monthly-radar -type d -exec chmod 775 {} \;
-sudo chmod -R ug+rwx /var/www/monthly-radar/storage /var/www/monthly-radar/bootstrap/cache
+# setgid: tudo criado dentro de storage/ e bootstrap/cache herda o grupo www-data
+sudo find /var/www/monthly-radar/storage /var/www/monthly-radar/bootstrap/cache -type d -exec chmod g+s {} \;
+sudo chmod 640 /var/www/monthly-radar/.env
 ```
 
-### 11. Worker da fila (Supervisor)
+O worker e o `deploy.sh` rodam como `deploy` com `umask 002`. O PHP-FPM roda como `www-data`. Com o setgid, os dois conseguem escrever nos mesmos logs e caches.
 
-Sem isso, o botão "varrer" cria a `SearchRun` mas ela fica presa em `queued` pra sempre — os jobs do pipeline (`docs/02-pipeline.md`) nunca rodam.
+### 11. Worker da fila
 
 ```bash
-sudo apt install -y supervisor
-sudo nano /etc/supervisor/conf.d/radar-queue-worker.conf
+sudo cp /var/www/monthly-radar/deploy/supervisor/radar-queue-worker.conf /etc/supervisor/conf.d/
+sudo supervisorctl reread && sudo supervisorctl update
+sudo supervisorctl status   # radar-queue-worker_00 RUNNING
 ```
 
-```ini
-[program:radar-queue-worker]
-process_name=%(program_name)s_%(process_num)02d
-command=php /var/www/monthly-radar/artisan queue:work --sleep=3 --tries=3 --max-time=3600
-directory=/var/www/monthly-radar
-user=deploy
-autostart=true
-autorestart=true
-numprocs=1
-redirect_stderr=true
-stdout_logfile=/var/www/monthly-radar/storage/logs/queue-worker.log
-stopwaitsecs=3600
-```
+### 12. Primeiro deploy + assets
+
+**No servidor:**
 
 ```bash
-sudo supervisorctl reread
-sudo supervisorctl update
-sudo supervisorctl status radar-queue-worker:*   # deve mostrar RUNNING
+bash /var/www/monthly-radar/deploy/deploy.sh
 ```
 
-### 12. Verificação final
-
-1. Acesse `https://seu-dominio.com.br` — deve cair na tela de login.
-2. Logue com `RADAR_USER_EMAIL`/`RADAR_USER_PASSWORD`.
-3. Escolha uma área, aperte **varrer**.
-4. Acompanhe o status mudar de "varrendo…" pra "Varredura feita." — se travar em "varrendo…" pra sempre, o worker do Supervisor não está rodando (volte ao passo 11).
-5. Confira `sudo supervisorctl status` e `tail -f /var/www/monthly-radar/storage/logs/laravel.log` se algo der errado.
-
-## Deploys seguintes (depois do primeiro)
+**Na sua máquina** (Git Bash, no repo):
 
 ```bash
-cd /var/www/monthly-radar
-git pull
-composer install --no-dev --optimize-autoloader
-php artisan migrate --force
-php artisan config:cache && php artisan route:cache && php artisan view:cache
-sudo supervisorctl restart radar-queue-worker:*
+bash deploy/push-assets.sh deploy@SEU_IP
 ```
 
-E, se o front mudou, repita o `npm run build` + `rsync` local do passo 7.
+### 13. Backup diário
+
+```bash
+crontab -e
+# acrescente a linha:
+15 3 * * * bash /var/www/monthly-radar/deploy/backup.sh >> $HOME/backups/backup.log 2>&1
+```
+
+Teste uma vez na mão com `bash /var/www/monthly-radar/deploy/backup.sh`. Os dumps ficam em `~/backups` (7 mais recentes). Para restaurar um:
+
+```bash
+pg_restore -h 127.0.0.1 -U radar_app -d monthly_radar --clean --if-exists --no-owner --no-acl ~/backups/radar-AAAAMMDD-HHMM.dump
+```
+
+Copie um dump para a sua máquina de vez em quando (`scp deploy@SEU_IP:~/backups/*.dump .`). Backup só dentro do VPS não protege contra perder o VPS.
+
+### 14. Verificação final
+
+1. `https://radar-manu.duckdns.org` → tela de login, com cadeado.
+2. Logue com `RADAR_USER_EMAIL`/`RADAR_USER_PASSWORD`. Concursos, maleta e resultados devem estar iguais aos locais.
+3. **Ative o 2FA:** Configurações → Segurança → autenticação em dois fatores. O app fica na internet e só tem você como usuário.
+4. Rode uma varredura. O status deve ir de "varrendo…" para "Varredura feita.". Se travar, confira o worker: `sudo supervisorctl status` e `tail -f storage/logs/queue-worker.log`.
+5. Erros: `tail -f /var/www/monthly-radar/storage/logs/laravel-$(date +%F).log`.
+
+**Esqueci a senha:** o app não envia e-mail. O link de reset vai para o log do dia, no servidor (`grep reset storage/logs/laravel-*.log`). Outra opção: troque `RADAR_USER_PASSWORD` no `.env` e rode `php artisan config:clear && php artisan db:seed --force --class=UserSeeder`.
+
+## Deploys seguintes
+
+```bash
+# 1. Na sua máquina: push do código pra main no GitHub.
+# 2. No servidor:
+bash /var/www/monthly-radar/deploy/deploy.sh
+# 3. Se o front mudou, na sua máquina:
+bash deploy/push-assets.sh deploy@SEU_IP
+```
+
+O `deploy.sh` pode rodar quantas vezes quiser. Se algum passo falhar, ele tira o app do modo de manutenção e mostra o erro no terminal.
+
+**Rollback:** `cd /var/www/monthly-radar && git checkout <commit-anterior> && composer install --no-dev -o && php artisan optimize && php artisan queue:restart`. Migration já aplicada só volta com `php artisan migrate:rollback --step=1 --force`; confira antes o que ela desfaz.

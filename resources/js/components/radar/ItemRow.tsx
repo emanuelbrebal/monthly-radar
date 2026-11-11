@@ -42,17 +42,19 @@ export function ItemRow({ contest, onPinChange, onSelect }: ItemRowProps) {
 
     return (
         <div className="flex items-center gap-3 border-b border-line py-1.5">
+            {/* Nível como ícone (mesmo da maleta, texto em sr-only): o selo
+                com texto não cabia na coluna e gerava rolagem horizontal. */}
+            <TierMark tier={contest.tier} variant="dot" />
+
             <button
                 type="button"
-                className="t-title min-h-6 flex-1 truncate text-left text-ink"
+                className="t-title min-h-6 w-24 shrink-0 truncate text-left text-ink"
                 onClick={() => onSelect?.(contest)}
             >
                 {contest.organ_acronym ?? contest.organ}
             </button>
 
-            <TierMark tier={contest.tier} variant="chip" />
-
-            <span className="t-body w-32 shrink-0 truncate text-muted-fg">
+            <span className="t-body min-w-0 flex-1 truncate text-muted-fg">
                 {nextEventLabel(contest) ?? '—'}
             </span>
 

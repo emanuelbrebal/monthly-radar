@@ -7,13 +7,33 @@ beforeEach(function () {
     $this->normalizer = new ContestNormalizer;
 });
 
-it('matches areas by keyword', function () {
-    expect($this->normalizer->matchedAreas('Vaga para Analista de Sistemas — Desenvolvimento de Software'))
-        ->toContain('development');
+it('matches an explicit IT role', function (string $text, string $area) {
+    expect($this->normalizer->matchedAreas($text))->toContain($area);
+})->with([
+    'analista de sistemas' => ['Vaga para Analista de Sistemas', 'development'],
+    'glued to a salary' => ['20 vagas até R$ 6.000,00Analista de TI, Escrivão', 'development'],
+    'full name, accented' => ['Analista de Tecnologia da Informação', 'development'],
+    'judiciary specialty' => ['Técnico Judiciário - Informática', 'support'],
+    'plural' => ['abre concurso para desenvolvedores', 'development'],
+    'tecnico em informatica' => ['Técnico em Informática | Médio', 'support'],
+    'data scientist' => ['Cientista de Dados', 'data'],
+    'security analyst' => ['Analista de Segurança da Informação', 'security'],
+    'network' => ['Analista de Redes', 'infrastructure'],
+]);
 
-    expect($this->normalizer->matchedAreas('Concurso para Procurador do estado'))
-        ->toBe([]);
-});
+it('does not match text without an IT role', function (string $text) {
+    expect($this->normalizer->matchedAreas($text))->toBe([]);
+})->with([
+    'organ name' => ['FUNCAMP - Fundação de Desenvolvimento da Unicamp'],
+    'organ name, economic' => ['CIDEMA - Consórcio Intermunicipal de Desenvolvimento Econômico'],
+    'education role' => ['Diretor, Auxiliar de Desenvolvimento Infantil'],
+    'substring of cuidados' => ['Cuidador de idosos: cuidados básicos'],
+    'substring of paredes' => ['Pedreiro para paredes e muros'],
+    'syllabus mention' => ['Agente Administrativo (noções de informática)'],
+    'unrelated database' => ['Banco de Dados Ambientais da secretaria'],
+    'legal role' => ['Concurso para Procurador do estado'],
+    'administrative support' => ['Técnico de Suporte Administrativo Educacional'],
+]);
 
 it('extracts acronym and year from the title', function () {
     expect($this->normalizer->extractOrganAcronymYear('TRF3 2026 — Analista Judiciário'))

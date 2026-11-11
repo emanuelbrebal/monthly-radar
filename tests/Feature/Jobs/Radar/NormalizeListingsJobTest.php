@@ -136,3 +136,41 @@ it('matches an existing contest by organ similarity when the slug differs', func
 
     expect(Contest::query()->count())->toBe(1);
 });
+
+it('rejects an organ name that only mentions development, counting it', function () {
+    $run = SearchRun::factory()->create(['area' => 'all']);
+
+    createRawListing([
+        'source' => 'pci_concursos',
+        'external_url' => 'https://www.pciconcursos.com.br/noticias/funcamp',
+        'title' => 'FUNCAMP - Fundação de Desenvolvimento da Unicamp',
+        'payload' => ['text' => 'FUNCAMP abre processo seletivo | 3 vagas | Enfermeiro | Superior', 'links' => []],
+        'fetched_at' => now(),
+    ]);
+
+    runNormalize($run);
+
+    expect(Contest::query()->count())->toBe(0);
+    expect($run->refresh()->counts['rejected_no_it'])->toBe(1);
+});
+
+it('creates a contest when the IT role only shows up in the roles read from the news page', function () {
+    $run = SearchRun::factory()->create(['area' => 'all']);
+
+    createRawListing([
+        'source' => 'pci_concursos',
+        'external_url' => 'https://www.pciconcursos.com.br/noticias/camara-de-cristalina',
+        'title' => 'Câmara de Cristalina',
+        'payload' => [
+            'text' => 'Câmara de Cristalina abre concurso | 15 vagas | Vários Cargos | Médio / Superior 30/11/2026 -GO',
+            'links' => [],
+            'roles' => ['Analista de Contabilidade (1 vaga)', 'Analista de Tecnologia da Informação (1 vaga + 5 CR)'],
+        ],
+        'fetched_at' => now(),
+    ]);
+
+    runNormalize($run);
+
+    expect(Contest::query()->count())->toBe(1);
+    expect(Contest::first()->areas)->toContain('development');
+});

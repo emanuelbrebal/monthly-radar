@@ -17,7 +17,7 @@ class DismissedContestsController
     {
         $contests = Contest::query()
             ->dismissed()
-            ->with('events')
+            ->with(['events', 'results'])
             ->orderByDesc('dismissed_at')
             ->get();
 

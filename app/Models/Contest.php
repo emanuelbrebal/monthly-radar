@@ -223,6 +223,22 @@ class Contest extends Model
     }
 
     /**
+     * @return HasMany<ExamResult, $this>
+     */
+    public function results(): HasMany
+    {
+        return $this->hasMany(ExamResult::class);
+    }
+
+    /** Resultado da prova objetiva (a única etapa editável na UI). */
+    public function objectiveResult(): ?ExamResult
+    {
+        return $this->relationLoaded('results')
+            ? $this->results->firstWhere('stage', ExamResult::STAGE_OBJECTIVE)
+            : $this->results()->where('stage', ExamResult::STAGE_OBJECTIVE)->first();
+    }
+
+    /**
      * @return HasMany<RawListing, $this>
      */
     public function rawListings(): HasMany

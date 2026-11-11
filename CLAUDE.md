@@ -28,7 +28,7 @@ Radar Mensal · Concursos: app pessoal (só o Emanuel, sem multiusuário, sem Sa
 - Actions em `app/Actions/Radar/` (ex. `UnpinExpiredContests`) quando a operação é um passo único e idempotente, sem estado próprio.
 - Jobs (a partir da T3) em `app/Jobs/Radar/`, encadeados com `Bus::chain`. Idempotentes — `content_hash` único em `raw_listings` evita reprocesso.
 - Enums em `app/Enums/` (backed string): `TiArea`, `EditalStatus`, `EnrollmentStatus`, `Regime`, `EventType`, `EnrichmentStatus`, `Confidence`, `RunStatus`, e (a partir da T2) `BrazilianState`/`Region`.
-- Front: páginas Inertia em `resources/js/pages/`, componentes em `resources/js/components/`. Tailwind 4. Tokens visuais só do handoff em `design/radar mensal/` — sem cara de shadcn padrão, `radius: 0`.
+- Front: páginas Inertia em `resources/js/pages/`, componentes em `resources/js/components/`. Tailwind 4. Tokens visuais só do handoff em `design/radar mensal/` — sem cara de shadcn padrão. `--radius: 10px` (mudado a pedido do dono em 18/09/2026; o handoff original era 0).
 - Testes: Pest, em `tests/Unit` e `tests/Feature`. Mínimo obrigatório da camada de domínio: `ContestStatusResolver` (tabela de casos), `isExpired`/regra das 24h, paridade `isExpired()+isDismissed()` vs `scopeVisible()`, descarte, `pinned_slot` único.
 - Migrations seguem exatamente o modelo de dados de `docs/01-modelo-de-dados.md` — não inventar coluna. Colunas de filtro por estado (`states`, `nationwide`, `users.preferences`) só entram na T2 (`docs/06-filtro-estados.md`).
 

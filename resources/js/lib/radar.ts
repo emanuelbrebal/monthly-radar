@@ -1,4 +1,4 @@
-import type { ContestDto } from '@/types/radar';
+import type { ContestDto, EventTypeValue } from '@/types/radar';
 
 /** Hoje em `YYYY-MM-DD` no fuso local (UTC viraria o dia às 21h no Brasil), igual às datas dos eventos. */
 export function todayIso(): string {
@@ -66,6 +66,90 @@ export function compareByNextEvent(
     return rankA === 1
         ? dateB.localeCompare(dateA)
         : dateA.localeCompare(dateB);
+}
+
+/** Rótulo curto por tipo — cabe no cartão da maleta. */
+const SHORT_EVENT_LABEL: Record<EventTypeValue, string> = {
+    registration_start: 'insc. abre',
+    registration_end: 'insc. até',
+    fee_deadline: 'taxa até',
+    exam: 'prova',
+    result: 'resultado',
+    other: 'prazo',
+};
+
+/** Prazos a até 7 dias ganham destaque no cartão. */
+export const URGENT_DAYS = 7;
+
+export type Deadline = {
+    label: string;
+    /** `dd/mm` */
+    date: string;
+    days: number;
+    /** `hoje`, `amanhã` ou `Nd` */
+    countdown: string;
+    urgent: boolean;
+};
+
+function daysBetween(from: string, to: string): number {
+    const toUtc = (iso: string) => {
+        const [y, m, d] = iso.split('-').map(Number);
+
+        return Date.UTC(y, m - 1, d);
+    };
+
+    return Math.round((toUtc(to) - toUtc(from)) / 86_400_000);
+}
+
+/** Situações em que os prazos de inscrição já não são o meu próximo passo. */
+const ENROLLED: ReadonlyArray<ContestDto['enrollment_status']> = [
+    'enrolled',
+    'fee_paid',
+    'venue_released',
+    'exam_taken',
+];
+const FEE_DONE: ReadonlyArray<ContestDto['enrollment_status']> = [
+    'fee_paid',
+    'venue_released',
+    'exam_taken',
+];
+
+/**
+ * Próximo prazo de hoje em diante (eventos já vêm ordenados por data do
+ * presenter); `null` se não há nenhum futuro. Já inscrito, pula os prazos
+ * de inscrição; com a taxa paga, pula também o da taxa. `result`/`other`
+ * usam o rótulo do evento quando existe ("gabarito preliminar").
+ */
+export function upcomingDeadline(
+    contest: WithEvents & Partial<Pick<ContestDto, 'enrollment_status'>>,
+    today: string,
+): Deadline | null {
+    const status = contest.enrollment_status ?? 'not_enrolled';
+    const skip = (type: EventTypeValue) =>
+        (ENROLLED.includes(status) &&
+            (type === 'registration_start' || type === 'registration_end')) ||
+        (FEE_DONE.includes(status) && type === 'fee_deadline');
+    const event = contest.events.find((e) => e.date >= today && !skip(e.type));
+
+    if (!event) {
+        return null;
+    }
+
+    const days = daysBetween(today, event.date);
+    const [, month, day] = event.date.split('-');
+    const useOwnLabel =
+        (event.type === 'other' || event.type === 'result') &&
+        event.label !== null;
+
+    return {
+        label: useOwnLabel
+            ? (event.label as string)
+            : SHORT_EVENT_LABEL[event.type],
+        date: `${day}/${month}`,
+        days,
+        countdown: days === 0 ? 'hoje' : days === 1 ? 'amanhã' : `${days}d`,
+        urgent: days <= URGENT_DAYS,
+    };
 }
 
 export function money(cents: number | null): string | null {

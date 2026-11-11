@@ -180,7 +180,7 @@ Every LLM call logs `input_tokens`, `output_tokens`, and the number of searches 
 
 Single-VPS deployment — no containers, no autoscaling, one Postgres instance. Sweeps run asynchronously via `Bus::chain`, so a queue worker under Supervisor is required — without it, a sweep gets stuck in `queued` forever. No cron job is needed for scraping; sweeps are always triggered manually from the UI.
 
-See [`docs/07-deploy.md`](docs/07-deploy.md) (in Portuguese) for the full walkthrough — cheapest-VPS comparison with real 2026-09-18 prices, and copy-pasteable commands for provisioning, PHP/Postgres/Nginx setup, HTTPS, and the Supervisor config.
+See [`docs/07-deploy.md`](docs/07-deploy.md) (in Portuguese) for the full walkthrough — VPS prices checked on 2026-11-11, a free DuckDNS subdomain with HTTPS, restoring the local database, and the scripts in `deploy/` (idempotent deploy, asset push, daily backup, Nginx and Supervisor configs).
 
 ## License
 

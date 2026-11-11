@@ -62,7 +62,7 @@ class PinController
             return response()->json(['message' => $e->getMessage()], 422);
         }
 
-        $pinned = Contest::query()->whereNotNull('pinned_slot')->with('events')->get();
+        $pinned = Contest::query()->whereNotNull('pinned_slot')->with(['events', 'results'])->get();
 
         return response()->json(['contests' => $pinned->map(fn (Contest $c) => ContestPresenter::present($c))->all()]);
     }

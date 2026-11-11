@@ -11,9 +11,9 @@ export default function AlertError({
     return (
         <Alert variant="destructive">
             <AlertCircleIcon />
-            <AlertTitle>{title || 'Something went wrong.'}</AlertTitle>
+            <AlertTitle>{title || 'Algo deu errado.'}</AlertTitle>
             <AlertDescription>
-                <ul className="list-inside list-disc text-sm">
+                <ul className="t-body list-inside list-disc">
                     {Array.from(new Set(errors)).map((error, index) => (
                         <li key={index}>{error}</li>
                     ))}

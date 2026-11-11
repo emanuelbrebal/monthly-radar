@@ -13,13 +13,13 @@ export type Props = {
 
 const EmptyState = () => {
     return (
-        <div className="p-8 text-center">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-muted">
-                <KeyRound className="h-7 w-7 text-muted-foreground" />
+        <div className="p-6 text-center">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-lg bg-muted">
+                <KeyRound className="h-7 w-7 text-muted-fg" />
             </div>
-            <p className="font-medium">No passkeys yet</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-                Add a passkey to sign in without a password
+            <p className="t-body font-semibold">nenhuma chave de acesso</p>
+            <p className="t-body mt-1 text-muted-fg">
+                Com uma chave de acesso você entra sem digitar a senha.
             </p>
         </div>
     );
@@ -47,8 +47,8 @@ export default function ManagePasskeys(props: Props) {
         <div className="space-y-6">
             <Heading
                 variant="small"
-                title="Passkeys"
-                description="Manage your passkeys for passwordless sign-in"
+                title="chaves de acesso"
+                description="Login sem senha, pela biometria ou PIN do aparelho."
             />
 
             <div className="overflow-hidden rounded-lg border border-border">

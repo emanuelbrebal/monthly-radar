@@ -210,7 +210,7 @@ export function AttacheCase({
                         ))}
                     </div>
                     {top > base && (
-                        <p className="rm-serif text-xs text-night-text-mid italic">
+                        <p className="rm-serif t-label font-normal text-night-text-mid italic">
                             maleta pesada no topo — {top} de elite/alto contra{' '}
                             {base} de base.
                         </p>
@@ -220,7 +220,7 @@ export function AttacheCase({
 
             {view === 'grid' ? (
                 <div
-                    className="grid min-h-0 flex-1 content-start gap-1.5 overflow-y-auto"
+                    className="grid min-h-0 flex-1 content-start gap-2 overflow-y-auto"
                     style={CASE_GRID}
                 >
                     {order.map((contestId, slot) => (
@@ -242,16 +242,16 @@ export function AttacheCase({
             ) : (
                 <div className="flex min-h-0 flex-col gap-3 overflow-y-auto">
                     {groups.length === 0 && (
-                        <p className="rm-serif text-sm text-night-text-mid italic">
+                        <p className="rm-serif t-body text-night-text-mid italic">
                             Maleta vazia.
                         </p>
                     )}
                     {groups.map((group) => (
                         <div
                             key={group.tier ?? 'none'}
-                            className="flex flex-col gap-1.5"
+                            className="flex flex-col gap-2"
                         >
-                            <p className="t-label inline-flex items-center gap-1.5 text-night-text">
+                            <p className="t-label inline-flex items-center gap-2 text-night-text">
                                 <TierMark
                                     tier={group.tier}
                                     variant="dot"
@@ -259,7 +259,7 @@ export function AttacheCase({
                                 />
                                 {group.label} · {group.slots.length}
                             </p>
-                            <div className="grid gap-1.5" style={CASE_GRID}>
+                            <div className="grid gap-2" style={CASE_GRID}>
                                 {group.slots.map((slot) => (
                                     <CaseSlot
                                         key={slot}

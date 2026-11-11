@@ -36,7 +36,7 @@ export function ItemDescription({
     if (contest === null) {
         return (
             <div className="rm-rule-double shrink-0 border-t-[3px] border-double border-slot-border pt-3">
-                <p className="rm-serif text-sm text-night-text-mid italic">
+                <p className="rm-serif t-body text-night-text-mid italic">
                     Escolhe um item.
                 </p>
             </div>
@@ -78,7 +78,7 @@ export function ItemDescription({
                 >
                     {contest.organ_acronym ?? contest.organ}
                 </p>
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-2">
                     {contest.is_new && <NewTag />}
                     <TierMark tier={contest.tier} variant="chip" on="night" />
                 </div>
@@ -116,7 +116,7 @@ export function ItemDescription({
                 />
             </dl>
 
-            <p className="rm-serif mt-1.5 text-sm text-night-text-mid italic">
+            <p className="rm-serif t-body mt-2 text-night-text-mid italic">
                 próximo: {nextEventLabel(contest) ?? 'sem data'}
             </p>
 

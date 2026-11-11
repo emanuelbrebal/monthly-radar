@@ -23,6 +23,9 @@
     --color-red-deep: var(--red-deep);
     --color-green: var(--green);
     --color-blue: var(--blue);
+    --color-viz-series: var(--viz-series);
+    --color-viz-neg: var(--viz-neg);
+    --color-viz-grid: var(--viz-grid);
     --color-gold: var(--gold);
     --color-highlight: var(--highlight);
     --color-night: var(--night);
@@ -42,6 +45,8 @@
     --color-muted-fg: var(--muted-fg);
     --color-line: var(--line);
 
+    /* micro: só eixos e rótulos secundários de gráfico (SVG); texto de UI começa em label. */
+    --text-micro: 11px;
     --text-label: 12px;
     --text-body: 14px;
     --text-title: 18px;
@@ -141,6 +146,16 @@
     --blue: #2f4a67;
     --gold: #aa8a4c;
     --highlight: #f0d96b;
+
+    /*
+     * Gráficos do painel (T7). Mesmos matizes de --blue/--red, com croma
+     * suficiente pra ler como cor sobre --paper; par validado com o
+     * validate_palette da skill dataviz (CVD ΔE 16, contraste >= 3:1).
+     * --viz-series: série única e "acima do corte"; --viz-neg: "abaixo".
+     */
+    --viz-series: #2f5f94;
+    --viz-neg: #a8402c;
+    --viz-grid: var(--paper-deep);
 
     --night: #14110d;
     --night-2: #1f1a13;
@@ -251,6 +266,9 @@
     }
     .rm-mono {
         font-family: var(--font-mono);
+    }
+    .rm-serif {
+        font-family: var(--font-serif);
     }
     .rm-eyebrow {
         font-family: var(--font-sans);

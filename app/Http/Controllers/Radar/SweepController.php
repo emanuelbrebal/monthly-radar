@@ -9,6 +9,7 @@ use App\Jobs\Radar\FinalizeRunJob;
 use App\Jobs\Radar\HarvestSourcesJob;
 use App\Jobs\Radar\NormalizeListingsJob;
 use App\Models\SearchRun;
+use App\Support\Radar\SearchRunPresenter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -47,7 +48,7 @@ class SweepController
         if ($activeRun !== null) {
             return response()->json([
                 'message' => 'Já existe uma varredura em andamento.',
-                'run' => $this->present($activeRun),
+                'run' => SearchRunPresenter::present($activeRun),
             ], 409);
         }
 
@@ -71,27 +72,11 @@ class SweepController
             $run->save();
         })->dispatch();
 
-        return response()->json(['run' => $this->present($run)], 201);
+        return response()->json(['run' => SearchRunPresenter::present($run)], 201);
     }
 
     public function show(SearchRun $run): JsonResponse
     {
-        return response()->json(['run' => $this->present($run)]);
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function present(SearchRun $run): array
-    {
-        return [
-            'id' => $run->id,
-            'area' => $run->area->value,
-            'status' => $run->status->value,
-            'started_at' => $run->started_at->toIso8601String(),
-            'finished_at' => $run->finished_at?->toIso8601String(),
-            'counts' => $run->counts,
-            'meta' => $run->meta,
-        ];
+        return response()->json(['run' => SearchRunPresenter::present($run)]);
     }
 }

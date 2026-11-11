@@ -1,6 +1,7 @@
 import { NewTag, PhaseTag } from '@/components/radar/PhaseTag';
 import { Stamp } from '@/components/radar/Stamp';
 import { TierMark, tierMeta } from '@/components/radar/TierMark';
+import { todayIso, upcomingDeadline } from '@/lib/radar';
 import type { ContestDto } from '@/types/radar';
 
 type CaseSlotProps = {
@@ -25,6 +26,10 @@ export function CaseSlot({
     reorderable = true,
 }: CaseSlotProps) {
     const tier = contest ? tierMeta(contest.tier) : null;
+    const deadline = contest ? upcomingDeadline(contest, todayIso()) : null;
+    const deadlineText = deadline
+        ? `${deadline.label} ${deadline.date}, ${deadline.countdown === 'hoje' || deadline.countdown === 'amanhã' ? deadline.countdown : `em ${deadline.days} dias`}`
+        : 'sem prazo';
 
     return (
         <div
@@ -32,7 +37,7 @@ export function CaseSlot({
             tabIndex={0}
             aria-label={
                 contest
-                    ? `${contest.organ_acronym ?? contest.organ}, ${contest.phase_label}${contest.is_new ? ', novo' : ''}, slot ${slot + 1}${tier ? `, nível ${tier.label}` : ''}`
+                    ? `${contest.organ_acronym ?? contest.organ}, ${contest.phase_label}, ${deadlineText}${contest.is_new ? ', novo' : ''}, slot ${slot + 1}${tier ? `, nível ${tier.label}` : ''}`
                     : `slot ${slot + 1} vazio`
             }
             onClick={() => onSelect(slot)}
@@ -73,24 +78,45 @@ export function CaseSlot({
                     {slot + 1}
                 </span>
             ) : (
-                <div className="surface-card relative flex h-full min-w-0 flex-col justify-between gap-0.5 overflow-hidden rounded-sm border border-ink p-1">
-                    <p
-                        className="min-w-0 truncate text-[15px] leading-tight font-bold text-ink"
-                        title={contest.title}
-                    >
-                        {contest.organ_acronym ?? contest.organ}
-                    </p>
+                <div className="surface-card relative flex h-full min-w-0 flex-col justify-between gap-1 overflow-hidden rounded-sm border border-ink p-1.5">
+                    {/* Uma informação por linha, sem quebra: sigla, fase,
+                        prazo, nível. O rótulo do prazo fica no painel de
+                        descrição — no cartão só data e contagem (T8). */}
+                    <div className="flex min-w-0 items-center gap-1">
+                        <TierMark tier={contest.tier} variant="dot" />
+                        <p
+                            className="t-body min-w-0 truncate leading-tight font-bold text-ink"
+                            title={contest.title}
+                        >
+                            {contest.organ_acronym ?? contest.organ}
+                        </p>
+                    </div>
                     <PhaseTag
                         contest={contest}
-                        wrap
-                        className="line-clamp-2 px-1 py-0.5"
+                        className="max-w-full self-start px-1 py-0"
                     />
-                    <div className="flex min-w-0 items-center justify-between gap-1">
-                        <TierMark tier={contest.tier} variant="dot" />
-                        {contest.is_new && (
-                            <NewTag className="px-1 py-0 text-[10px]" />
+                    <p
+                        className={`t-label flex min-w-0 justify-between gap-1 font-mono leading-tight ${
+                            deadline === null
+                                ? 'font-normal text-muted-fg'
+                                : deadline.urgent
+                                  ? 'text-red-text'
+                                  : 'font-normal text-ink'
+                        }`}
+                        title={deadlineText}
+                    >
+                        {deadline === null ? (
+                            <span>sem prazo</span>
+                        ) : (
+                            <>
+                                <span>{deadline.date}</span>
+                                <span>{deadline.countdown}</span>
+                            </>
                         )}
-                    </div>
+                    </p>
+                    {contest.is_new && (
+                        <NewTag className="self-start px-1 py-0" />
+                    )}
                     {contest.hides_in_hours !== null &&
                         contest.hides_in_hours <= 24 && (
                             <Stamp
