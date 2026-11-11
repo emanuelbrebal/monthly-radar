@@ -1,8 +1,9 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import type { PropsWithChildren } from 'react';
 import { RadarHeader } from '@/components/radar/RadarHeader';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { toUrl } from '@/lib/utils';
+import { logout } from '@/routes';
 import { edit } from '@/routes/profile';
 import { edit as editSecurity } from '@/routes/security';
 import type { NavItem } from '@/types';
@@ -44,6 +45,18 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                                 </Link>
                             );
                         })}
+
+                        {/* A sidebar do starter kit (que tinha o "sair") saiu;
+                            o logout mora aqui, na conta. */}
+                        <Link
+                            href={logout()}
+                            as="button"
+                            onClick={() => router.flushAll()}
+                            data-test="logout-button"
+                            className="t-body ml-auto min-h-6 px-2 py-1 text-muted-fg underline-offset-4 hover:text-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                        >
+                            sair
+                        </Link>
                     </nav>
 
                     <section className="surface-card flex flex-col gap-6 rounded-lg border border-ink p-6">
