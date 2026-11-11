@@ -7,6 +7,9 @@
 # Os assets do front NÃO são buildados aqui (VPS de 1 GB, sem Node): rode
 # deploy/push-assets.sh na sua máquina antes ou depois deste script.
 set -euo pipefail
+# Arquivos criados aqui (cache, log do dia) precisam ser graváveis pelo
+# grupo www-data do PHP-FPM.
+umask 002
 
 APP_DIR="${APP_DIR:-/var/www/monthly-radar}"
 BRANCH="${BRANCH:-main}"
