@@ -1,8 +1,8 @@
 {
   "_meta": {
-    "collected_between": "2026-07-20/2026-10-15",
+    "collected_between": "2026-07-20/2026-10-19",
     "origin": "seed",
-    "note": "Dados levantados em conversas de pesquisa no Claude. Verificar com a primeira varredura da área 'all'. Valores em centavos, datas em AAAA-MM-DD (America/Maceio). states/nationwide: só UFs citadas nas pesquisas; vazio = local a definir. Rodada de 17/09/2026 trouxe campos de curadoria manual novos (ver docs/01-modelo-de-dados.md → \"Campos de curadoria manual\") e mais concursos mapeados — enrollment_status/pinned_slot/dismissed_reason dos concursos já semeados antes NÃO foram tocados por essa rodada (são seus, não meus); só os fatos (dinheiro, datas, vagas, notas) foram atualizados quando a pesquisa nova tinha algo mais preciso. Rodada de 13/10/2026: foco reduzido a CGU, ANPD, BACEN e TJPB (o resto saiu da maleta, sem descarte); CGU atualizada com o edital publicado em 09/10; TJPB incluído; Dataprev com prova feita. Rodada de 14/10/2026: todo concurso ganhou tier (elite/alto/intermediario/entrada) + tier_note — régua: salário e tipo de órgão indicam o nível de quem disputa; número de vagas diz se é disputa ou loteria. Rodada de 15/10/2026: IBRAM-DF (autorizado no mesmo dia) + varredura manual — TCE-GO (inscrições abertas), Sefaz-BA, STJ, CNU 3 e Caixa TI. Fora: TJ-AL (sem cargo de TI previsto), Alagoas Previdência (prova já feita em 27/09), ATI-PE (concurso já concluído), TJES (seleção simplificada, encerrada)."
+    "note": "Dados levantados em conversas de pesquisa no Claude. Verificar com a primeira varredura da área 'all'. Valores em centavos, datas em AAAA-MM-DD (America/Maceio). states/nationwide: só UFs citadas nas pesquisas; vazio = local a definir. Rodada de 17/09/2026 trouxe campos de curadoria manual novos (ver docs/01-modelo-de-dados.md → \"Campos de curadoria manual\") e mais concursos mapeados — enrollment_status/pinned_slot/dismissed_reason dos concursos já semeados antes NÃO foram tocados por essa rodada (são seus, não meus); só os fatos (dinheiro, datas, vagas, notas) foram atualizados quando a pesquisa nova tinha algo mais preciso. Rodada de 13/10/2026: foco reduzido a CGU, ANPD, BACEN e TJPB (o resto saiu da maleta, sem descarte); CGU atualizada com o edital publicado em 09/10; TJPB incluído; Dataprev com prova feita. Rodada de 14/10/2026: todo concurso ganhou tier (elite/alto/intermediario/entrada) + tier_note — régua: salário e tipo de órgão indicam o nível de quem disputa; número de vagas diz se é disputa ou loteria. Rodada de 15/10/2026: IBRAM-DF (autorizado no mesmo dia) + varredura manual — TCE-GO (inscrições abertas), Sefaz-BA, STJ, CNU 3 e Caixa TI. Fora: TJ-AL (sem cargo de TI previsto), Alagoas Previdência (prova já feita em 27/09), ATI-PE (concurso já concluído), TJES (seleção simplificada, encerrada). Rodada de 17/10/2026: TJPB (minuta do edital, publicação esperada na semana seguinte), BACEN (cargo Auditor, R$ 18.033,52, banca ainda não anunciada), ANPD (meta de banca até 01/12) e Sefaz-BA (edital em novembro). Nenhum concurso novo de TI que valesse entrar; TJ-ES (TIC) só anunciado. Rodada de 19/10/2026: TJPB com edital publicado (DJe de 20/10) — inscrições 20/10 a 18/11, prova 24/01/2027, remuneração R$ 7.526,14 + auxílios; fonte oficial na página da FGV."
   },
   "contests": [
     {
@@ -370,16 +370,16 @@
       "nationwide": false,
       "edital_url": null,
       "registration_url": null,
-      "source_checked_at": "2026-10-13",
+      "source_checked_at": "2026-10-17",
       "confidence": "medium",
       "enrollment_status": "interested",
       "dismissed_reason": null,
       "pinned_slot": 2,
-      "source_url": null,
+      "source_url": "https://blog.grancursosonline.com.br/concurso-anpd-banca-deve-ser-contratada-ate-dezembro/",
       "personal_notes": "Lei 15.352/2026 criou 200 cargos; os outros 150 podem ser autorizados na validade.",
       "summary": [
         "Primeiro concurso da agência: 50 vagas de Especialista em Regulação de Proteção de Dados, autorizadas pela Portaria MGI nº 5.092.",
-        "Banca em contratação; edital esperado até dezembro de 2026.",
+        "Planejamento prevê concluir a contratação da banca até 01/12/2026 (custo estimado de R$ 2,5 milhões); edital até 22/12/2026, seis meses após a portaria.",
         "TI está entre as áreas previstas, junto com Direito, Economia e Ciência de Dados.",
         "Lei 15.352/2026 criou 200 cargos; os outros 150 podem ser autorizados na validade."
       ],
@@ -389,7 +389,9 @@
         "Quantas das 50 vagas serão de TI.",
         "URL da portaria não registrada."
       ],
-      "extra_events": []
+      "extra_events": [
+        { "type": "other", "date": "2026-12-01", "label": "meta para contratar a banca" }
+      ]
     },
     {
       "slug": "cgu-2026",
@@ -506,30 +508,33 @@
       "registration_end": null,
       "exam_date": null,
       "fee_cents": null,
-      "salary_min_cents": 2092480,
+      "salary_min_cents": 1803352,
       "salary_max_cents": null,
+      "salary_note": "Inicial de Auditor (antigo Analista, renomeado em 01/01/2025): R$ 18.033,52 + auxílio-alimentação de R$ 1.192.",
       "it_vacancies": null,
+      "immediate_vacancies": 100,
       "regime": "statutory",
       "sphere": "federal",
       "education_level": "superior",
       "is_it_role": null,
       "tier": "elite",
-      "tier_note": "R$ 20,9 mil. Em 2024 a TI teve 279,58 inscritos por vaga (com 62% de abstenção geral) — topo da escada.",
-      "locations": [],
-      "states": [],
+      "tier_note": "Auditor de R$ 18 mil, disputa nacional, lotação em Brasília. Em 2024 a TI teve 279,58 inscritos por vaga (com 62% de abstenção geral) — topo da escada.",
+      "locations": ["Brasília/DF"],
+      "states": ["DF"],
       "nationwide": false,
       "edital_url": null,
       "registration_url": null,
-      "source_checked_at": "2026-10-13",
+      "source_checked_at": "2026-10-17",
       "confidence": "medium",
       "enrollment_status": "interested",
       "dismissed_reason": null,
       "pinned_slot": 3,
-      "source_url": "https://movimentoeconomico.com.br/concursos/2026/07/06/receita-federal-e-banco-central-tem-concursos-autorizados-com-316-vagas/",
+      "source_url": "https://folha.qconcursos.com/n/concurso-bacen-banco-central-do-brasil",
       "summary": [
-        "Autorizado em julho/2026: 170 vagas (100 auditor, 50 técnico, 20 procurador).",
-        "Contratação da banca prevista até 16/10/2026; edital até 03/01/2027.",
-        "Alvo de médio prazo; base de governança e dados compartilhada com CGU e ANPD."
+        "Autorizado em 03/07/2026: 170 vagas (100 auditor, 50 técnico, 20 procurador).",
+        "O cargo de Analista virou Auditor em 01/01/2025; não está confirmado se haverá área de TI como em 2024.",
+        "A meta era contratar a banca até 16/10/2026; até 17/10 nenhuma banca foi anunciada.",
+        "Edital até 03/01/2027, com no mínimo 2 meses até a prova."
       ],
       "divergences": [],
       "gaps": [
@@ -537,7 +542,8 @@
         "Se haverá vagas específicas de TI entre as 100 de auditor."
       ],
       "extra_events": [
-        { "type": "other", "date": "2026-10-16", "label": "prazo previsto para contratar a banca" }
+        { "type": "other", "date": "2026-10-16", "label": "meta para contratar a banca (não anunciada)" },
+        { "type": "other", "date": "2027-01-03", "label": "prazo final para publicar o edital" }
       ]
     },
     {
@@ -1235,19 +1241,19 @@
       "organ": "Tribunal de Justiça da Paraíba",
       "organ_acronym": "TJPB",
       "year": 2026,
-      "title": "TJPB — Analista Judiciário, Tecnologia da Informação",
+      "title": "TJPB — Analista Judiciário, TI: Desenvolvimento de Sistemas",
       "board": "FGV",
       "areas": ["development", "data", "infrastructure", "it_governance"],
-      "status": "in_preparation",
-      "registration_start": null,
-      "registration_end": null,
-      "exam_date": null,
-      "fee_cents": null,
-      "salary_min_cents": 724479,
+      "status": "published",
+      "registration_start": "2026-10-20",
+      "registration_end": "2026-11-18",
+      "exam_date": "2027-01-24",
+      "fee_cents": 12000,
+      "salary_min_cents": 752614,
       "salary_max_cents": null,
-      "salary_note": "Vencimento básico de R$ 7.244,79 (Portal da Transparência) + auxílios e gratificações.",
+      "salary_note": "Remuneração de R$ 7.526,14 (edital) + auxílio-alimentação de R$ 2.200,00 e auxílio-saúde de R$ 1.800,00 (verbas indenizatórias) — cerca de R$ 11.526,14 por mês.",
       "it_vacancies": 20,
-      "immediate_vacancies": 50,
+      "immediate_vacancies": 10,
       "regime": "statutory",
       "sphere": "estadual",
       "education_level": "superior",
@@ -1255,33 +1261,47 @@
       "board_affinity": "alta",
       "board_affinity_note": "FGV — mesma banca da Dataprev; preparação já calibrada.",
       "tier": "intermediario",
-      "tier_note": "Estadual de R$ 7,2 mil, FGV, cargo de ingresso. Em 2012 foram ~108 inscritos por vaga no geral; agora são 20 vagas de TI em 7 especialidades, então a concorrência por vaga deve subir.",
-      "locations": ["João Pessoa/PB"],
+      "tier_note": "Estadual de R$ 7,5 mil (~R$ 11,5 mil com auxílios), FGV, cargo de ingresso. Desenvolvimento de Sistemas tem 10 vagas (6 de ampla concorrência) e só as 100 primeiras discursivas são corrigidas. Último concurso de servidores foi em 2012 — demanda reprimida deve encher a disputa.",
+      "locations": ["Paraíba (qualquer comarca)"],
       "states": ["PB"],
       "nationwide": false,
       "workplace_city": "João Pessoa",
       "workplace_state": "PB",
-      "edital_url": null,
-      "registration_url": null,
-      "source_checked_at": "2026-10-13",
-      "confidence": "medium",
+      "edital_url": "https://conhecimento.fgv.br/concursos/tjpb26",
+      "registration_url": "https://conhecimento.fgv.br/concursos/tjpb26",
+      "source_checked_at": "2026-10-19",
+      "confidence": "high",
       "enrollment_status": "interested",
       "dismissed_reason": null,
       "pinned_slot": 4,
-      "source_url": "https://blog.decorandoaleiseca.com.br/concurso-tj-pb-banca-definida-e-50/",
+      "source_url": "https://conhecimento.fgv.br/concursos/tjpb26",
       "personal_notes": "Capital litorânea perto de Maceió, custo de vida menor. Último concurso de servidores em 2012.",
       "summary": [
-        "Contrato com a FGV assinado em 03/10/2026 (nº 078/2026).",
-        "50 vagas previstas: 25 Analista Judiciário, 20 Analista de TI e 5 Contadoria.",
-        "Último concurso para servidores foi em 2012 — demanda reprimida."
+        "Edital nº 01/2026 publicado no DJe em 20/10/2026: 50 vagas de Analista, 20 delas de TI (10 Desenvolvimento de Sistemas, 3 IA, 2 Governança, 2 Segurança, 1 Banco de Dados, 1 Infraestrutura, 1 Ciência de Dados).",
+        "Inscrições de 20/10 (16h) a 18/11/2026 (16h), taxa de R$ 120,00; boleto pago até 19/11. Isenção pedida no próprio formulário de inscrição, no mesmo prazo.",
+        "Prova objetiva e discursiva no mesmo dia, 24/01/2027, das 13h às 18h, em João Pessoa (portões fecham 12h30).",
+        "Objetiva: 60 questões de 5 alternativas — 10 Português, 10 Raciocínio Lógico-Matemático, 40 Conhecimentos Específicos. Discursiva: 1 questão de 30 linhas, 40 pontos. Nota final = objetiva + discursiva.",
+        "Aprovação exige 60% da objetiva (36 de 60). Em Desenvolvimento de Sistemas, só as 100 primeiras discursivas são corrigidas. Primeiro critério de desempate (abaixo de 60 anos): maior nota em Específicos.",
+        "Específicos de Desenvolvimento de Sistemas cobram Java moderno (Streams, records, sealed classes, virtual threads, Spring Boot, JPA), system design, arquitetura, DevOps (Docker, Kubernetes, Terraform), banco de dados, IA/LLM/RAG, segurança, UI/UX e acessibilidade, além de Python, Dart/Flutter e mobile.",
+        "Base comum de TI inclui normas do CNJ (Resoluções 370/2021, 396/2021, 468/2022, 615/2025, 522/2023), PDPJ-Br, PJe, MoReq-Jus e o PDTI do TJPB 2024–2026. Não há Ética nem legislação do tribunal para a área de TI.",
+        "Lotação em qualquer comarca da Paraíba, definida em audiência pública depois da homologação. Validade de 2 anos, prorrogável por mais 2."
       ],
-      "divergences": [],
+      "divergences": [
+        "Item 10.12 do edital diz \"60% (cinquenta por cento)\" para a nota mínima da objetiva — número e extenso não batem. Vale acompanhar retificação; até lá, considerar 60%."
+      ],
       "gaps": [
-        "Data do edital.",
-        "Remuneração total com auxílios e gratificações.",
-        "Legislação específica cobrada (regimento interno, LOJE-PB)."
+        "Diploma: o cargo exige curso superior (ou pós) em TI comprovado na posse — sua formatura está prevista para o 1º semestre de 2027; checar se fecha antes da nomeação.",
+        "Datas de locais de prova, gabarito e resultados não constam no edital (serão divulgadas na página da FGV).",
+        "Distribuição das 40 questões de Específicos entre os tópicos não é informada."
       ],
-      "extra_events": []
+      "extra_events": [
+        { "type": "fee_deadline", "date": "2026-11-19", "label": "último dia para pagar o boleto" }
+      ],
+      "essay_exam_date": "2027-01-24",
+      "open_competition_vacancies": 6,
+      "exam_city": "João Pessoa",
+      "validity_months": 24,
+      "validity_extendable": true
     },
     {
       "slug": "ibram-df-2027",
@@ -1429,15 +1449,15 @@
       "distance_from_home_km": 580,
       "edital_url": null,
       "registration_url": null,
-      "source_checked_at": "2026-10-15",
+      "source_checked_at": "2026-10-17",
       "confidence": "medium",
       "enrollment_status": "not_enrolled",
       "dismissed_reason": null,
       "pinned_slot": null,
-      "source_url": "https://folha.qconcursos.com/n/concurso-sefaz-ba-2026-banca-definida",
+      "source_url": "https://www.estrategiaconcursos.com.br/blog/concurso-sefaz-ba/",
       "personal_notes": "Nordeste, perto de Maceió. Só vale acompanhar se o edital repetir a especialidade de TI de 2019.",
       "summary": [
-        "Cesgranrio contratada (notícia de 22/09/2026); edital esperado 'nas próximas semanas'.",
+        "Cesgranrio contratada; edital agora esperado para novembro de 2026.",
         "200 vagas imediatas: 100 auditor fiscal + 100 agente de tributos estaduais.",
         "Provas previstas entre dezembro/2026 e janeiro/2027, em datas separadas por cargo."
       ],
