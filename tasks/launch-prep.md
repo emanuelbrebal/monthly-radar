@@ -132,3 +132,44 @@ Validações: a lógica de negócio não muda. Nada fica acoplado (deploy/ e CSS
 - [x] Perguntas bloqueadoras respondidas (Q1 = DuckDNS, Q2 = dump)
 
 **Gate: Livre para execução.**
+
+## Stage de Execução — Entregáveis (11/11/2026)
+
+| # | Entregável | Caminho | Status |
+|---|---|---|---|
+| 0 | Senha local `user123` (só `.env` ignorado + hash no banco local) | `.env` (fora do git) | ✅ |
+| 1 | `main` trazida para a branch (5 PRs de seed/README/screenshots, sem conflito) | merge `origin/main` | ✅ (PR aberto; merge em `main` fica com o dono) |
+| 2 | Template de produção (debug off, log diário, cookie seguro, sessão criptografada) | `.env.production.example` | ✅ |
+| 2b | `UserSeeder`: recusa senha fraca em produção e preserva o filtro de estados ao rodar de novo | `database/seeders/UserSeeder.php`, `tests/Feature/Database/UserSeederTest.php` | ✅ |
+| 3 | Varredura de segredos no histórico: só placeholders | — | ✅ |
+| 4 | Deploy idempotente, envio de assets via tar+ssh, backup, Nginx, Supervisor | `deploy/*` | ✅ |
+| 5 | Doc de deploy reescrito (preços de 11/11, PG17 via PGDG, restore do dump, DuckDNS, permissões setgid, 2FA, fail2ban, rollback); README e CLAUDE.md (radius) | `docs/07-deploy.md`, `README.md`, `CLAUDE.md` | ✅ |
+| 6 | Screenshots de antes | `tasks/screenshots/launch/before-*.jpg` | ✅ (desk, painel, settings; o login estava logado) |
+| 7 | Tokens: `--text-micro` (eixos de gráfico), `.rm-serif` (estava faltando), escala de espaço 1/2/3/4/6 | `resources/css/app.css` | ✅ |
+| 8 | `RadarHeader` em todas as telas; settings/auth no chrome do radar, em pt-BR; maleta, calendário e caixa de itens sem transbordo | `resources/js/**` | ✅ |
+| 9 | Screenshots de depois + contraste | `tasks/screenshots/launch/after-*.jpg`; `contrast-check` 66/66 | ✅ |
+| 10 | Verificação final | ver tabela abaixo | ✅ |
+
+**Desvios do plano**
+- **R1 não feito:** desligar `resetPasswords()`/`emailVerification()` quebraria o middleware `verified` (`routes/web.php:20`) e as rotas do Wayfinder. Com `MAIL_MAILER=log`, o link de reset fica só no log do servidor, sem brecha. O doc explica como usar.
+- **Branch:** criada do HEAD de `fix/sweep-ti-filter` e com `origin/main` mergeada, não a partir da `main` (a `main` tinha divergido).
+- **Fora do escopo original, mas necessários:**
+  - "Excluir conta" saiu da tela: app de um usuário só, sem cadastro; apagar a conta trancaria o dono fora.
+  - A aba "aparência" saiu da navegação: o app não tem tema escuro. A rota continua existindo.
+  - "sair" foi para a conta: estava só na sidebar, que saiu.
+  - O fallback do login por chave de acesso foi de `/dashboard` para `/`.
+- **Achados ao longo do doc:** `rsync` não existe no Git Bash do Windows (por isso `tar|ssh`); dump do PG17 local × PG16 do Ubuntu (instalar o 17); logs criados pelo worker (`deploy`) sem escrita para o FPM (`www-data`), resolvido com `umask 002` + setgid.
+- **Orquestração:** a tradução e os tokens de auth/settings (18 arquivos) foram feitos por um fork em paralelo; layouts, wiring e revisão ficaram com o agente principal.
+
+## Stage de Execução — Validação
+
+| Critério | Resultado | Observação |
+|---|---|---|
+| 1. Login local com `user123`; senha fraca nunca em produção | ✅ | Login testado no navegador → `/`. O seeder recusa `user123` em produção (teste). O doc apaga o dump após o restore |
+| 2. Bloqueantes resolvidos ou com passo no doc | ✅ | B1 merge feito (PR aberto), B2/B5 template, B3 seeder + doc, B4 DuckDNS |
+| 3. Deploy reproduzível só com o doc + scripts | ✅ (não executado num VPS real) | `bash -n` nos 3 scripts; `deploy.sh` idempotente por construção (ff-only, migrate, optimize) |
+| 4. Só tokens de texto; zero `text-[NNpx]`; antes/depois | ✅ | `grep text-[NNpx]` = 0; screenshots em `tasks/screenshots/launch/` |
+| 5. test / lint / types / build | ✅ | Pest 285 ok (2 skip, +5 novos); eslint ok; build ok; `types:check` só com os 3 erros pré-existentes em `resources/js/actions/.../RedirectController.ts` (arquivo gerado e ignorado; o Wayfinder não reconhece o método `query` da rota `ANY settings`) |
+| Domínio intocado | ✅ | `git diff <merge>..HEAD -- app routes` vazio |
+
+**Pendências para o dono:** mergear o PR na `main`; contratar o VPS; criar o subdomínio DuckDNS; seguir `docs/07-deploy.md`.
