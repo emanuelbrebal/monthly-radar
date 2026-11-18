@@ -2,7 +2,7 @@
   "_meta": {
     "collected_between": "2026-07-20/2026-11-18",
     "origin": "seed",
-    "note": "Dados levantados em conversas de pesquisa no Claude. Verificar com a primeira varredura da área 'all'. Valores em centavos, datas em AAAA-MM-DD (America/Maceio). states/nationwide: só UFs citadas nas pesquisas; vazio = local a definir. Rodada de 17/09/2026 trouxe campos de curadoria manual novos (ver docs/01-modelo-de-dados.md → \"Campos de curadoria manual\") e mais concursos mapeados — enrollment_status/pinned_slot/dismissed_reason dos concursos já semeados antes NÃO foram tocados por essa rodada (são seus, não meus); só os fatos (dinheiro, datas, vagas, notas) foram atualizados quando a pesquisa nova tinha algo mais preciso. Rodada de 13/10/2026: foco reduzido a CGU, ANPD, BACEN e TJPB (o resto saiu da maleta, sem descarte); CGU atualizada com o edital publicado em 09/10; TJPB incluído; Dataprev com prova feita. Rodada de 14/10/2026: todo concurso ganhou tier (elite/alto/intermediario/entrada) + tier_note — régua: salário e tipo de órgão indicam o nível de quem disputa; número de vagas diz se é disputa ou loteria. Rodada de 15/10/2026: IBRAM-DF (autorizado no mesmo dia) + varredura manual — TCE-GO (inscrições abertas), Sefaz-BA, STJ, CNU 3 e Caixa TI. Fora: TJ-AL (sem cargo de TI previsto), Alagoas Previdência (prova já feita em 27/09), ATI-PE (concurso já concluído), TJES (seleção simplificada, encerrada). Rodada de 17/10/2026: TJPB (minuta do edital, publicação esperada na semana seguinte), BACEN (cargo Auditor, R$ 18.033,52, banca ainda não anunciada), ANPD (meta de banca até 01/12) e Sefaz-BA (edital em novembro). Nenhum concurso novo de TI que valesse entrar; TJ-ES (TIC) só anunciado. Rodada de 19/10/2026: TJPB com edital publicado (DJe de 20/10) — inscrições 20/10 a 18/11, prova 24/01/2027, remuneração R$ 7.526,14 + auxílios; fonte oficial na página da FGV. Rodada de 18/11/2026: revisão dos 22 visíveis (subagents com busca web, fonte oficial > agregador). Destaques: CGU inscrições encerradas, prova 13/12; TJPB inscrições até 18/11; ANPD com Cebraspe escolhido; TJ-CE já teve prova (09/08); TRF3 com inscrições abertas até 23/11 (Vunesp); MPU sem edital novo antes de 2029; TRF5 travado até 12/2028."
+    "note": "Dados levantados em conversas de pesquisa no Claude. Verificar com a primeira varredura da área 'all'. Valores em centavos, datas em AAAA-MM-DD (America/Maceio). states/nationwide: só UFs citadas nas pesquisas; vazio = local a definir. Rodada de 17/09/2026 trouxe campos de curadoria manual novos (ver docs/01-modelo-de-dados.md → \"Campos de curadoria manual\") e mais concursos mapeados — enrollment_status/pinned_slot/dismissed_reason dos concursos já semeados antes NÃO foram tocados por essa rodada (são seus, não meus); só os fatos (dinheiro, datas, vagas, notas) foram atualizados quando a pesquisa nova tinha algo mais preciso. Rodada de 13/10/2026: foco reduzido a CGU, ANPD, BACEN e TJPB (o resto saiu da maleta, sem descarte); CGU atualizada com o edital publicado em 09/10; TJPB incluído; Dataprev com prova feita. Rodada de 14/10/2026: todo concurso ganhou tier (elite/alto/intermediario/entrada) + tier_note — régua: salário e tipo de órgão indicam o nível de quem disputa; número de vagas diz se é disputa ou loteria. Rodada de 15/10/2026: IBRAM-DF (autorizado no mesmo dia) + varredura manual — TCE-GO (inscrições abertas), Sefaz-BA, STJ, CNU 3 e Caixa TI. Fora: TJ-AL (sem cargo de TI previsto), Alagoas Previdência (prova já feita em 27/09), ATI-PE (concurso já concluído), TJES (seleção simplificada, encerrada). Rodada de 17/10/2026: TJPB (minuta do edital, publicação esperada na semana seguinte), BACEN (cargo Auditor, R$ 18.033,52, banca ainda não anunciada), ANPD (meta de banca até 01/12) e Sefaz-BA (edital em novembro). Nenhum concurso novo de TI que valesse entrar; TJ-ES (TIC) só anunciado. Rodada de 19/10/2026: TJPB com edital publicado (DJe de 20/10) — inscrições 20/10 a 18/11, prova 24/01/2027, remuneração R$ 7.526,14 + auxílios; fonte oficial na página da FGV. Rodada de 18/11/2026: revisão dos 22 visíveis (subagents com busca web, fonte oficial > agregador). Destaques: CGU inscrições encerradas, prova 13/12; TJPB inscrições até 18/11; ANPD com Cebraspe escolhido; TJ-CE já teve prova (09/08); TRF3 com inscrições abertas até 23/11 (Vunesp); MPU sem edital novo antes de 2029; TRF5 travado até 12/2028. Rodada de 18/11/2026 (2): entram Rede SARAH (Analista de TI, Edital 13/2026) e SEAD-MA (STC, Auditor de TI, FCC); IFAL e UFAL viram esqueleto até sair edital TAE. Descartados pelo dono: MPU, TCE-SE, TJ-PE, TRF3."
   },
   "contests": [
     {
@@ -1131,11 +1131,11 @@
       "organ": "Instituto Federal de Alagoas",
       "organ_acronym": "IFAL",
       "year": 2027,
-      "title": "IFAL — Analista / Técnico de Tecnologia da Informação",
+      "title": "IFAL — TI (esqueleto: aguardando edital TAE)",
       "board": null,
       "areas": ["development", "infrastructure", "support"],
       "status": "expected",
-      "salary_note": "Faixa típica da carreira TAE: R$ 5,2 mil a R$ 6,4 mil com auxílio-alimentação. Sem edital vigente para confirmar.",
+      "salary_note": "A confirmar no edital (carreira TAE).",
       "regime": "statutory",
       "sphere": "federal",
       "is_it_role": true,
@@ -1147,16 +1147,21 @@
       "workplace_city": "Marechal Deodoro",
       "workplace_state": "AL",
       "distance_from_home_km": 0,
-      "source_checked_at": "2026-09-17",
+      "source_checked_at": "2026-11-18",
       "confidence": "unconfirmed",
       "enrollment_status": "interested",
       "dismissed_reason": null,
       "pinned_slot": null,
       "source_url": "https://concurso.ifal.edu.br/",
       "personal_notes": "Único cenário em que o trabalho fica praticamente em casa: há campi em Marechal Deodoro e São Miguel dos Campos. O concurso de 2026 foi só para docentes. Próximo ciclo de TAE é a janela a vigiar.",
-      "summary": ["Campi em Marechal Deodoro e São Miguel dos Campos — trabalho praticamente em casa."],
+      "summary": [
+        "Esqueleto: só órgão, carreira (TAE) e local confirmados. Campi em Marechal Deodoro e São Miguel dos Campos — trabalho praticamente em casa."
+      ],
       "divergences": [],
-      "gaps": ["Sem edital vigente."],
+      "gaps": [
+        "Sem edital TAE vigente.",
+        "Cargo exato, vagas de TI, banca, datas e remuneração a confirmar quando sair o edital."
+      ],
       "extra_events": []
     },
     {
@@ -1164,11 +1169,11 @@
       "organ": "Universidade Federal de Alagoas",
       "organ_acronym": "UFAL",
       "year": 2027,
-      "title": "UFAL — Analista / Técnico de Tecnologia da Informação",
+      "title": "UFAL — TI (esqueleto: aguardando edital TAE)",
       "board": null,
       "areas": ["development", "infrastructure", "support"],
       "status": "expected",
-      "salary_note": "Faixa típica da carreira TAE. Sem edital vigente para confirmar.",
+      "salary_note": "A confirmar no edital (carreira TAE).",
       "regime": "statutory",
       "sphere": "federal",
       "is_it_role": true,
@@ -1180,16 +1185,21 @@
       "workplace_city": "Maceió",
       "workplace_state": "AL",
       "distance_from_home_km": 0,
-      "source_checked_at": "2026-09-17",
+      "source_checked_at": "2026-11-18",
       "confidence": "unconfirmed",
       "enrollment_status": "interested",
       "dismissed_reason": null,
       "pinned_slot": null,
       "source_url": "https://ufal.br/servidor/admissao/nomeacoes/tecnico-administrativo",
       "personal_notes": "Carreira TAE, campi de Maceió, Arapiraca e Sertão. O último concurso com Analista e Técnico de TI teve a validade expirada.",
-      "summary": ["Último concurso de TI teve validade expirada; sem edital vigente."],
+      "summary": [
+        "Esqueleto: só órgão, carreira (TAE) e local confirmados. Último concurso de TI teve a validade expirada."
+      ],
       "divergences": [],
-      "gaps": ["Sem edital vigente."],
+      "gaps": [
+        "Sem edital TAE vigente.",
+        "Cargo exato, vagas de TI, banca, datas e remuneração a confirmar quando sair o edital."
+      ],
       "extra_events": []
     },
     {
@@ -1695,6 +1705,122 @@
       "divergences": [],
       "gaps": ["Data do edital.", "Vagas e salário.", "Escolaridade exigida para TI na nova edição."],
       "extra_events": []
+    },
+    {
+      "slug": "rede-sarah-analista-ti-2026",
+      "organ": "Associação das Pioneiras Sociais (Rede SARAH de Hospitais de Reabilitação)",
+      "organ_acronym": "APS/SARAH",
+      "year": 2026,
+      "title": "Rede SARAH (Edital 13/2026) — Analista de Tecnologia da Informação, Desenvolvimento / Infraestrutura",
+      "board": "Associação das Pioneiras Sociais (própria)",
+      "areas": ["development", "infrastructure"],
+      "status": "published",
+      "registration_start": "2026-11-23",
+      "registration_end": "2026-12-17",
+      "exam_date": "2027-01-31",
+      "fee_cents": 12000,
+      "salary_min_cents": 1497256,
+      "salary_max_cents": null,
+      "salary_note": "Salário inicial de R$ 14.972,56, 40h semanais presenciais, CLT, dedicação exclusiva (edital 13/2026, item 2.3). Agregadores citam R$ 7.843,38, valor que diverge do edital oficial.",
+      "it_vacancies": 11,
+      "immediate_vacancies": null,
+      "reserve_vacancies": null,
+      "regime": "clt",
+      "sphere": "federal",
+      "education_level": "superior",
+      "is_it_role": true,
+      "board_affinity": null,
+      "board_affinity_note": "Prova elaborada pela própria APS; objetiva com 60 questões de conhecimentos específicos + discursiva.",
+      "tier": "alto",
+      "tier_note": "R$ 15 mil de entrada com lotação no Nordeste (Salvador e São Luís), mas só 1 vaga em cada.",
+      "locations": ["Brasília/DF", "Rio de Janeiro/RJ", "Salvador/BA", "São Luís/MA"],
+      "states": ["DF", "RJ", "BA", "MA"],
+      "nationwide": false,
+      "workplace_city": null,
+      "workplace_state": null,
+      "distance_from_home_km": null,
+      "exam_city": null,
+      "edital_url": "https://jcconcursos.com.br/media/uploads/anexos/processo-seletivo-rede-sarah-edital-13-2026.pdf",
+      "registration_url": "https://www.sarah.br/rh",
+      "source_checked_at": "2026-11-18",
+      "confidence": "high",
+      "enrollment_status": "not_enrolled",
+      "dismissed_reason": null,
+      "pinned_slot": null,
+      "source_url": "https://jcconcursos.com.br/media/uploads/anexos/processo-seletivo-rede-sarah-edital-13-2026.pdf",
+      "personal_notes": null,
+      "summary": [
+        "Processo seletivo (não é concurso público: CLT, sem estabilidade) para Analista de TI nas áreas de Desenvolvimento e Infraestrutura.",
+        "Inscrições de 23/11 a 17/12/2026 em www.sarah.br/rh, taxa de R$ 120 sem isenção; provas objetiva e discursiva previstas para 31/01/2027.",
+        "Provas em Brasília, Rio de Janeiro, Salvador e São Luís; o cadastro de reserva pode ser convocado para qualquer unidade da rede (inclui Fortaleza)."
+      ],
+      "divergences": [
+        "Salário: o edital oficial diz R$ 14.972,56; alguns agregadores dizem R$ 7.843,38.",
+        "Distribuição exata das vagas por processo (13.1 a 13.5): a tabela do PDF ficou desalinhada na extração; o JC Concursos indica Brasília 4 desenvolvimento + 4 infraestrutura, RJ 1, Salvador 1 e São Luís 1 (infraestrutura)."
+      ],
+      "gaps": [
+        "Confirmar no PDF se as vagas de Salvador e São Luís são de Infraestrutura ou Desenvolvimento.",
+        "Data exata da prova no cronograma (a extração indica 31/01/2027, igual aos agregadores)."
+      ],
+      "extra_events": []
+    },
+    {
+      "slug": "sead-ma-stc-auditor-ti-2026",
+      "organ": "Governo do Estado do Maranhão — Secretaria de Estado de Transparência e Controle",
+      "organ_acronym": "STC-MA",
+      "year": 2026,
+      "title": "Concurso Unificado MA (SEAD 01/2026) — STC, Auditor, Tecnologia da Informação",
+      "board": "FCC",
+      "areas": ["it_governance", "development", "security"],
+      "status": "published",
+      "registration_start": "2026-12-14",
+      "registration_end": "2027-01-29",
+      "exam_date": "2027-04-04",
+      "fee_cents": 25000,
+      "salary_min_cents": 1495078,
+      "salary_max_cents": null,
+      "salary_note": "Vencimento de R$ 14.950,78 para jornada de 30h semanais (edital SEAD-MA 01/2026).",
+      "it_vacancies": 3,
+      "immediate_vacancies": null,
+      "reserve_vacancies": null,
+      "regime": "statutory",
+      "sphere": "estadual",
+      "education_level": "superior",
+      "is_it_role": true,
+      "board_affinity": "media",
+      "board_affinity_note": "FCC; provas objetiva e discursiva (estudo de caso com 2 questões práticas).",
+      "tier": "alto",
+      "tier_note": "R$ 15 mil por 30h em capital nordestina, mas só 3 vagas (2 ampla concorrência + 1 reservada a negros).",
+      "locations": ["São Luís/MA"],
+      "states": ["MA"],
+      "nationwide": false,
+      "workplace_city": null,
+      "workplace_state": null,
+      "distance_from_home_km": null,
+      "exam_city": null,
+      "edital_url": "https://dhg1h5j42swfq.cloudfront.net/2026/11/18073454/seadm226_edital_de_abertura_1_17_11_26_publicado.pdf",
+      "registration_url": "https://www.concursosfcc.com.br",
+      "source_checked_at": "2026-11-18",
+      "confidence": "high",
+      "enrollment_status": "not_enrolled",
+      "dismissed_reason": null,
+      "pinned_slot": null,
+      "source_url": "https://dhg1h5j42swfq.cloudfront.net/2026/11/18073454/seadm226_edital_de_abertura_1_17_11_26_publicado.pdf",
+      "personal_notes": null,
+      "summary": [
+        "Edital 01/2026 do concurso unificado do Governo do Maranhão (SEAD), organizado pela FCC, inclui Auditor da STC, área TI (código 32).",
+        "Exige diploma de nível superior em Tecnologia da Informação; 3 vagas (2 ampla concorrência, 1 reservada a negros).",
+        "Inscrições de 14/12/2026 a 29/01/2027 em concursosfcc.com.br; isenção de 14 a 16/12/2026; taxa de R$ 250.",
+        "Provas objetiva e discursiva previstas para 04/04/2027; o candidato escolhe a cidade entre São Luís, Imperatriz, Caxias e outras do MA."
+      ],
+      "divergences": [],
+      "gaps": [
+        "Lotação exata (presume-se São Luís, sede da STC; não confirmado no trecho lido).",
+        "Conteúdo programático específico de TI não conferido em detalhe."
+      ],
+      "extra_events": [
+        { "type": "other", "date": "2026-12-14", "label": "início do pedido de isenção (até 16/12)" }
+      ]
     }
   ]
 }

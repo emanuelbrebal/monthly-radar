@@ -196,3 +196,10 @@ Pesquisa delegada a 4 subagents em paralelo: grupo A (maleta, 6), B (8), C (8) e
 | Impede uso diário | nenhum restante (launcher, fila, backup e login resolvidos nesta branch) |
 | Incomoda | "sair" sem efeito com auto-login; `LOG_LEVEL=debug` faz `laravel.log` crescer sem rotação (trocar para `LOG_STACK=daily`); maioria das fontes é agregador, então a confiança é média; atualização de dados depende de pesquisa no chat |
 | Pode esperar | erro `tsc` pré-existente em `resources/js/actions/.../RedirectController.ts`; phpstan precisa de `--memory-limit=1G` no Windows; botão "atualizar acompanhados" desabilitado sem API key (esperado) |
+
+### Item 6 — decisão do dono (18/11/2026)
+
+- **Descartados** (pelos mesmos campos do botão de descarte, com motivo): MPU, TCE-SE, TJ-PE, TRF3.
+- **Entraram no seed:** Rede SARAH (Analista de TI, Edital 13/2026) e SEAD-MA (STC, Auditor de TI, FCC). O TRT-5 ficou de fora.
+- **IFAL e UFAL viraram esqueleto:** saiu a faixa salarial presumida e o título de cargo presumido. Ficaram `confidence=unconfirmed` e lacunas explícitas (cargo, vagas, banca, datas e remuneração a confirmar quando sair o edital TAE).
+- Resultado: 19 concursos na mesa, maleta intacta, Pest verde.
