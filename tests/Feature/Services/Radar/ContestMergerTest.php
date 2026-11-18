@@ -87,3 +87,33 @@ it('does not let an older source of the same priority overwrite a newer one', fu
 
     expect($contest->board)->toBe('Cebraspe');
 });
+
+it('stamps closed_at at the end of registration_end when the contest closed by date before the merge', function () {
+    $contest = Contest::factory()->create([
+        'status' => 'registration_open',
+        'registration_end' => now()->subDays(5)->toDateString(),
+        'closed_at' => null,
+    ]);
+
+    expect($contest->isExpired())->toBeTrue();
+
+    $this->merger->merge($contest, ['board' => 'FGV'], origin: 'seed', sourceUrl: null, confidence: 'medium');
+
+    $contest->refresh();
+    expect($contest->closed_at->lt(now()->subDays(3)))->toBeTrue()
+        ->and($contest->isExpired())->toBeTrue();
+});
+
+it('stamps closed_at with now when the contest closes before its registration_end', function () {
+    $contest = Contest::factory()->create([
+        'status' => 'registration_open',
+        'registration_end' => now()->addDays(5)->toDateString(),
+        'closed_at' => null,
+    ]);
+
+    $this->merger->merge($contest, ['status' => 'registration_closed'], origin: 'scrape', sourceUrl: 'https://orgao.gov.br/edital', confidence: 'high');
+
+    $contest->refresh();
+    expect($contest->closed_at->diffInMinutes(now(), true))->toBeLessThan(1)
+        ->and($contest->isExpired())->toBeFalse();
+});
