@@ -85,6 +85,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Auto-login local
+    |--------------------------------------------------------------------------
+    |
+    | Uso diário na máquina do dono: entra direto como o usuário do seed, sem
+    | tela de login. Só age com a flag ligada, APP_ENV=local e requisição vinda
+    | de loopback (127.0.0.1 / ::1). Em produção fica desligado e o Fortify
+    | segue como sempre (AutoLoginLocalUser).
+    |
+    */
+    'auto_login' => (bool) env('RADAR_AUTO_LOGIN', false),
+
+    /*
+    |--------------------------------------------------------------------------
     | Palavras-chave por área (T2)
     |--------------------------------------------------------------------------
     |
