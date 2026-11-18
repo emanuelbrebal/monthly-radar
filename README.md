@@ -155,7 +155,7 @@ powershell -ExecutionPolicy Bypass -File scripts\windows\install-shortcut.ps1
   & "C:\Program Files\PostgreSQL\17\bin\pg_restore.exe" -U postgres -d monthly_radar --clean --if-exists --no-owner "<file>.dump"
   ```
 - **New data:** same as above. Drop the new seed JSON and run `php artisan db:seed --class=ContestSeeder`. The launcher does not touch data.
-- Tick **lembrar de mim** on login; otherwise the session expires after `SESSION_LIFETIME` (120 min) idle.
+- **No login screen:** set `RADAR_AUTO_LOGIN=true` in `.env` and the app signs in as the seeded user (`RADAR_USER_EMAIL`) on every request. It only works with `APP_ENV=local` and a loopback request (`127.0.0.1`/`::1`), so a server deploy keeps the normal Fortify login. With the flag on, "sair" has no effect, because the next request signs you in again.
 
 ## Artisan commands
 

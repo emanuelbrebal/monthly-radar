@@ -150,6 +150,49 @@ Gates hoje: `php artisan test` → 287 testes, 285 ✓, 2 skipped (18/11). `tsc`
 
 **Gate = Livre para execução.** Pausa obrigatória no item 6 (aprovação de descarte e de novos concursos).
 
-## Execução
+## Execução (18/11/2026)
 
-_(preencher no `/exec`)_
+Pesquisa delegada a 4 subagents em paralelo: grupo A (maleta, 6), B (8), C (8) e sugestões novas. Fiz uma checagem cruzada à parte: a fonte do TJ-CE tinha slug `tc-ce`, mas confirmei que é o TJ-CE (FCC, prova 09/08/2026).
+
+### Stage de Execução — Entregáveis
+
+| # | Descrição | Caminho | Status |
+|---|---|---|---|
+| 1 | Backup antes de mexer | `%USERPROFILE%\OneDrive\Backups\monthly-radar\radar-20261118-1505-pre-local-v1.dump` | ✅ |
+| 2–4 | Situação dos 22 visíveis pesquisada e aplicada ao JSON (formato original preservado) | `database/seeders/data/contests-seed.json` | ✅ |
+| 5 | Seed aplicado | `db:seed --class=ContestSeeder` | ✅ |
+| 6 | Propostas de descarte e de novos concursos | resposta da sessão | ⏸ aguarda o dono |
+| 7 | Launcher | `scripts/windows/start.ps1` | ✅ |
+| 8 | Parada + atalhos | `scripts/windows/stop.ps1`, `scripts/windows/install-shortcut.ps1`, atalhos na Área de Trabalho | ✅ |
+| 9a | **Desvio:** bug do `closed_at` recarimbado no re-seed | `app/Services/Radar/ContestMerger.php`, `tests/Feature/Services/Radar/ContestMergerTest.php` | ✅ |
+| 9b | **Desvio (pedido do dono no meio da execução):** auto-login local | `app/Http/Middleware/AutoLoginLocalUser.php`, `bootstrap/app.php`, `config/radar.php`, `.env.example`, `tests/Feature/Auth/AutoLoginLocalUserTest.php` | ✅ |
+| 10 | README "Daily use on Windows" | `README.md` | ✅ |
+
+**Desvio 9a:** o re-seed fazia o `ContestMerger::applyClosedAtRule` gravar `closed_at = now()` em concurso que já tinha fechado pela data (`closed_at` nulo e `registration_end` passado). Com isso, Sefaz-AL e TCE-GO voltaram para a mesa por mais 24h. Pela definição de `docs/01-modelo-de-dados.md:37` ("primeiro momento em que o status efetivo virou encerrado"), quem fechou pela data deve receber o fim do dia do `registration_end`. Fiz a correção, com teste que falha sem ela, e reparei 4 registros (Sefaz-AL, TCE-GO, TJ-CE, CGU). Sem isso, toda atualização via seed ressuscitaria expirados.
+
+**Desvio 9b:** o dono pediu para tirar o login. Não removi o Fortify, porque o deploy na VPS continua no plano. Fiz um middleware com três travas: `RADAR_AUTO_LOGIN=true`, `APP_ENV=local` e IP de loopback. Ele fica antes de `auth`/`guest` na lista de prioridade. O "sair" perde efeito com a flag ligada.
+
+**Item 9, revisão das telas:** a automação de navegador não tinha sessão e eu não digito a senha real do dono. A cobertura vem dos testes de Feature e do `GET /` → 200 com auto-login ligado. A revisão visual fica com o dono.
+
+### Stage de Execução — Validação
+
+| Critério | Resultado | Observação |
+|---|---|---|
+| 1. Tabela dos 22 com fonte e data | ✅ | IFAL e UFAL ficaram "não confirmado" (sites não carregaram); maioria das fontes é agregador |
+| 2. Seed sem erro + testes verdes | ✅ | Pest 292 ✓ / 2 skipped; pint ✓; phpstan 0 erros (precisa `--memory-limit=1G`) |
+| 3. Maleta intacta | ✅ | `pinned_slot`/`enrollment_status` dos 6 iguais antes/depois (diff vazio) |
+| 4. Descarte e novos só com "ok" | ⏸ | Propostas entregues; nada aplicado |
+| 5. Subida a frio ≤ 30 s sem janela | ✅ | 20 s com rebuild do front; 5 s sem rebuild |
+| 6. Segunda subida só abre navegador | ✅ | 1 s, sem processo duplicado |
+| 7. Fila processa | ✅ | job de teste consumido pelo worker em < 1 s (varredura real não rodada para não sujar o banco antes da curadoria) |
+| 8. Backup + rotação + legível | ✅ | `radar-20261118-1508.dump`, `pg_restore --list` = 144 entradas; pula se < 12 h |
+| 9. Stop libera a porta | ✅ | porta 8000 livre, 0 processos php |
+| 10. Bloqueadores classificados | ✅ | ver abaixo |
+
+### Bloqueadores de uso diário
+
+| Grupo | Item |
+|---|---|
+| Impede uso diário | nenhum restante (launcher, fila, backup e login resolvidos nesta branch) |
+| Incomoda | "sair" sem efeito com auto-login; `LOG_LEVEL=debug` faz `laravel.log` crescer sem rotação (trocar para `LOG_STACK=daily`); maioria das fontes é agregador, então a confiança é média; atualização de dados depende de pesquisa no chat |
+| Pode esperar | erro `tsc` pré-existente em `resources/js/actions/.../RedirectController.ts`; phpstan precisa de `--memory-limit=1G` no Windows; botão "atualizar acompanhados" desabilitado sem API key (esperado) |
