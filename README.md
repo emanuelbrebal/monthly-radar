@@ -140,6 +140,23 @@ Notes for running on Windows 11 (PowerShell) with a local PostgreSQL:
 - **Updating the seed:** drop the new `database/seeders/data/contests-seed.json` and run `php artisan db:seed --class=ContestSeeder`. It is idempotent by `slug` and never overwrites `enrollment_status`, `pinned_slot`, dismissals or `personal_notes` of existing contests. Do not use `migrate:fresh` once the app has data.
 - **No API key:** leave `ANTHROPIC_API_KEY` empty; sweeps still scrape and enrichment stays `skipped`.
 
+### Daily use on Windows (one click)
+
+For everyday use there is no need for a terminal or Vite. Run this once to create two desktop shortcuts, **Radar Mensal** and **Parar Radar**:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\windows\install-shortcut.ps1
+```
+
+- **Start** (`scripts/windows/start.ps1`): starts the Postgres service if it is stopped, deletes a stale `public/hot`, runs `npm run build` only when `resources/js`, `resources/css`, `vite.config.ts` or `package-lock.json` are newer than `public/build/manifest.json`, takes a backup, starts `php artisan serve` and `queue:work` with no window, waits for `/up` (30 s max) and opens `APP_URL`. If the app is already up it only opens the browser. Errors show up in a dialog and in `storage/logs/local-*.log`.
+- **Stop** (`scripts/windows/stop.ps1`): kills the server and the worker (PIDs in `storage/app/local-run.json`, falling back to whoever listens on the port).
+- **Backup:** `pg_dump -Fc` into `%USERPROFILE%\OneDrive\Backups\monthly-radar`, at most one every 12 h, keeping the last 14. Change the folder at the top of `start.ps1`. Restore:
+  ```powershell
+  & "C:\Program Files\PostgreSQL\17\bin\pg_restore.exe" -U postgres -d monthly_radar --clean --if-exists --no-owner "<file>.dump"
+  ```
+- **New data:** same as above. Drop the new seed JSON and run `php artisan db:seed --class=ContestSeeder`. The launcher does not touch data.
+- Tick **lembrar de mim** on login; otherwise the session expires after `SESSION_LIFETIME` (120 min) idle.
+
 ## Artisan commands
 
 ```bash
