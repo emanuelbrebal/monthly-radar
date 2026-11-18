@@ -259,6 +259,10 @@ class ContestMerger
     /**
      * Primeira vez que o status efetivo vira "fechado ou posterior" → seta
      * closed_at. Nunca sobrescreve depois, a não ser que reabra (volta a null).
+     *
+     * Se fechou porque o registration_end passou, o "primeiro momento" é o fim
+     * daquele dia, não a hora em que o merge percebeu — senão um re-seed
+     * ressuscita por 24h concurso que já tinha expirado.
      */
     private function applyClosedAtRule(Contest $contest): void
     {
@@ -266,7 +270,11 @@ class ContestMerger
 
         if ($effectiveStatus->isClosedOrLater()) {
             if ($contest->closed_at === null) {
-                $contest->closed_at = Carbon::now();
+                $now = Carbon::now();
+                $registrationEndClose = $contest->effectiveClosedAt();
+                $contest->closed_at = $registrationEndClose !== null && $registrationEndClose->lt($now)
+                    ? Carbon::instance($registrationEndClose)
+                    : $now;
                 $contest->save();
             }
 
