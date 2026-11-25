@@ -18,6 +18,8 @@ type WallContest = {
     phase_label: string;
     status_label: string;
     has_upcoming: boolean;
+    qr_svg: string | null;
+    qr_target: 'edital' | 'inscrição' | null;
 };
 
 type WallSheetProps = {
@@ -91,6 +93,7 @@ function SectionTitle({ children }: { children: string }) {
 export default function WallSheet() {
     const { generatedAt, timeline, contests } = usePage<WallSheetProps>().props;
     const undated = contests.filter((c) => !c.has_upcoming);
+    const nextExam = timeline.find((item) => item.type === 'exam') ?? null;
 
     return (
         <>
@@ -129,6 +132,36 @@ export default function WallSheet() {
                             atualizado em {ddmmyyyy(generatedAt)}
                         </p>
                     </header>
+
+                    {nextExam && (
+                        <section
+                            aria-label="Próxima prova"
+                            className="mb-4 flex items-center justify-between border-[2.5px] border-ink px-[5mm] py-[3mm]"
+                        >
+                            <div>
+                                <p className="font-mono text-[8pt] tracking-wider uppercase">
+                                    próxima prova
+                                </p>
+                                <p className="font-display text-[22pt] leading-tight">
+                                    {nextExam.contest}
+                                </p>
+                                <p className="font-mono text-[10pt]">
+                                    {ddmmyyyy(nextExam.date)} ·{' '}
+                                    {parts(nextExam.date).weekday} ·{' '}
+                                    {nextExam.event}
+                                </p>
+                            </div>
+                            <p className="text-right leading-none">
+                                <span className="block font-display text-[44pt]">
+                                    {nextExam.days_left}
+                                </span>
+                                <span className="font-mono text-[8pt] uppercase">
+                                    {nextExam.days_left === 1 ? 'dia' : 'dias'}{' '}
+                                    em {ddmmyyyy(generatedAt)}
+                                </span>
+                            </p>
+                        </section>
+                    )}
 
                     <section aria-label="Próximas datas" className="mb-4">
                         <SectionTitle>próximas datas</SectionTitle>
@@ -207,7 +240,7 @@ export default function WallSheet() {
                             <table className="w-full table-fixed border-collapse">
                                 <thead>
                                     <tr className="align-bottom font-mono text-[6.5pt] leading-tight uppercase">
-                                        <th className="w-[58mm] pb-1 text-left font-normal">
+                                        <th className="w-[50mm] pb-1 text-left font-normal">
                                             concurso
                                         </th>
                                         {PHASES.map((phase) => (
@@ -218,6 +251,12 @@ export default function WallSheet() {
                                                 {phase}
                                             </th>
                                         ))}
+                                        <th className="w-[17mm] px-0.5 pb-1 text-center font-normal">
+                                            minha nota
+                                        </th>
+                                        <th className="w-[15mm] pb-1 text-center font-normal">
+                                            edital
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -251,6 +290,25 @@ export default function WallSheet() {
                                                     <Box />
                                                 </td>
                                             ))}
+                                            <td className="px-1 align-middle">
+                                                <span className="block h-[6mm] border-b border-ink" />
+                                            </td>
+                                            <td className="py-[1mm] text-center align-middle">
+                                                {c.qr_svg ? (
+                                                    <span
+                                                        role="img"
+                                                        aria-label={`QR code do link de ${c.qr_target}`}
+                                                        className="mx-auto block size-[13mm] [&>svg]:size-full"
+                                                        dangerouslySetInnerHTML={{
+                                                            __html: c.qr_svg,
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    <span className="font-mono text-[7pt]">
+                                                        —
+                                                    </span>
+                                                )}
+                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>

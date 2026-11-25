@@ -6,6 +6,10 @@ use App\Enums\EnrollmentStatus;
 use App\Models\Contest;
 use App\Models\ContestEvent;
 use App\Services\Radar\ContestPhaseResolver;
+use BaconQrCode\Renderer\Image\SvgImageBackEnd;
+use BaconQrCode\Renderer\ImageRenderer;
+use BaconQrCode\Renderer\RendererStyle\RendererStyle;
+use BaconQrCode\Writer;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -97,7 +101,25 @@ class WallSheetController
             'phase_label' => $phase->label(),
             'status_label' => $contest->effectiveStatus()->label(),
             'has_upcoming' => $hasUpcoming,
+            'qr_svg' => self::qrSvg($contest->edital_url ?? $contest->registration_url),
+            'qr_target' => $contest->edital_url !== null ? 'edital' : ($contest->registration_url !== null ? 'inscrição' : null),
         ];
+    }
+
+    /**
+     * QR do edital (ou da inscrição, se não houver edital) para abrir no
+     * celular direto da parede. bacon/bacon-qr-code já vem com o Fortify (2FA),
+     * sem dependência nova. SVG sem a declaração XML, pronto pra inline.
+     */
+    private static function qrSvg(?string $url): ?string
+    {
+        if ($url === null || $url === '') {
+            return null;
+        }
+
+        $svg = (new Writer(new ImageRenderer(new RendererStyle(120, 0), new SvgImageBackEnd)))->writeString($url);
+
+        return trim(substr($svg, strpos($svg, "\n") + 1));
     }
 
     private static function shortName(Contest $contest): string

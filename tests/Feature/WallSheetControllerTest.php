@@ -81,3 +81,19 @@ it('flags tracked contests with no upcoming date', function () {
         ->has('contests.0.phase_label')
     );
 });
+
+it('renders a QR code for the edital link, falling back to the registration link', function () {
+    $this->actingAs(User::factory()->create());
+
+    Contest::factory()->pinned(0)->create(['exam_date' => '2026-12-13', 'edital_url' => 'https://example.gov.br/edital.pdf']);
+    Contest::factory()->pinned(1)->create(['exam_date' => '2027-01-24', 'registration_url' => 'https://banca.example/inscricao']);
+    Contest::factory()->pinned(2)->create(['exam_date' => '2027-04-18']);
+
+    $this->get('/wall-sheet')->assertInertia(fn (Assert $page) => $page
+        ->where('contests.0.qr_target', 'edital')
+        ->where('contests.0.qr_svg', fn ($svg) => str_starts_with($svg, '<svg'))
+        ->where('contests.1.qr_target', 'inscrição')
+        ->where('contests.2.qr_svg', null)
+        ->where('contests.2.qr_target', null)
+    );
+});

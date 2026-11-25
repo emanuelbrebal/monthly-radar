@@ -12,7 +12,9 @@ Branch: `feat/wall-sheet`. Tipo: feat. Pedido do dono, fora das tardes T0–T6; 
 
 **"Acompanhado"** = `visible()` e (na maleta ou `enrollment_status` ∈ interested/enrolled+). Ignora o filtro de estados.
 
-**Não-escopo**: migration, LLM, geração de PDF no servidor, QR code (proposto como extra, aguardando OK).
+**Extras aprovados (24/11)**: destaque "próxima prova" no topo com contagem grande de dias; coluna "minha nota" em branco para preencher à mão; QR code do edital (cai para o link de inscrição) gerado com `bacon/bacon-qr-code`, que já vem transitivo pelo Fortify.
+
+**Não-escopo**: migration, LLM, geração de PDF no servidor.
 
 **Critérios de aceite**
 1. Ctrl+P / botão imprime só a folha (barra de cima com `print:hidden`), `@page` A4 retrato 12 mm.
