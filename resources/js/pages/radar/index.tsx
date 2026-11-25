@@ -1,4 +1,4 @@
-import { Head, router, usePage } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useMemo, useRef, useState } from 'react';
 
 import { AttacheCase } from '@/components/radar/AttacheCase';
@@ -118,13 +118,21 @@ export default function RadarIndex() {
             <Head title="Radar Mensal · Concursos" />
             <div className="flex h-screen flex-col overflow-hidden bg-paper text-ink">
                 <RadarHeader title="radar mensal · concursos" current="mesa">
-                    <SweepControl
-                        areas={areas}
-                        regions={regions}
-                        states={preferences.states}
-                        lastRun={lastRun}
-                        refresh={refresh}
-                    />
+                    <div className="flex flex-wrap items-center gap-3">
+                        <SweepControl
+                            areas={areas}
+                            regions={regions}
+                            states={preferences.states}
+                            lastRun={lastRun}
+                            refresh={refresh}
+                        />
+                        <Link
+                            href="/wall-sheet"
+                            className="t-body ml-auto flex items-center gap-2 border border-line-strong bg-card px-3 py-1.5 font-semibold text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                        >
+                            imprimir p/ parede
+                        </Link>
+                    </div>
                 </RadarHeader>
 
                 <main

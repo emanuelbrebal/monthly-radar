@@ -12,6 +12,7 @@ use App\Http\Controllers\Radar\PreferencesController;
 use App\Http\Controllers\Radar\RadarPageController;
 use App\Http\Controllers\Radar\RefreshTrackedController;
 use App\Http\Controllers\Radar\SweepController;
+use App\Http\Controllers\Radar\WallSheetController;
 use Illuminate\Support\Facades\Route;
 
 // Sem cadastro público: '/' é a tela principal, autenticada, e o destino
@@ -47,6 +48,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Tudo que saiu da mesa: descartados + expirados pela regra das 24h.
     Route::get('archive', [ArchiveController::class, 'index'])->name('archive.index');
+
+    // Folha A4 para imprimir e colar na parede (tasks/wall-sheet.md).
+    Route::get('wall-sheet', [WallSheetController::class, 'index'])->name('wall-sheet.index');
 });
 
 require __DIR__.'/settings.php';
