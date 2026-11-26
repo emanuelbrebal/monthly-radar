@@ -395,12 +395,9 @@
     );
 }
 
+/* @page (A4 retrato/paisagem, 12 mm) é injetado pela própria página
+   radar/wall-sheet.tsx, conforme a orientação escolhida. */
 @media print {
-    @page {
-        size: A4 portrait;
-        margin: 12mm;
-    }
-
     html,
     body {
         background: #fff !important;

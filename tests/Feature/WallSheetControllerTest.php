@@ -1,6 +1,9 @@
 <?php
 
+use App\Enums\EditalStatus;
+use App\Enums\EnrollmentStatus;
 use App\Enums\EventType;
+use App\Http\Controllers\Radar\WallSheetController;
 use App\Models\Contest;
 use App\Models\User;
 use Illuminate\Support\Carbon;
@@ -78,7 +81,8 @@ it('flags tracked contests with no upcoming date', function () {
 
     $this->get('/wall-sheet')->assertInertia(fn (Assert $page) => $page
         ->where('contests.0.has_upcoming', false)
-        ->has('contests.0.phase_label')
+        ->whereType('contests.0.phase_done', 'integer')
+        ->missing('contests.0.phase_label')
     );
 });
 
@@ -96,4 +100,70 @@ it('renders a QR code for the edital link, falling back to the registration link
         ->where('contests.2.qr_svg', null)
         ->where('contests.2.qr_target', null)
     );
+});
+
+it('orders phases by upcoming exam, then by next upcoming event, then contests with nothing ahead', function () {
+    $this->actingAs(User::factory()->create());
+
+    $nothing = Contest::factory()->pinned(0)->create(['organ' => 'A', 'exam_date' => null]);
+    $pastExam = Contest::factory()->pinned(1)->create(['organ' => 'B', 'exam_date' => '2026-10-11']);
+    $pastExam->events()->create(['type' => EventType::Result->value, 'date' => '2026-12-06', 'source' => 'seed']);
+    $farExam = Contest::factory()->pinned(2)->create(['organ' => 'C', 'exam_date' => '2027-01-24']);
+    $nearExam = Contest::factory()->pinned(3)->create(['organ' => 'D', 'exam_date' => '2026-12-13']);
+
+    $this->get('/wall-sheet')->assertInertia(fn (Assert $page) => $page
+        ->where('contests.0.id', $nearExam->id)
+        ->where('contests.1.id', $farExam->id)
+        ->where('contests.2.id', $pastExam->id)
+        ->where('contests.3.id', $nothing->id)
+    );
+});
+
+it('counts the phase columns the app already knows are done', function (string $edital, string $enrollment, int $expected) {
+    expect(WallSheetController::phaseDone(EditalStatus::from($edital), EnrollmentStatus::from($enrollment)))
+        ->toBe($expected);
+})->with([
+    'previsto, só interesse' => ['expected', 'interested', 0],
+    'autorizado' => ['authorized', 'interested', 1],
+    'edital em produção' => ['in_preparation', 'not_enrolled', 1],
+    'edital publicado' => ['published', 'interested', 2],
+    'inscrições abertas, inscrito' => ['registration_open', 'enrolled', 3],
+    'taxa paga' => ['registration_closed', 'fee_paid', 4],
+    'local de prova saiu' => ['registration_closed', 'venue_released', 5],
+    'prova feita' => ['exam_done', 'exam_taken', 6],
+    'prova aplicada sem eu fazer' => ['exam_done', 'interested', 2],
+    'suspenso, só interesse' => ['suspended', 'interested', 0],
+    'suspenso, taxa paga' => ['suspended', 'fee_paid', 4],
+]);
+
+it('falls back to a saved source for the QR when there is no edital or registration link', function () {
+    $this->actingAs(User::factory()->create());
+
+    Contest::factory()->pinned(0)->create([
+        'exam_date' => '2026-12-13',
+        'field_sources' => [
+            'status' => ['url' => 'https://folha.qconcursos.com/n/concurso-x', 'origin' => 'seed', 'fetched_at' => '2026-11-20T10:00:00+00:00'],
+            'organ' => ['url' => 'https://www.gov.br/orgao/concursos', 'origin' => 'seed', 'fetched_at' => '2026-10-01T10:00:00+00:00'],
+            'year' => ['origin' => 'llm'],
+        ],
+    ]);
+    Contest::factory()->pinned(1)->create([
+        'exam_date' => '2027-01-24',
+        'field_sources' => [
+            'status' => ['url' => 'https://blog.example.com/antiga', 'origin' => 'seed', 'fetched_at' => '2026-09-01T10:00:00+00:00'],
+            'organ' => ['url' => 'https://blog.example.com/nova', 'origin' => 'seed', 'fetched_at' => '2026-11-01T10:00:00+00:00'],
+        ],
+    ]);
+
+    $this->get('/wall-sheet')->assertInertia(fn (Assert $page) => $page
+        // Oficial vence agregador mesmo sendo mais antiga.
+        ->where('contests.0.qr_target', 'fonte')
+        ->where('contests.0.qr_host', 'gov.br')
+        ->where('contests.0.qr_svg', fn ($svg) => str_starts_with($svg, '<svg'))
+        // Entre não oficiais, a mais recente.
+        ->where('contests.1.qr_target', 'fonte')
+        ->where('contests.1.qr_host', 'blog.example.com')
+    );
+
+    expect(WallSheetController::qrLink(Contest::find(Contest::max('id')))[0])->toBe('https://blog.example.com/nova');
 });
