@@ -69,7 +69,6 @@
     --color-tier-entrada-line: var(--tier-entrada-line);
     --color-tier-entrada-on-night: var(--tier-entrada-on-night);
 
-
     --radius-lg: var(--radius);
     --radius-md: calc(var(--radius) - 2px);
     --radius-sm: calc(var(--radius) - 4px);
@@ -383,4 +382,32 @@
 :focus-visible {
     outline: 2px solid var(--focus-ring, var(--focus));
     outline-offset: 2px;
+}
+
+/* Folha da parede (tasks/wall-sheet.md): A4 retrato, margens fixas, só tinta preta. */
+.wall-sheet-lines {
+    background-image: repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent calc(8mm - 0.6px),
+        rgb(0 0 0 / 0.35) calc(8mm - 0.6px),
+        rgb(0 0 0 / 0.35) 8mm
+    );
+}
+
+@media print {
+    @page {
+        size: A4 portrait;
+        margin: 12mm;
+    }
+
+    html,
+    body {
+        background: #fff !important;
+    }
+
+    .wall-sheet {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
 }
