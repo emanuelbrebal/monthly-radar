@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\Radar;
 
+use App\Enums\EditalStatus;
 use App\Enums\EnrollmentStatus;
 use App\Models\Contest;
 use App\Models\ContestEvent;
-use App\Services\Radar\ContestPhaseResolver;
+use App\Services\Radar\ContestMerger;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
 use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
@@ -24,21 +25,22 @@ use Inertia\Response;
  */
 class WallSheetController
 {
-    public function index(ContestPhaseResolver $phases): Response
+    public function index(): Response
     {
         $today = CarbonImmutable::now(config('radar.timezone'))->startOfDay();
 
         $contests = self::tracked()
             ->with('events')
-            ->orderByRaw('exam_date IS NULL, exam_date asc')
             ->orderBy('organ')
-            ->get();
+            ->get()
+            ->sortBy(fn (Contest $c) => self::sortKey($c, $today))
+            ->values();
 
         return Inertia::render('radar/wall-sheet', [
             'generatedAt' => $today->toDateString(),
             'timeline' => $this->timeline($contests, $today),
             'contests' => $contests
-                ->map(fn (Contest $c) => $this->row($c, $phases, $today))
+                ->map(fn (Contest $c) => $this->row($c, $today))
                 ->values()
                 ->all(),
         ]);
@@ -56,6 +58,28 @@ class WallSheetController
             ->where(fn (Builder $q) => $q
                 ->whereNotNull('pinned_slot')
                 ->orWhereIn('enrollment_status', $statuses));
+    }
+
+    /**
+     * Ordem da tabela de fases: prova futura mais próxima primeiro; depois quem
+     * só tem outros eventos futuros (prova já passou ou sem data), pelo próximo
+     * evento; por último quem não tem nada à vista. Empate: órgão (já vem da query).
+     */
+    private static function sortKey(Contest $contest, CarbonImmutable $today): string
+    {
+        $todayIso = $today->toDateString();
+        $exam = $contest->exam_date?->toDateString();
+
+        if ($exam !== null && $exam >= $todayIso) {
+            return '0 '.$exam;
+        }
+
+        $next = $contest->events
+            ->map(fn (ContestEvent $e) => $e->date->toDateString())
+            ->filter(fn (string $d) => $d >= $todayIso)
+            ->min();
+
+        return $next !== null ? '1 '.$next : '2';
     }
 
     /**
@@ -84,12 +108,13 @@ class WallSheetController
     /**
      * @return array<string, mixed>
      */
-    private function row(Contest $contest, ContestPhaseResolver $phases, CarbonImmutable $today): array
+    private function row(Contest $contest, CarbonImmutable $today): array
     {
-        $phase = $phases->resolve($contest->effectiveStatus(), $contest->enrollment_status);
         $hasUpcoming = $contest->events->contains(
             fn (ContestEvent $e) => $e->date->toDateString() >= $today->toDateString(),
         );
+
+        [$qrUrl, $qrTarget] = self::qrLink($contest);
 
         return [
             'id' => $contest->id,
@@ -98,12 +123,40 @@ class WallSheetController
             'board' => $contest->board,
             'exam_date' => $contest->exam_date?->toDateString(),
             'exam_city' => $contest->exam_city,
-            'phase_label' => $phase->label(),
-            'status_label' => $contest->effectiveStatus()->label(),
+            'phase_done' => self::phaseDone($contest->effectiveStatus(), $contest->enrollment_status),
             'has_upcoming' => $hasUpcoming,
-            'qr_svg' => self::qrSvg($contest->edital_url ?? $contest->registration_url),
-            'qr_target' => $contest->edital_url !== null ? 'edital' : ($contest->registration_url !== null ? 'inscrição' : null),
+            'qr_svg' => self::qrSvg($qrUrl),
+            'qr_target' => $qrTarget,
+            'qr_host' => $qrUrl !== null ? preg_replace('/^www\./', '', (string) parse_url($qrUrl, PHP_URL_HOST)) : null,
         ];
+    }
+
+    /**
+     * Para onde o QR leva: edital → inscrição → fonte salva (`field_sources`),
+     * para quem ainda não tem edital — é onde a novidade deve aparecer. Entre
+     * fontes, oficial primeiro (mesma regra do merge), depois a mais recente.
+     *
+     * @return array{0: ?string, 1: 'edital'|'inscrição'|'fonte'|null}
+     */
+    public static function qrLink(Contest $contest): array
+    {
+        if (filled($contest->edital_url)) {
+            return [$contest->edital_url, 'edital'];
+        }
+
+        if (filled($contest->registration_url)) {
+            return [$contest->registration_url, 'inscrição'];
+        }
+
+        $source = collect($contest->field_sources ?? [])
+            ->filter(fn ($s) => is_array($s) && filled($s['url'] ?? null))
+            ->sortByDesc(fn (array $s) => [
+                ContestMerger::isOfficialUrl($s['url']) ? 1 : 0,
+                (string) ($s['fetched_at'] ?? ''),
+            ])
+            ->first();
+
+        return $source !== null ? [$source['url'], 'fonte'] : [null, null];
     }
 
     /**
@@ -120,6 +173,34 @@ class WallSheetController
         $svg = (new Writer(new ImageRenderer(new RendererStyle(120, 0), new SvgImageBackEnd)))->writeString($url);
 
         return trim(substr($svg, strpos($svg, "\n") + 1));
+    }
+
+    /**
+     * Quantas colunas da folha (autorizado, edital publicado, inscrito, taxa
+     * paga, local de prova, prova feita, gabarito, resultado, nomeação) o
+     * sistema já sabe que foram cumpridas — saem impressas preenchidas e o
+     * lápis continua dali. Só fatos que não "desacontecem": nada de "hoje: X".
+     * Gabarito/resultado/nomeação não têm estado pessoal no sistema → 0 a 6.
+     * Uma etapa posterior implica as anteriores (inscrito ⇒ edital publicado).
+     */
+    public static function phaseDone(EditalStatus $edital, EnrollmentStatus $enrollment): int
+    {
+        $byEnrollment = match ($enrollment) {
+            EnrollmentStatus::Enrolled => 3,
+            EnrollmentStatus::FeePaid => 4,
+            EnrollmentStatus::VenueReleased => 5,
+            EnrollmentStatus::ExamTaken => 6,
+            default => 0,
+        };
+
+        $byEdital = match (true) {
+            $edital === EditalStatus::Suspended => 0,
+            $edital->order() >= EditalStatus::Published->order() => 2,
+            $edital->order() >= EditalStatus::Authorized->order() => 1,
+            default => 0,
+        };
+
+        return max($byEnrollment, $byEdital);
     }
 
     private static function shortName(Contest $contest): string
